@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static java.lang.Math.min;
@@ -110,11 +111,16 @@ public class Stream{
         return s.replaceAll("[\"'#$%*,.:;<>?\\\\^|~/]", " ");
     }
 
-    public void onProgress(long value){
+    public static void onProgress(long value){
         System.out.println(value + "%");
     }
-
-    public void download(String path) throws IOException {
+    public void download(String path) throws IOException{
+        startDownload(path, Stream::onProgress);
+    }
+    public void download(String path, Consumer<Long> progress) throws IOException{
+        startDownload(path, progress);
+    }
+    private void startDownload(String path, Consumer<Long> progress) throws IOException {
         String savePath = path + safeFileName(title) + ".mp4";
         int startSize = 0;
         int stopPos;
@@ -129,7 +135,7 @@ public class Stream{
                 stopPos = fileSize;
             }
             InnerTube.get(url, savePath, Integer.toString(startSize), Integer.toString(stopPos));
-            onProgress((stopPos * 100L) / (fileSize));
+            progress.accept((stopPos * 100L) / (fileSize));
             if(startSize < defaultRange){
                 startSize = stopPos;
             }else{
@@ -139,7 +145,7 @@ public class Stream{
     }
 
 
-    private   Map<String, String> getFormatProfile(){
+    private Map<String, String> getFormatProfile(){
         Map<Integer, ArrayList<String>> itags = new HashMap<>();
 
         // progressive video

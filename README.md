@@ -13,7 +13,7 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
-download with using filters 
+Download using filters 
 
 ```java
 public static void main(String[] args) throws Exception {
@@ -25,6 +25,20 @@ public static void main(String[] args) throws Exception {
 
     yt.streams().filter(filters).getFirst().download("./");
     
+}
+```
+
+Download with callback function
+
+If no parameter is passed, a download percentage string will be printed to the terminal
+```java
+public static void progress(Long value){
+        System.out.println(value);
+}
+
+public static void main(String[] args) throws Exception {
+    Youtube yt = new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo");
+    yt.streams().getHighestResolution().download("./", Download::progress);
 }
 ```
 
