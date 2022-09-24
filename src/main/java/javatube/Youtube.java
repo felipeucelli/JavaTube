@@ -70,6 +70,10 @@ public class Youtube {
         return vidInfo().getJSONObject("videoDetails").getString("shortDescription");
     }
 
+    public Integer length() throws Exception {
+        return vidInfo().getJSONObject("videoDetails").getInt("lengthSeconds");
+    }
+
     public String getThumbnailUrl() throws Exception {
         JSONArray thumbnails = new JSONArray(vidInfo().getJSONObject("videoDetails").getJSONObject("thumbnail").getJSONArray("thumbnails"));
         return new JSONObject(thumbnails.get(thumbnails.length() - 1).toString()).getString("url");
