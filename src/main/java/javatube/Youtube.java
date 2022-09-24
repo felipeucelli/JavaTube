@@ -14,8 +14,7 @@ public class Youtube {
 
         urlVideo = url;
         watchUrl = "https://www.youtube.com/watch?v=" + videoId();
-        title = title();
-
+        title = getTitle();
     }
 
     public String videoId() throws Exception {
@@ -40,19 +39,15 @@ public class Youtube {
         return formats;
     }
 
-    public String title() throws Exception {
-        return String.valueOf(vidInfo().getJSONObject("videoDetails").getString("title"));
-    }
-
-    public JSONObject vidInfo() throws Exception {
+    private JSONObject vidInfo() throws Exception {
         return new JSONObject(InnerTube.post(videoId()));
     }
 
-    public JSONObject streamData() throws Exception {
+    private JSONObject streamData() throws Exception {
         return vidInfo().getJSONObject("streamingData");
     }
 
-    public ArrayList<Stream> fmtStreams() throws Exception {
+    private ArrayList<Stream> fmtStreams() throws Exception {
 
         JSONArray streamManifest = applyDescrambler(streamData());
 
@@ -60,11 +55,36 @@ public class Youtube {
 
         Stream video;
         for (int i = 0; streamManifest.length() > i; i++) {
-            video = new Stream(streamManifest.getJSONObject(i), title());
+            video = new Stream(streamManifest.getJSONObject(i), getTitle());
             fmtStream.add(video);
         }
 
         return fmtStream;
+    }
+
+    public String getTitle() throws Exception {
+        return String.valueOf(vidInfo().getJSONObject("videoDetails").getString("title"));
+    }
+
+    public String getDescription() throws Exception {
+        return vidInfo().getJSONObject("videoDetails").getString("shortDescription");
+    }
+
+    public String getThumbnailUrl() throws Exception {
+        JSONArray thumbnails = new JSONArray(vidInfo().getJSONObject("videoDetails").getJSONObject("thumbnail").getJSONArray("thumbnails"));
+        return new JSONObject(thumbnails.get(thumbnails.length() - 1).toString()).getString("url");
+    }
+
+    public Integer getViews() throws Exception {
+        return Integer.parseInt(vidInfo().getJSONObject("videoDetails").getString("viewCount"));
+    }
+
+    public String getAuthor() throws Exception {
+        return vidInfo().getJSONObject("videoDetails").getString("author");
+    }
+
+    public JSONArray getKeywords() throws Exception {
+        return vidInfo().getJSONObject("videoDetails").getJSONArray("keywords");
     }
 
     public StreamQuery streams() throws Exception {
