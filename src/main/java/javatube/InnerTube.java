@@ -8,18 +8,17 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
 class InnerTube{
-    public static String post(String videoId) throws IOException {
+    public static String post(String param, String data) throws IOException {
         StringBuilder output = new StringBuilder();
-        URL url = new URL("https://www.youtube.com/youtubei/v1/player?videoId=" + videoId + "&key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&contentCheckOk=True&racyCheckOk=True");
-        String postData = "{\"context\": {\"client\": {\"clientName\": \"ANDROID\", \"clientVersion\": \"16.20\"}}}";
+        URL url = new URL(param);
 
         URLConnection conn = url.openConnection();
         conn.setDoOutput(true);
         conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Content-Length", Integer.toString(postData.length()));
+        conn.setRequestProperty("Content-Length", Integer.toString(data.length()));
 
         try (DataOutputStream dos = new DataOutputStream(conn.getOutputStream())) {
-            dos.writeBytes(postData);
+            dos.writeBytes(data);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -73,43 +72,6 @@ class InnerTube{
         }
         in.close();
         return html;
-    }
-
-    public static String postContinuation(String continuation) throws IOException {
-        StringBuilder output = new StringBuilder();
-        URL url = new URL("https://www.youtube.com/youtubei/v1/browse?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8");
-        String postData = "{\"continuation\": \"" + continuation + "\", \"context\": {\"client\": {\"clientName\": \"WEB\", \"clientVersion\": \"2.20200720.00.02\"}}}";
-
-        URLConnection conn = url.openConnection();
-        conn.setDoOutput(true);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Content-Length", Integer.toString(postData.length()));
-
-        try (DataOutputStream dos = new DataOutputStream(conn.getOutputStream())) {
-            dos.writeBytes(postData);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        try (BufferedReader bf = new BufferedReader(new InputStreamReader(
-                conn.getInputStream())))
-        {
-
-            boolean keepGoing = true;
-            while (keepGoing) {
-                String currentLine = bf.readLine();
-                if (currentLine == null) {
-                    keepGoing = false;
-                } else {
-                    output.append(currentLine);
-                }
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return output.toString();
     }
 
 }

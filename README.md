@@ -5,12 +5,12 @@ JavaTube is a YouTube video download utility that is based on python's pytube li
 * Support for downloading the full playlist
 * Support for progressive and adaptive streams
 * onProgress callback register
+* Keyword search support
 * Ability to get video details (Title, Description, Length, Thumbnail Url, Views, Author and Keywords)
 
 ## Using JavaTube
 
 To download videos from YouTube you need to import the YouTube class and pass a url argument like this to get access to the streams
-
 
 ```java
 public static void main(String[] args) throws Exception {
@@ -19,7 +19,9 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
-Download using filters 
+### Download using filters 
+
+You must pass a HashMap String with the filter you want to use and its respective value
 
 ```java
 public static void main(String[] args) throws Exception {
@@ -34,12 +36,12 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
-Download with callback function
+### Download with callback function
 
 If no parameter is passed, a download percentage string will be printed to the terminal
 ```java
 public static void progress(Long value){
-        System.out.println(value);
+    System.out.println(value);
 }
 
 public static void main(String[] args) throws Exception {
@@ -48,29 +50,39 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
-Downloading a playlist
+### Downloading a playlist
 
-The getVideos() method will return an ArrayList with the links extracted from the playlist url (YouTube mix not supported)
+The `getVideos()` method will return an ArrayList with the links extracted from the playlist url (YouTube mix not supported)
+
+```java
+ public static void main(String[] args) throws Exception {
+    for(String pl : new Playlist("https://www.youtube.com/playlist?list=PLS1QulWo1RIbfTjQvTdj8Y6yyq4R7g-Al").getVideos()){
+        new Youtube(pl).streams().getHighestResolution().download("./");
+    }
+}
+```
+
+### Using the search feature
+
+The `results()` method will return an ArrayList with Youtube objects that can be inspected and downloaded.
 
 ```java
 public static void main(String[] args) throws Exception {
-        for(String pl : new Playlist("https://www.youtube.com/playlist?list=PLS1QulWo1RIbfTjQvTdj8Y6yyq4R7g-Al").getVideos()){
-            new Youtube(pl).streams().getHighestResolution().download("./");
-        }
+    for(Youtube yt : new Search("YouTube Rewind").results()){
+        System.out.println(yt.getTitle());
     }
+}
 ```
 
 ## Download Methods
 
 To download you can use the methods:
-* getHighestResolution()
-* getLowestResolution() 
-* getOnlyAudio() 
 
-## Filters
-You must pass a HashMap String with the filter you want to use and its respective value
+* `getHighestResolution()`
+* `getLowestResolution() `
+* `getOnlyAudio() `
 
-### Parameters:
+## Filters Parameters:
 * `"res"` The video resolution (e.g.: "360p", "720p")
             
 

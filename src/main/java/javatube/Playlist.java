@@ -24,6 +24,14 @@ public class Playlist {
         }
     }
 
+    private String baseData(String continuation){
+        return "{\"continuation\": \"" + continuation + "\", \"context\": {\"client\": {\"clientName\": \"WEB\", \"clientVersion\": \"2.20200720.00.02\"}}}";
+    }
+
+    private String baseParam(){
+        return "https://www.youtube.com/youtubei/v1/browse?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
+    }
+
     private String getPlaylistUrl() throws Exception {
         return "https://www.youtube.com/playlist?" + getPlaylistId();
     }
@@ -43,7 +51,7 @@ public class Playlist {
     }
 
     private JSONArray buildContinuationUrl(String continuation) throws Exception {
-        return extractVideos(new JSONObject(InnerTube.postContinuation(continuation)));
+        return extractVideos(new JSONObject(InnerTube.post(baseParam(), baseData(continuation))));
     }
 
     private JSONArray extractVideos(JSONObject rawJson) {

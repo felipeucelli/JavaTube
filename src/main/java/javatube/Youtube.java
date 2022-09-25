@@ -28,6 +28,14 @@ public class Youtube {
 
     }
 
+    private String baseData(){
+        return "{\"context\": {\"client\": {\"clientName\": \"ANDROID\", \"clientVersion\": \"16.20\"}}}";
+    }
+
+    private String baseParam() throws Exception {
+        return "https://www.youtube.com/youtubei/v1/player?videoId=" + videoId() + "&key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&contentCheckOk=True&racyCheckOk=True";
+    }
+
     private static JSONArray applyDescrambler(JSONObject streamData){
         JSONArray formats = new JSONArray();
         for(int i = 0; streamData.getJSONArray("formats").length() > i; i++){
@@ -40,7 +48,7 @@ public class Youtube {
     }
 
     private JSONObject vidInfo() throws Exception {
-        return new JSONObject(InnerTube.post(videoId()));
+        return new JSONObject(InnerTube.post(baseParam(), baseData()));
     }
 
     private JSONObject streamData() throws Exception {
