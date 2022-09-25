@@ -95,6 +95,19 @@ public class Youtube {
         return vidInfo().getJSONObject("videoDetails").getString("author");
     }
 
+    public ArrayList<Captions> getCaptionTracks() throws Exception {
+        JSONArray rawTracks = new JSONArray(vidInfo().getJSONObject("captions").getJSONObject("playerCaptionsTracklistRenderer").getJSONArray("captionTracks"));
+        ArrayList<Captions> captions = new ArrayList<>();
+        for(int i = 0; i < rawTracks.length() - 1; i++){
+           captions.add(new Captions(new JSONObject(rawTracks.get(i).toString())));
+        }
+        return captions;
+    }
+
+    public CaptionQuery getCaptions() throws Exception {
+        return new CaptionQuery(getCaptionTracks());
+    }
+
     public JSONArray getKeywords() throws Exception {
         return vidInfo().getJSONObject("videoDetails").getJSONArray("keywords");
     }
