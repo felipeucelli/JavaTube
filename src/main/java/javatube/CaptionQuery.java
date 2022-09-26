@@ -9,7 +9,7 @@ public class CaptionQuery {
             langCodeIndex.put(code.code, code);
         }
     }
-    public Captions getCode(String code){
+    public Captions getByCode(String code){
         return langCodeIndex.get(code);
     }
 }

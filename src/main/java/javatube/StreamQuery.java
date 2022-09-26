@@ -3,13 +3,17 @@ package javatube;
 import java.util.*;
 
 public class StreamQuery{
-    ArrayList<Stream> fmtStreams;
+   ArrayList<Stream> fmtStreams;
     Map<Integer, Stream> itagIndex = new HashMap<>();
     public StreamQuery(ArrayList<Stream> fmt_streams){
         fmtStreams = fmt_streams;
         for (Stream fmt_stream : fmt_streams) {
             itagIndex.put(fmt_stream.itag, fmt_stream);
         }
+    }
+
+    public ArrayList<Stream> getAll(){
+        return fmtStreams;
     }
 
     public StreamQuery filter(HashMap<String, String> filters){
