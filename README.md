@@ -93,13 +93,13 @@ To download you can use the methods:
 * `"mineType"` Two-part identifier for file formats and format contents composed of a “type”, a “subtype” (e.g.: "video/mp4", "audio/mp4")
 
 
-* `"type"` Type part of the mimeType (e.g.: audio, video
+* `"type"` Type part of the mimeType (e.g.: audio, video)
 
 
 * `"subType"` Sub-type part of the mimeType (e.g.: mp4, webm)
 
 
-* `"abr"` Average bitrate  (e.g.: "128kps", "192kps")
+* `"abr"` Average bitrate  (e.g.: "128kbps", "192kbps")
 
 
 * `"videoCodec"` Video compression format

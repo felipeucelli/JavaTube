@@ -296,6 +296,54 @@ public class StreamQuery{
         return filter;
     }
 
+    private ArrayList<Stream> reverseArrayList(ArrayList<Stream> aList) {
+        ArrayList<Stream> revArrayList = new ArrayList<>();
+        for (int i = aList.size() - 1; i >= 0; i--) {
+            revArrayList.add(aList.get(i));
+        }
+        return revArrayList;
+    }
+
+    private static ArrayList<Stream> sortByValue(HashMap<Stream, Integer> hm) {
+        List<Map.Entry<Stream, Integer>> list = new LinkedList<>(hm.entrySet());
+        list.sort(Map.Entry.comparingByValue());
+        ArrayList<Stream> ordered = new ArrayList<>();
+        for (Map.Entry<Stream, Integer> aa : list) {
+            ordered.add(aa.getKey());
+        }
+        return ordered;
+    }
+
+    public StreamQuery orderBy(String by) throws Exception {
+        HashMap<Stream, Integer> map = new HashMap<>();
+        for(Stream s : fmtStreams){
+            if(Objects.equals(by, "res")){
+                if(s.resolution != null){
+                    map.put(s, Integer.parseInt(s.resolution.replace("p", "")));
+                }
+            } else if (Objects.equals(by, "abr")) {
+                if(s.abr != null){
+                    map.put(s, Integer.parseInt(s.abr.replace("kbps", "")));
+                }
+            } else if (Objects.equals(by, "fps")) {
+                if(s.resolution != null){
+                    map.put(s, s.fps);
+                }
+            }else{
+                throw new Exception("InvalidParameter");
+            }
+        }
+        return new StreamQuery(sortByValue(map));
+    }
+
+    public StreamQuery getDesc(){
+        return new StreamQuery(reverseArrayList(fmtStreams));
+    }
+
+    public StreamQuery getAsc(){
+        return new StreamQuery(fmtStreams);
+    }
+
     public Stream getFirst(){
         return fmtStreams.get(0);
     }
