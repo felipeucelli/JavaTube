@@ -326,7 +326,7 @@ public class StreamQuery{
                     map.put(s, Integer.parseInt(s.abr.replace("kbps", "")));
                 }
             } else if (Objects.equals(by, "fps")) {
-                if(s.resolution != null){
+                if(s.fps != null){
                     map.put(s, s.fps);
                 }
             }else{
