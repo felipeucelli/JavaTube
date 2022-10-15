@@ -23,7 +23,7 @@ public class Stream{
     public String videoCodec;
     public String audioCodec;
     public Integer bitrate;
-    public Integer fileSize;
+    public long fileSize;
     public Map<String, String> itagProfile;
     public String abr;
     public Integer fps = null;
@@ -51,7 +51,7 @@ public class Stream{
 
     }
 
-    private Integer setFileSize(String size) throws IOException {
+    private long setFileSize(String size) throws IOException {
         if (Objects.equals(size, null)) {
             URL url = new URL(this.url);
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -61,9 +61,10 @@ public class Stream{
 
             http.disconnect();
 
-            return Integer.parseInt(size);
+            return Long.parseLong(size);
         }
-        return Integer.parseInt(size);
+
+        return Long.parseLong(size);
     }
 
     public Boolean isAdaptive(){
@@ -130,9 +131,9 @@ public class Stream{
             f.delete();
         }
         do {
-            stopPos = min(startSize + defaultRange, fileSize);
+            stopPos = (int) min(startSize + defaultRange, fileSize);
             if (stopPos >= fileSize) {
-                stopPos = fileSize;
+                stopPos = (int) fileSize;
             }
             InnerTube.get(url, savePath, Integer.toString(startSize), Integer.toString(stopPos));
             progress.accept((stopPos * 100L) / (fileSize));
