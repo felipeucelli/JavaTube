@@ -55,14 +55,17 @@ public class Channel extends Playlist{
     @Override
     public JSONArray extractVideos(JSONObject rawJson){
         try {
-
-            JSONObject tabs = new JSONObject(rawJson.getJSONObject("contents").getJSONObject("twoColumnBrowseResultsRenderer").getJSONArray("tabs").get(1).toString());
             JSONArray importantContent;
-            try{
-                JSONObject contents = new JSONObject(tabs.getJSONObject("tabRenderer").getJSONObject("content").getJSONObject("sectionListRenderer").getJSONArray("contents").get(0).toString());
-                importantContent = new JSONArray(new JSONObject(contents.getJSONObject("itemSectionRenderer").getJSONArray("contents").get(0).toString()).getJSONObject("gridRenderer").getJSONArray("items"));
-            }catch (Exception e){
-                importantContent = new JSONArray(tabs.getJSONObject("tabRenderer").getJSONObject("content").getJSONObject("richGridRenderer").getJSONArray("contents"));
+            try {
+                JSONObject tabs = new JSONObject(rawJson.getJSONObject("contents").getJSONObject("twoColumnBrowseResultsRenderer").getJSONArray("tabs").get(1).toString());
+                try{
+                    JSONObject contents = new JSONObject(tabs.getJSONObject("tabRenderer").getJSONObject("content").getJSONObject("sectionListRenderer").getJSONArray("contents").get(0).toString());
+                    importantContent = new JSONArray(new JSONObject(contents.getJSONObject("itemSectionRenderer").getJSONArray("contents").get(0).toString()).getJSONObject("gridRenderer").getJSONArray("items"));
+                }catch (Exception e){
+                    importantContent = new JSONArray(tabs.getJSONObject("tabRenderer").getJSONObject("content").getJSONObject("richGridRenderer").getJSONArray("contents"));
+                }
+            }catch (JSONException e){
+                importantContent = new JSONArray(new JSONObject(rawJson.getJSONArray("onResponseReceivedActions").get(0).toString()).getJSONObject("appendContinuationItemsAction").getJSONArray("continuationItems"));
             }
             JSONArray swap = new JSONArray();
 
@@ -88,57 +91,9 @@ public class Channel extends Playlist{
 
             return swap;
 
-        } catch (JSONException e) {
-            JSONArray importantContent = new JSONArray(new JSONObject(rawJson.getJSONArray("onResponseReceivedActions").get(0).toString()).getJSONObject("appendContinuationItemsAction").getJSONArray("continuationItems"));
-            JSONArray swap = new JSONArray();
-            try{
-
-                String continuation = new JSONObject(importantContent.get(importantContent.length() - 1).toString()).getJSONObject("continuationItemRenderer").getJSONObject("continuationEndpoint").getJSONObject("continuationCommand").getString("token");
-                JSONArray continuationEnd = new JSONArray(buildContinuationUrl(continuation));
-
-                for(int i = 0; i < importantContent.length(); i++){
-                    swap.put(importantContent.get(i));
-                }
-
-                if (!continuationEnd.isEmpty()){
-                    for(int i = 0; i < continuationEnd.length(); i++){
-                        swap.put(continuationEnd.get(i));
-                    }
-                }
-
-            } catch (Exception d) {
-                for(int i = 0; i < importantContent.length(); i++){
-                    swap.put(importantContent.get(i));
-                }
-            }
-
-            return swap;
-
         }catch (Exception e){
             throw new Error(e);
         }
-    }
-
-    @Override
-    public ArrayList<String>  getVideos() throws Exception {
-        JSONArray video = extractVideos(getJson());
-        ArrayList<String> videosId = new ArrayList<>();
-        try {
-            for(int i = 0; i < video.length(); i++){
-                try{
-                    try {
-                        videosId.add("https://www.youtube.com/watch?v=" + new JSONObject(video.get(i).toString()).getJSONObject("gridVideoRenderer").get("videoId").toString());
-                    }catch (Exception e){
-                        videosId.add("https://www.youtube.com/watch?v=" + new JSONObject(video.get(i).toString()).getJSONObject("richItemRenderer").getJSONObject("content").getJSONObject("videoRenderer").get("videoId").toString());
-                    }
-                }catch (Exception ignored){
-                }
-            }
-            return videosId;
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
     public String getChannelName() throws Exception {
