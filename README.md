@@ -4,6 +4,7 @@ JavaTube is a YouTube video download utility that is based on python's pytube li
 ## Features
 * Support for downloading the full playlist
 * Support for progressive and adaptive streams
+* Interaction with channels
 * onProgress callback register
 * Keyword search support
 * Ability to get video details (Title, Description, Length, Thumbnail Url, Views, Author and Keywords)
@@ -71,6 +72,49 @@ The `results()` method will return an ArrayList with Youtube objects that can be
 public static void main(String[] args) throws Exception {
     for(Youtube yt : new Search("YouTube Rewind").results()){
         System.out.println(yt.getTitle());
+    }
+}
+```
+
+### Interacting with channels
+
+The `getVideos()` method returns an ArrayList containing the channel's videos.
+
+```java
+public static void main(String[] args) throws Exception {
+    for(String c : new Channel("https://www.youtube.com/channel/UCmRtPmgnQ04CMUpSUqPfhxQ").getVideos()){
+        System.out.println(new Youtube(c).getTitle());
+    }
+}
+```
+
+### Using the subtitles feature
+
+See available languages.
+
+```java
+public static void main(String[] args) throws Exception {
+    for(Captions caption: new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo&t=1s").getCaptionTracks()){
+        System.out.println(caption.code);
+        }
+    }
+}
+```
+
+Write to console in .srt format.
+
+```java
+public static void main(String[] args) throws Exception {
+        System.out.println(new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo&t=1s").getCaptions().getByCode("en").xmlCaptionToSrt());
+    }
+}
+```
+
+Download it in .srt format (if the .srt format is not informed, the xml will be downloaded).
+
+```java
+public static void main(String[] args) throws Exception {
+        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo&t=1s").getCaptions().getByCode("en").download("caption.srt", "./")
     }
 }
 ```

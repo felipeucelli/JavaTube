@@ -47,7 +47,7 @@ public class Captions {
         String fullBody = new ArrayList<>(List.of((initialBody.split("</body>")))).get(0);
         ArrayList<String> obj = new ArrayList<>(List.of((fullBody.replace("</p>", "\n").replace("<p", "")).split("\n")));
 
-        String segments = null;
+        String segments = "";
         int i = 0;
         for(String child : obj){
             String caption = Arrays.asList(child.split(">")).get(1);
@@ -78,14 +78,14 @@ public class Captions {
 
         if(filename.endsWith(".srt")){
             try {
-                Files.writeString(path, xmlCaptionToSrt().replace("null", ""), StandardCharsets.UTF_8);
+                Files.writeString(path, xmlCaptionToSrt(), StandardCharsets.UTF_8);
             }
             catch (IOException ex) {
                 System.out.print("Invalid Path");
             }
         }else{
             try {
-                Files.writeString(path, getXmlCaptions().replace("null", ""), StandardCharsets.UTF_8);
+                Files.writeString(path, getXmlCaptions(), StandardCharsets.UTF_8);
             }
             catch (IOException ex) {
                 System.out.print("Invalid Path");

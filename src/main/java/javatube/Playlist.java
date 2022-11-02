@@ -36,11 +36,11 @@ public class Playlist {
         return "https://www.youtube.com/playlist?" + getPlaylistId();
     }
 
-    private String getHtml() throws Exception {
+    public String getHtml() throws Exception {
         return InnerTube.downloadWebPage(getPlaylistUrl());
     }
 
-    private JSONObject getJson() throws Exception {
+    public JSONObject getJson() throws Exception {
         Pattern pattern = Pattern.compile("ytInitialData\\s=\\s\\{\\\"responseContext\\\":.*};</script>", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(getHtml());
         if(matcher.find()){
@@ -50,11 +50,11 @@ public class Playlist {
         }
     }
 
-    private JSONArray buildContinuationUrl(String continuation) throws Exception {
+    public JSONArray buildContinuationUrl(String continuation) throws Exception {
         return extractVideos(new JSONObject(InnerTube.post(baseParam(), baseData(continuation))));
     }
 
-    private JSONArray extractVideos(JSONObject rawJson) {
+    public JSONArray extractVideos(JSONObject rawJson) {
         try {
 
             JSONObject tabs = new JSONObject(rawJson.getJSONObject("contents").getJSONObject("twoColumnBrowseResultsRenderer").getJSONArray("tabs").get(0).toString());
@@ -82,7 +82,6 @@ public class Playlist {
             }
 
             return swap;
-
 
         } catch (JSONException e) {
             JSONArray importantContent = new JSONArray(new JSONObject(rawJson.getJSONArray("onResponseReceivedActions").get(0).toString()).getJSONObject("appendContinuationItemsAction").getJSONArray("continuationItems"));
@@ -122,7 +121,11 @@ public class Playlist {
         try {
             for(int i = 0; i < video.length(); i++){
                 try{
-                    videosId.add("https://www.youtube.com/watch?v=" + new JSONObject(video.get(i).toString()).getJSONObject("playlistVideoRenderer").get("videoId").toString());
+                    try {
+                        videosId.add("https://www.youtube.com/watch?v=" + new JSONObject(video.get(i).toString()).getJSONObject("playlistVideoRenderer").get("videoId").toString());
+                    }catch (Exception e){
+                        videosId.add("https://www.youtube.com/watch?v=" + new JSONObject(video.get(i).toString()).getJSONObject("gridVideoRenderer").get("videoId").toString());
+                    }
                 }catch (Exception ignored){
                 }
             }
