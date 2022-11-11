@@ -24,7 +24,7 @@ public class Playlist {
         }
     }
 
-    private String baseData(String continuation){
+    public String baseData(String continuation){
         return "{\"continuation\": \"" + continuation + "\", \"context\": {\"client\": {\"clientName\": \"WEB\", \"clientVersion\": \"2.20200720.00.02\"}}}";
     }
 
@@ -55,16 +55,15 @@ public class Playlist {
     }
 
     public JSONArray extractVideos(JSONObject rawJson) {
+        JSONArray swap = new JSONArray();
         try {
             JSONArray importantContent;
             try {
-                JSONObject tabs = new JSONObject(rawJson.getJSONObject("contents").getJSONObject("twoColumnBrowseResultsRenderer").getJSONArray("tabs").get(0).toString());
-                JSONObject contents = new JSONObject(tabs.getJSONObject("tabRenderer").getJSONObject("content").getJSONObject("sectionListRenderer").getJSONArray("contents").get(0).toString());
-                importantContent = new JSONArray(new JSONObject(contents.getJSONObject("itemSectionRenderer").getJSONArray("contents").get(0).toString()).getJSONObject("playlistVideoListRenderer").getJSONArray("contents"));
+                JSONObject tabs = new JSONObject(new JSONObject(rawJson.getJSONObject("contents").getJSONObject("twoColumnBrowseResultsRenderer").getJSONArray("tabs").get(0).toString()).getJSONObject("tabRenderer").getJSONObject("content").getJSONObject("sectionListRenderer").getJSONArray("contents").get(0).toString());
+                importantContent = new JSONArray(new JSONObject(tabs.getJSONObject("itemSectionRenderer").getJSONArray("contents").get(0).toString()).getJSONObject("playlistVideoListRenderer").getJSONArray("contents"));
             }catch (JSONException e){
                 importantContent = new JSONArray(new JSONObject(rawJson.getJSONArray("onResponseReceivedActions").get(0).toString()).getJSONObject("appendContinuationItemsAction").getJSONArray("continuationItems"));
             }
-            JSONArray swap = new JSONArray();
             try{
                 String continuation = new JSONObject(importantContent.get(importantContent.length() - 1).toString()).getJSONObject("continuationItemRenderer").getJSONObject("continuationEndpoint").getJSONObject("continuationCommand").getString("token");
                 JSONArray continuationEnd = new JSONArray(buildContinuationUrl(continuation));
@@ -85,12 +84,9 @@ public class Playlist {
                 }
             }
 
-            return swap;
-
-        }catch (Exception e){
-            throw new Error(e);
+        }catch (Exception ignored){
         }
-
+        return swap;
     }
 
     public ArrayList<String>  getVideos() throws Exception {
@@ -99,21 +95,13 @@ public class Playlist {
         try {
             for(int i = 0; i < video.length(); i++){
                 try{
-                    try {
-                        videosId.add("https://www.youtube.com/watch?v=" + new JSONObject(video.get(i).toString()).getJSONObject("playlistVideoRenderer").get("videoId").toString());
-                    }catch (Exception e){
-                        try {
-                            videosId.add("https://www.youtube.com/watch?v=" + new JSONObject(video.get(i).toString()).getJSONObject("gridVideoRenderer").get("videoId").toString());
-                        }catch (Exception j){
-                            videosId.add("https://www.youtube.com/watch?v=" + new JSONObject(video.get(i).toString()).getJSONObject("richItemRenderer").getJSONObject("content").getJSONObject("videoRenderer").get("videoId").toString());
-                        }
-                    }
+                    videosId.add("https://www.youtube.com/watch?v=" + new JSONObject(video.get(i).toString()).getJSONObject("playlistVideoRenderer").get("videoId").toString());
                 }catch (Exception ignored){
                 }
             }
             return videosId;
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            throw new Error(e);
         }
 
     }
