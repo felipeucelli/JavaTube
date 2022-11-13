@@ -156,15 +156,17 @@ public class Channel extends Playlist{
     }
 
     public String getChannelName() throws Exception {
-        System.out.println(getJson());
+        setUrl(url);
         return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getString("title");
     }
 
     public String getChannelId() throws Exception {
+        setUrl(url);
         return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getString("externalId");
     }
 
     public String getVanityUrl() throws Exception {
+        setUrl(url);
         return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getString("vanityChannelUrl");
     }
 
