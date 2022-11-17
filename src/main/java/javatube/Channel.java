@@ -170,6 +170,38 @@ public class Channel extends Playlist{
         return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getString("vanityChannelUrl");
     }
 
+    @Override
+    public String getDescription() throws Exception {
+        setUrl(url);
+        return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getString("description");
+    }
+
+    @Override
+    public String getViews() throws Exception {
+        setUrl(aboutUrl);
+        int pos = getJson().getJSONObject("contents").getJSONObject("twoColumnBrowseResultsRenderer").getJSONArray("tabs").length() - 2;
+        try {
+            return new JSONObject(new JSONObject(new JSONObject(getJson().getJSONObject("contents").getJSONObject("twoColumnBrowseResultsRenderer").getJSONArray("tabs").get(pos).toString()).getJSONObject("tabRenderer").getJSONObject("content").getJSONObject("sectionListRenderer").getJSONArray("contents").get(0).toString()).getJSONObject("itemSectionRenderer").getJSONArray("contents").get(0).toString()).getJSONObject("channelAboutFullMetadataRenderer").getJSONObject("viewCountText").getString("simpleText");
+        }catch (JSONException e){
+            return null;
+        }
+    }
+
+    public String getKeywords() throws Exception {
+        setUrl(url);
+        return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getString("keywords");
+    }
+
+    public JSONArray getAvailableCountryCodes() throws Exception {
+        setUrl(url);
+        return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getJSONArray("availableCountryCodes");
+    }
+
+    public String getThumbnailUrl() throws Exception {
+        setUrl(url);
+        return new JSONObject(new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getJSONObject("avatar").getJSONArray("thumbnails").get(0).toString()).getString("url");
+    }
+
     public String getVideosUrl(){
         return videosUrl;
     }
@@ -192,6 +224,42 @@ public class Channel extends Playlist{
 
     public String getAboutUrl(){
         return aboutUrl;
+    }
+
+    @Deprecated
+    @Override
+    public String getTitle(){
+        return null;
+    }
+
+    @Deprecated
+    @Override
+    public String getLastUpdated(){
+        return null;
+    }
+
+    @Deprecated
+    @Override
+    public String getOwner(){
+        return null;
+    }
+
+    @Deprecated
+    @Override
+    public String getOwnerId(){
+        return null;
+    }
+
+    @Deprecated
+    @Override
+    public String getOwnerUrl(){
+        return null;
+    }
+
+    @Deprecated
+    @Override
+    public Integer length(){
+        return null;
     }
 
 }

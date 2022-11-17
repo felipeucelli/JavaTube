@@ -36,6 +36,10 @@ public class Youtube {
         return "https://www.youtube.com/youtubei/v1/player?videoId=" + videoId() + "&key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&contentCheckOk=True&racyCheckOk=True";
     }
 
+    private String getHtml() throws Exception {
+        return InnerTube.downloadWebPage(watchUrl);
+    }
+
     private static JSONArray applyDescrambler(JSONObject streamData){
         JSONArray formats = new JSONArray();
         for(int i = 0; streamData.getJSONArray("formats").length() > i; i++){
@@ -76,6 +80,16 @@ public class Youtube {
 
     public String getDescription() throws Exception {
         return vidInfo().getJSONObject("videoDetails").getString("shortDescription");
+    }
+
+    public String getPublishDate() throws Exception {
+        Pattern pattern = Pattern.compile("(?<=itemprop=\"datePublished\" content=\")\\d{4}-\\d{2}-\\d{2}", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(getHtml());
+        if (matcher.find()) {
+            return matcher.group(0);
+        }else {
+            throw new Exception("RegexMatcherError");
+        }
     }
 
     public Integer length() throws Exception {

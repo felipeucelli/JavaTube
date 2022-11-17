@@ -106,16 +106,52 @@ public class Playlist {
 
     }
 
-    private JSONObject getSidebarInfo() throws Exception {
-        return new JSONObject(getJson().getJSONObject("sidebar").getJSONObject("playlistSidebarRenderer").getJSONArray("items").get(0).toString());
+    private JSONObject getSidebarInfo(Integer i) throws Exception {
+        return new JSONObject(getJson().getJSONObject("sidebar").getJSONObject("playlistSidebarRenderer").getJSONArray("items").get(i).toString());
     }
 
     public String getTitle() throws Exception {
-        return new JSONObject(getSidebarInfo().getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONObject("title").getJSONArray("runs").get(0).toString()).getString("text");
+        return new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONObject("title").getJSONArray("runs").get(0).toString()).getString("text");
+    }
+
+    public String getDescription() throws Exception {
+        try {
+            try {
+                return getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONObject("description").getString("simpleText");
+            }catch (JSONException e) {
+                return new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONObject("description").getJSONArray("runs").get(0).toString()).getString("text");
+            }
+        }catch (Exception e){
+            return null;
+        }
+    }
+
+    public String getViews() throws Exception {
+        return new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONArray("stats").get(1).toString()).getString("simpleText");
+    }
+
+    public String getLastUpdated() throws Exception {
+        try {
+            return new JSONObject(new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONArray("stats").get(2).toString()).getJSONArray("runs").get(1).toString()).getString("text");
+        }catch (JSONException e){
+            return new JSONObject(new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONArray("stats").get(2).toString()).getJSONArray("runs").get(0).toString()).getString("text");
+        }
+    }
+
+    public String getOwner() throws Exception {
+        return new JSONObject(getSidebarInfo(1).getJSONObject("playlistSidebarSecondaryInfoRenderer").getJSONObject("videoOwner").getJSONObject("videoOwnerRenderer").getJSONObject("title").getJSONArray("runs").get(0).toString()).getString("text");
+    }
+
+    public String getOwnerId() throws Exception {
+        return new JSONObject(getSidebarInfo(1).getJSONObject("playlistSidebarSecondaryInfoRenderer").getJSONObject("videoOwner").getJSONObject("videoOwnerRenderer").getJSONObject("title").getJSONArray("runs").get(0).toString()).getJSONObject("navigationEndpoint").getJSONObject("browseEndpoint").getString("browseId");
+    }
+
+    public String getOwnerUrl() throws Exception {
+        return "https://www.youtube.com/channel/" + getOwnerId();
     }
 
     public Integer length() throws Exception {
-        return Integer.parseInt(new JSONObject(new JSONObject(getSidebarInfo().getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONArray("stats").get(0).toString()).getJSONArray("runs").get(0).toString()).getString("text").replace(",", ""));
+        return Integer.parseInt(new JSONObject(new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONArray("stats").get(0).toString()).getJSONArray("runs").get(0).toString()).getString("text").replace(",", ""));
     }
 
 }
