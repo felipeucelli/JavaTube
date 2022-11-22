@@ -41,12 +41,17 @@ public class Channel extends Playlist{
         re.add("(?:\\/(channel)\\/([%\\w\\d_\\-]+)(\\/.*)?)");
         re.add("(?:\\/(u)\\/([%\\d\\w_\\-]+)(\\/.*)?)");
         re.add("(?:\\/(user)\\/([%\\w\\d_\\-]+)(\\/.*)?)");
+        re.add("(?:\\/(\\@)([%\\d\\w_\\-]+)(\\/.*)?)");
 
         for (String s : re) {
             Pattern pattern = Pattern.compile(s, Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(url);
             if (matcher.find()){
-                return "/" + matcher.group(1) + "/" + matcher.group(2);
+                if (Objects.equals(matcher.group(1), "@")){
+                    return "/@" + matcher.group(2);
+                }else {
+                    return "/" + matcher.group(1) + "/" + matcher.group(2);
+                }
             }
         }
         throw new Exception("RegexMatcherError");
