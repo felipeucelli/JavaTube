@@ -4,7 +4,7 @@ JavaTube is a YouTube video download utility that is based on python's pytube li
 ## Features
 * Support for downloading the full playlist
 * Support for progressive and adaptive streams
-* Interaction with channels (videos and YouTube Shorts)
+* Interaction with channels (videos, YouTube Shorts and lives)
 * onProgress callback register
 * Keyword search support
 * Ability to get video details (Title, Description, Publish Date, Length, Thumbnail Url, Views, Author and Keywords)
@@ -83,6 +83,9 @@ public static void main(String[] args) throws Exception {
 
 * `getShorts()`: method returns an ArrayList containing the channel's YouTube Shorts.
 
+
+* `getLives()`: method returns an ArrayList containing the channel's lives.
+
 ```java
 public static void main(String[] args) throws Exception {
     for(String c : new Channel("https://www.youtube.com/channel/UCmRtPmgnQ04CMUpSUqPfhxQ").getVideos()){
@@ -140,10 +143,10 @@ To download you can use the methods:
 * `"mineType"` Two-part identifier for file formats and format contents composed of a “type”, a “subtype” (e.g.: "video/mp4", "audio/mp4")
 
 
-* `"type"` Type part of the mimeType (e.g.: audio, video)
+* `"type"` Type part of the mineType (e.g.: audio, video)
 
 
-* `"subType"` Sub-type part of the mimeType (e.g.: mp4, webm)
+* `"subType"` Sub-type part of the mineType (e.g.: mp4, webm)
 
 
 * `"abr"` Average bitrate  (e.g.: "128kbps", "192kbps")
