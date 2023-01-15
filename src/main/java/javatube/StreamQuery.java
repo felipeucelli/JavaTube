@@ -336,6 +336,22 @@ public class StreamQuery{
         return new StreamQuery(sortByValue(map));
     }
 
+    public StreamQuery getOtf(Boolean otf){
+        ArrayList<Stream> filter = new ArrayList<>();
+        for(Stream s : fmtStreams){
+            if(otf){
+                if(s.isOtf){
+                    filter.add(s);
+                }
+            }else {
+                if(!s.isOtf){
+                    filter.add(s);
+                }
+            }
+        }
+        return new StreamQuery(filter);
+    }
+
     public StreamQuery getDesc(){
         return new StreamQuery(reverseArrayList(fmtStreams));
     }

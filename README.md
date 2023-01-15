@@ -9,6 +9,7 @@ JavaTube is a YouTube video download utility that is based on python's pytube li
 * Keyword search support
 * Ability to get video details (Title, Description, Publish Date, Length, Thumbnail Url, Views, Author and Keywords)
 * Subtitle generator for .srt format
+* Support downloading yt_otf streams
 
 ## Using JavaTube
 

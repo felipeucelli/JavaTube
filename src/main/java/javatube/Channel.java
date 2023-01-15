@@ -6,7 +6,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -86,7 +85,7 @@ public class Channel extends Playlist{
                 JSONObject activeTab = new JSONObject();
                 for(Object tab : rawJson.getJSONObject("contents").getJSONObject("twoColumnBrowseResultsRenderer").getJSONArray("tabs")) {
                     String tabUrl = new JSONObject(tab.toString()).getJSONObject("tabRenderer").getJSONObject("endpoint").getJSONObject("commandMetadata").getJSONObject("webCommandMetadata").getString("url");
-                    if (Objects.equals(Arrays.asList(tabUrl.split("/")).get(Arrays.asList(tabUrl.split("/")).size() - 1), Arrays.asList(getHtmlUrl().split("/")).get(Arrays.asList(getHtmlUrl().split("/")).size() - 1))) {
+                    if (tabUrl.substring(tabUrl.lastIndexOf("/") + 1).equals(getHtmlUrl().substring(getHtmlUrl().lastIndexOf("/") + 1))) {
                         activeTab = new JSONObject(tab.toString());
                         break;
                     }

@@ -74,4 +74,19 @@ class InnerTube{
         return html;
     }
 
+    public static ByteArrayOutputStream postChunk(String chunk) throws IOException {
+        URL url = new URL(chunk);
+        InputStream in = new BufferedInputStream(url.openStream());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] buf = new byte[1024];
+        int n;
+        while (-1!=(n=in.read(buf))) {
+            out.write(buf, 0, n);
+        }
+        out.close();
+        in.close();
+
+        return out;
+    }
+
 }

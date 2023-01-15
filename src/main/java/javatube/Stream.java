@@ -2,10 +2,8 @@ package javatube;
 
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -23,6 +21,7 @@ public class Stream{
     public String videoCodec;
     public String audioCodec;
     public Integer bitrate;
+    public Boolean isOtf;
     public long fileSize;
     public Map<String, String> itagProfile;
     public String abr;
@@ -41,6 +40,7 @@ public class Stream{
         videoCodec = parseCodecs().get(0);
         audioCodec = parseCodecs().get(1);
         bitrate = stream.getInt("bitrate");
+        isOtf = setIsOtf(stream);
         fileSize = setFileSize(stream.has("contentLength") ? stream.getString("contentLength") : null);
         itagProfile = getFormatProfile();
         abr = itagProfile.get("abr");
@@ -57,14 +57,23 @@ public class Stream{
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod("HEAD");
 
-            size = http.getHeaderFields().get("Content-Length").get(0);
-
+            try {
+                size = http.getHeaderFields().get("Content-Length").get(0);
+            } catch (NullPointerException e) {
+                size = "0";
+            }
             http.disconnect();
-
             return Long.parseLong(size);
         }
-
         return Long.parseLong(size);
+    }
+
+    private boolean setIsOtf(JSONObject stream){
+        if(stream.has("type")){
+            return Objects.equals(stream.getString("type"), "FORMAT_STREAM_TYPE_OTF");
+        }else{
+            return false;
+        }
     }
 
     public Boolean isAdaptive(){
@@ -115,34 +124,73 @@ public class Stream{
     public static void onProgress(long value){
         System.out.println(value + "%");
     }
-    public void download(String path) throws IOException{
+    public void download(String path) throws Exception {
         startDownload(path, Stream::onProgress);
     }
-    public void download(String path, Consumer<Long> progress) throws IOException{
+    public void download(String path, Consumer<Long> progress) throws Exception {
         startDownload(path, progress);
     }
-    private void startDownload(String path, Consumer<Long> progress) throws IOException {
-        String savePath = path + safeFileName(title) + ".mp4";
-        int startSize = 0;
-        int stopPos;
-        int defaultRange = 1048576;
-        File f = new File(savePath);
-        if(f.exists()){
-            f.delete();
+    private void startDownload(String path, Consumer<Long> progress) throws Exception {
+        if(!isOtf){
+            String savePath = path + safeFileName(title) + "." + subType;
+            int startSize = 0;
+            int stopPos;
+            int defaultRange = 1048576;
+            File f = new File(savePath);
+            if(f.exists()){
+                f.delete();
+            }
+            do {
+                stopPos = (int) min(startSize + defaultRange, fileSize);
+                if (stopPos >= fileSize) {
+                    stopPos = (int) fileSize;
+                }
+                InnerTube.get(url, savePath, Integer.toString(startSize), Integer.toString(stopPos));
+                progress.accept((stopPos * 100L) / (fileSize));
+                if(startSize < defaultRange){
+                    startSize = stopPos;
+                }else{
+                    startSize = stopPos + 1;
+                }
+            } while (stopPos != fileSize);
+        }else {
+            downloadOtf(progress);
+        }
+
+    }
+
+    private void downloadOtf(Consumer<Long> progress) throws Exception {
+        int countChunk = 0;
+        ByteArrayOutputStream chunkReceived;
+        int lastChunk = 0;
+
+        File outputFile = new File(safeFileName(title) + "." + subType);
+        if(outputFile.exists()){
+            outputFile.delete();
         }
         do {
-            stopPos = (int) min(startSize + defaultRange, fileSize);
-            if (stopPos >= fileSize) {
-                stopPos = (int) fileSize;
+            String chunk = url + "&sq=" + countChunk;
+
+            chunkReceived = InnerTube.postChunk(chunk);
+
+            if(countChunk == 0){
+                Pattern pattern = Pattern.compile("Segment-Count: (\\d*)", Pattern.CASE_INSENSITIVE);
+                Matcher matcher = pattern.matcher(chunkReceived.toString());
+                if (matcher.find()){
+                    lastChunk = Integer.parseInt(matcher.group(1));
+                }else{
+                    throw new Exception("RegexMatcherError");
+                }
             }
-            InnerTube.get(url, savePath, Integer.toString(startSize), Integer.toString(stopPos));
-            progress.accept((stopPos * 100L) / (fileSize));
-            if(startSize < defaultRange){
-                startSize = stopPos;
-            }else{
-                startSize = stopPos + 1;
+
+            progress.accept((countChunk * 100L) / (lastChunk));
+            countChunk = countChunk + 1;
+            try (
+                    FileOutputStream fos = new FileOutputStream(outputFile, true)) {
+                fos.write(chunkReceived.toByteArray());
             }
-        } while (stopPos != fileSize);
+        }while (countChunk <= lastChunk);
+
     }
 
 
