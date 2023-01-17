@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Playlist {
-    String url;
+    private final String url;
     public Playlist(String InputUrl){
         url = InputUrl;
     }

@@ -3,12 +3,12 @@ package javatube;
 import java.util.*;
 
 public class StreamQuery{
-   ArrayList<Stream> fmtStreams;
+    private final ArrayList<Stream> fmtStreams;
     Map<Integer, Stream> itagIndex = new HashMap<>();
     public StreamQuery(ArrayList<Stream> fmt_streams){
         fmtStreams = fmt_streams;
         for (Stream fmt_stream : fmt_streams) {
-            itagIndex.put(fmt_stream.itag, fmt_stream);
+            itagIndex.put(fmt_stream.getItag(), fmt_stream);
         }
     }
 
@@ -179,7 +179,7 @@ public class StreamQuery{
     private ArrayList<Stream> getResolution(String re){
         ArrayList<Stream> filter = new ArrayList<>();
         for(Stream st : fmtStreams){
-            if(Objects.equals(st.resolution, re)){
+            if(Objects.equals(st.getResolution(), re)){
                 filter.add(st);
             }
         }
@@ -189,7 +189,7 @@ public class StreamQuery{
     private ArrayList<Stream> getFps(String fps){
         ArrayList<Stream> filter = new ArrayList<>();
         for(Stream st : fmtStreams){
-            if(Objects.equals(st.fps, Integer.parseInt(fps))){
+            if(Objects.equals(st.getFps(), Integer.parseInt(fps))){
                 filter.add(st);
             }
         }
@@ -199,7 +199,7 @@ public class StreamQuery{
     private ArrayList<Stream> getMineType(String mineType){
         ArrayList<Stream> filter = new ArrayList<>();
         for(Stream st : fmtStreams){
-            if(Objects.equals(st.mimeType, mineType)){
+            if(Objects.equals(st.getMimeType(), mineType)){
                 filter.add(st);
             }
         }
@@ -209,7 +209,7 @@ public class StreamQuery{
     private ArrayList<Stream> getType(String type){
         ArrayList<Stream> filter = new ArrayList<>();
         for(Stream st : fmtStreams){
-            if(Objects.equals(st.type, type)){
+            if(Objects.equals(st.getType(), type)){
                 filter.add(st);
             }
         }
@@ -219,7 +219,7 @@ public class StreamQuery{
     private ArrayList<Stream> getSubtype(String subtype){
         ArrayList<Stream> filter = new ArrayList<>();
         for(Stream st : fmtStreams){
-            if(Objects.equals(st.subType, subtype)){
+            if(Objects.equals(st.getSubType(), subtype)){
                 filter.add(st);
             }
         }
@@ -229,7 +229,7 @@ public class StreamQuery{
     private ArrayList<Stream> getAbr(String abr){
         ArrayList<Stream> filter = new ArrayList<>();
         for(Stream st : fmtStreams){
-            if(Objects.equals(st.abr, abr)){
+            if(Objects.equals(st.getAbr(), abr)){
                 filter.add(st);
             }
         }
@@ -239,7 +239,7 @@ public class StreamQuery{
     private ArrayList<Stream> getVideoCodec(String videoCodec){
         ArrayList<Stream> filter = new ArrayList<>();
         for(Stream st : fmtStreams){
-            if(Objects.equals(st.videoCodec, videoCodec)){
+            if(Objects.equals(st.getVideoCodec(), videoCodec)){
                 filter.add(st);
             }
         }
@@ -249,7 +249,7 @@ public class StreamQuery{
     private ArrayList<Stream> getAudioCodec(String audioCodec){
         ArrayList<Stream> filter = new ArrayList<>();
         for(Stream st : fmtStreams){
-            if(Objects.equals(st.audioCodec, audioCodec)){
+            if(Objects.equals(st.getAudioCodec(), audioCodec)){
                 filter.add(st);
             }
         }
@@ -318,16 +318,16 @@ public class StreamQuery{
         HashMap<Stream, Integer> map = new HashMap<>();
         for(Stream s : fmtStreams){
             if(Objects.equals(by, "res")){
-                if(s.resolution != null){
-                    map.put(s, Integer.parseInt(s.resolution.replace("p", "")));
+                if(s.getResolution() != null){
+                    map.put(s, Integer.parseInt(s.getResolution().replace("p", "")));
                 }
             } else if (Objects.equals(by, "abr")) {
-                if(s.abr != null){
-                    map.put(s, Integer.parseInt(s.abr.replace("kbps", "")));
+                if(s.getAbr() != null){
+                    map.put(s, Integer.parseInt(s.getAbr().replace("kbps", "")));
                 }
             } else if (Objects.equals(by, "fps")) {
-                if(s.fps != null){
-                    map.put(s, s.fps);
+                if(s.getFps() != null){
+                    map.put(s, s.getFps());
                 }
             }else{
                 throw new Exception("InvalidParameter");
@@ -340,11 +340,11 @@ public class StreamQuery{
         ArrayList<Stream> filter = new ArrayList<>();
         for(Stream s : fmtStreams){
             if(otf){
-                if(s.isOtf){
+                if(s.getIsOtf()){
                     filter.add(s);
                 }
             }else {
-                if(!s.isOtf){
+                if(!s.getIsOtf()){
                     filter.add(s);
                 }
             }

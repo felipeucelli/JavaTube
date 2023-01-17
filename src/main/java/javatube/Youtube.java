@@ -6,15 +6,12 @@ import org.json.*;
 
 
 public class Youtube {
-    public String urlVideo;
-    public String watchUrl;
-    public String title;
+    private final String urlVideo;
+    private final String watchUrl;
 
     public Youtube(String url) throws Exception {
-
         urlVideo = url;
         watchUrl = "https://www.youtube.com/watch?v=" + videoId();
-        title = getTitle();
     }
 
     public String videoId() throws Exception {

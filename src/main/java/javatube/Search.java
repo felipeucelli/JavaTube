@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class Search {
 
-    String query;
+    private final String query;
 
     public Search(String query){
         this.query = query;

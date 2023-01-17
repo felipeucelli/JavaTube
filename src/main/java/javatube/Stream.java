@@ -11,23 +11,22 @@ import java.util.regex.Pattern;
 import static java.lang.Math.min;
 
 public class Stream{
-    public String title;
-    public String url;
-    public Integer itag;
-    public String mimeType;
-    public String codecs;
-    public String type;
-    public String subType;
-    public String videoCodec;
-    public String audioCodec;
-    public Integer bitrate;
-    public Boolean isOtf;
-    public long fileSize;
-    public Map<String, String> itagProfile;
-    public String abr;
-    public Integer fps = null;
-
-    public String resolution;
+    private final String title;
+    private final String url;
+    private final Integer itag;
+    private final String mimeType;
+    private final String codecs;
+    private final String type;
+    private final String subType;
+    private final String videoCodec;
+    private final String audioCodec;
+    private final Integer bitrate;
+    private final Boolean isOtf;
+    private final long fileSize;
+    private final Map<String, String> itagProfile;
+    private final String abr;
+    private Integer fps = null;
+    private final String resolution;
 
     public Stream(JSONObject stream, String videoTitle) throws Exception {
         title = videoTitle;
@@ -285,6 +284,16 @@ public class Stream{
         itags.put(401, new ArrayList<>(){{add("2160p");add(null);}}); // MP4
         itags.put(402, new ArrayList<>(){{add("4320p");add(null);}}); // MP4
         itags.put(571, new ArrayList<>(){{add("4320p");add(null);}}); // MP4
+        itags.put(694, new ArrayList<>(){{add("144p");add(null);}}); // MP4
+        itags.put(695, new ArrayList<>(){{add("240p");add(null);}}); // MP4
+        itags.put(696, new ArrayList<>(){{add("360p");add(null);}}); // MP4
+        itags.put(697, new ArrayList<>(){{add("480p");add(null);}}); // MP4
+        itags.put(698, new ArrayList<>(){{add("720p");add(null);}}); // MP4
+        itags.put(699, new ArrayList<>(){{add("1080p");add(null);}}); // MP4
+        itags.put(700, new ArrayList<>(){{add("1440p");add(null);}}); // MP4
+        itags.put(701, new ArrayList<>(){{add("2160p");add(null);}}); // MP4
+        itags.put(702, new ArrayList<>(){{add("4320p");add(null);}}); // MP4
+
 
         // dash audio
         itags.put(139, new ArrayList<>(){{add(null);add("48kbps");}}); // MP4
@@ -316,6 +325,54 @@ public class Stream{
         returnItags.put("abr", bitrate);
 
         return returnItags;
+    }
+    public String getTitle(){
+        return title;
+    }
+    public String getUrl(){
+        return url;
+    }
+    public Integer getItag(){
+        return itag;
+    }
+    public String getMimeType(){
+        return mimeType;
+    }
+    public String getCodecs(){
+        return codecs;
+    }
+    public String getType(){
+        return type;
+    }
+    public String getSubType(){
+        return subType;
+    }
+    public String getVideoCodec(){
+        return videoCodec;
+    }
+    public String getAudioCodec(){
+        return audioCodec;
+    }
+    public Integer getBitrate(){
+        return bitrate;
+    }
+    public Boolean getIsOtf(){
+        return isOtf;
+    }
+    public long getFileSize(){
+        return fileSize;
+    }
+    public Map<String, String> getItagProfile(){
+        return itagProfile;
+    }
+    public String getAbr(){
+        return abr;
+    }
+    public Integer getFps(){
+        return fps;
+    }
+    public String getResolution(){
+        return resolution;
     }
 
 }
