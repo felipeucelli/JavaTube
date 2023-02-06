@@ -64,7 +64,7 @@ class InnerTube{
         InputStreamReader isr = new InputStreamReader(ins);
         BufferedReader in = new BufferedReader(isr);
         String inputLine;
-        String html = null;
+        String html = "";
 
         while ((inputLine = in.readLine()) != null) {
             html += inputLine;
