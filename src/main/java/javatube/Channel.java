@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 public class Channel extends Playlist{
 
+    private final String channelUrl;
     private final String videosUrl;
     private final String shortsUrl;
     private final String streamsUrl;
@@ -26,7 +27,7 @@ public class Channel extends Playlist{
     public Channel(String inputUrl) throws Exception {
         super(inputUrl);
         url = inputUrl;
-        String channelUrl = "https://www.youtube.com" + extractUrl();
+        channelUrl = "https://www.youtube.com" + extractUrl();
 
         videosUrl = channelUrl + "/videos";
         shortsUrl = channelUrl + "/shorts";
@@ -43,7 +44,7 @@ public class Channel extends Playlist{
         re.add("(?:\\/(channel)\\/([%\\w\\d_\\-]+)(\\/.*)?)");
         re.add("(?:\\/(u)\\/([%\\d\\w_\\-]+)(\\/.*)?)");
         re.add("(?:\\/(user)\\/([%\\w\\d_\\-]+)(\\/.*)?)");
-        re.add("(?:\\/(\\@)([%\\d\\w_\\-]+)(\\/.*)?)");
+        re.add("(?:\\/(\\@)([%\\d\\w_\\-\\.]+)(\\/.*)?)");
 
         for (String s : re) {
             Pattern pattern = Pattern.compile(s, Pattern.CASE_INSENSITIVE);
@@ -161,23 +162,23 @@ public class Channel extends Playlist{
     }
 
     public String getChannelName() throws Exception {
-        setHtmlUrl(url);
+        setHtmlUrl(channelUrl);
         return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getString("title");
     }
 
     public String getChannelId() throws Exception {
-        setHtmlUrl(url);
+        setHtmlUrl(channelUrl);
         return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getString("externalId");
     }
 
     public String getVanityUrl() throws Exception {
-        setHtmlUrl(url);
+        setHtmlUrl(channelUrl);
         return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getString("vanityChannelUrl");
     }
 
     @Override
     public String getDescription() throws Exception {
-        setHtmlUrl(url);
+        setHtmlUrl(channelUrl);
         return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getString("description");
     }
 
@@ -193,17 +194,17 @@ public class Channel extends Playlist{
     }
 
     public String getKeywords() throws Exception {
-        setHtmlUrl(url);
+        setHtmlUrl(channelUrl);
         return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getString("keywords");
     }
 
     public JSONArray getAvailableCountryCodes() throws Exception {
-        setHtmlUrl(url);
+        setHtmlUrl(channelUrl);
         return new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getJSONArray("availableCountryCodes");
     }
 
     public String getThumbnailUrl() throws Exception {
-        setHtmlUrl(url);
+        setHtmlUrl(channelUrl);
         return new JSONObject(new JSONObject(getJson().toString()).getJSONObject("metadata").getJSONObject("channelMetadataRenderer").getJSONObject("avatar").getJSONArray("thumbnails").get(0).toString()).getString("url");
     }
 
