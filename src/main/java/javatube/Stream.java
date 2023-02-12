@@ -52,16 +52,20 @@ public class Stream{
 
     private long setFileSize(String size) throws IOException {
         if (Objects.equals(size, null)) {
-            URL url = new URL(this.url);
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod("HEAD");
+            if(!isOtf){
+                URL url = new URL(this.url);
+                HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                http.setRequestMethod("HEAD");
 
-            try {
-                size = http.getHeaderFields().get("Content-Length").get(0);
-            } catch (NullPointerException e) {
+                try {
+                    size = http.getHeaderFields().get("Content-Length").get(0);
+                } catch (NullPointerException e) {
+                    size = "0";
+                }
+                http.disconnect();
+            }else {
                 size = "0";
             }
-            http.disconnect();
             return Long.parseLong(size);
         }
         return Long.parseLong(size);
