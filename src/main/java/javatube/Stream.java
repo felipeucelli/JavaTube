@@ -111,7 +111,7 @@ public class Stream{
     }
 
     private Matcher mimeTypeCodec(String mimeTypeCodec) throws Exception {
-        Pattern pattern = Pattern.compile("(\\w+/\\w+);\\scodecs=\"([a-zA-Z-0-9.,\\s]*)\"", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("(\\w+/\\w+);\\scodecs=\"([a-zA-Z-0-9.,\\s]*)\"");
         Matcher matcher = pattern.matcher(mimeTypeCodec);
         if (matcher.find()) {
             return matcher;
@@ -159,16 +159,17 @@ public class Stream{
                 }
             } while (stopPos != fileSize);
         }else {
-            downloadOtf(progress);
+            downloadOtf(path, progress);
         }
     }
 
-    private void downloadOtf(Consumer<Long> progress) throws Exception {
+    private void downloadOtf(String path, Consumer<Long> progress) throws Exception {
         int countChunk = 0;
         byte[] chunkReceived;
         int lastChunk = 0;
+        String savePath = path + safeFileName(title) + "." + subType;
 
-        File outputFile = new File(safeFileName(title) + "." + subType);
+        File outputFile = new File(savePath);
         if(outputFile.exists()){
             if(!outputFile.delete()){
                 throw new IOException("Failed to delete existing output file: " + outputFile.getName());
@@ -188,11 +189,9 @@ public class Stream{
                     throw new Exception("RegexMatcherError: " + pattern);
                 }
             }
-
             progress.accept((countChunk * 100L) / (lastChunk));
             countChunk = countChunk + 1;
-            try (
-                    FileOutputStream fos = new FileOutputStream(outputFile, true)) {
+            try (FileOutputStream fos = new FileOutputStream(savePath, true)) {
                 fos.write(chunkReceived);
             }
         }while (countChunk <= lastChunk);
