@@ -1,5 +1,7 @@
 package javatube;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -8,8 +10,12 @@ import org.json.*;
 
 
 public class Youtube {
+
     private final String urlVideo;
     private final String watchUrl;
+    private JSONObject vidInfo = null;
+    private String html = null;
+    private String js = null;
 
     public Youtube(String url) throws Exception {
         urlVideo = url;
@@ -22,11 +28,19 @@ public class Youtube {
         if (matcher.find()) {
             return matcher.group(1);
         }else {
-            throw new Exception("RegexMatcherError");
+            throw new Exception("RegexMatcherError: " + pattern);
         }
     }
-    private String getHtml() throws Exception {
+
+    private String setHtml() throws IOException {
         return InnerTube.downloadWebPage(watchUrl);
+    }
+
+    private String getHtml() throws Exception {
+        if(html == null){
+            html = setHtml();
+        }
+        return html;
     }
 
     private static JSONArray applyDescrambler(JSONObject streamData){
@@ -52,26 +66,32 @@ public class Youtube {
         return formats;
     }
 
-    private JSONObject vidInfo() throws Exception {
+    private JSONObject setVidInfo() throws Exception {
         String pattern = "ytInitialPlayerResponse\\s=\\s(\\{\\\"responseContext\\\":.*?\\});</script>";
         Pattern regex = Pattern.compile(pattern);
         Matcher matcher = regex.matcher(getHtml());
-        String s = "";
         if(matcher.find()){
-            s = matcher.group(1).replaceAll(";</script>.*", "");
+           return new JSONObject(matcher.group(1));
         }else {
-            throw new Exception("RegexMatcherError");
+            throw new Exception("RegexMatcherError: " + pattern);
         }
-        return new JSONObject(s);
+    }
+
+    private JSONObject getVidInfo() throws Exception {
+        if(vidInfo == null){
+            vidInfo = setVidInfo();
+        }
+        return vidInfo;
     }
 
     private JSONObject streamData() throws Exception {
-        return vidInfo().getJSONObject("streamingData");
+        return getVidInfo().getJSONObject("streamingData");
     }
 
-    private String decodeURL(String s){
-        return URLDecoder.decode(s, StandardCharsets.UTF_8);
+    private String decodeURL(String s) throws UnsupportedEncodingException {
+        return URLDecoder.decode(s, StandardCharsets.UTF_8.name());
     }
+
     private ArrayList<Stream> fmtStreams() throws Exception {
 
         JSONArray streamManifest = applyDescrambler(streamData());
@@ -84,7 +104,7 @@ public class Youtube {
             if(streamManifest.getJSONObject(i).has("signatureCipher")){
                 String oldUrl = decodeURL(streamManifest.getJSONObject(i).getString("url"));
                 streamManifest.getJSONObject(i).remove("url");
-                streamManifest.getJSONObject(i).put("url", oldUrl + "&sig=" + cipher.getSignature(decodeURL(streamManifest.getJSONObject(i).getString("s")).split("")));
+                streamManifest.getJSONObject(i).put("url", oldUrl + "&sig=" + cipher.getSignature(decodeURL(streamManifest.getJSONObject(i).getString("s")).split("(?!^)")));
             }
             video = new Stream(streamManifest.getJSONObject(i), title);
             fmtStream.add(video);
@@ -92,29 +112,34 @@ public class Youtube {
         return fmtStream;
     }
 
-    private String getYtPlayerJs(String html) throws Exception {
+    private String getYtPlayerJs() throws Exception {
         Pattern pattern = Pattern.compile("(/s/player/[\\w\\d]+/[\\w\\d_/.]+/base\\.js)");
-        Matcher matcher = pattern.matcher(html);
+        Matcher matcher = pattern.matcher(getHtml());
         if (matcher.find()) {
             return "https://youtube.com" + matcher.group(1);
         }else {
-            throw new Exception("RegexMatcherError");
+            throw new Exception("RegexMatcherError: " + pattern);
         }
     }
-    private String getJsUrl() throws Exception {
-        return InnerTube.downloadWebPage(getYtPlayerJs(getHtml()));
-    }
 
-    public String getJs() throws Exception {
-        return getJsUrl();
+    private String setJs() throws Exception {
+        return InnerTube.downloadWebPage(getYtPlayerJs());
+    }
+    private String getJs() throws Exception {
+        if(js == null){
+            js = setJs();
+        }
+        return js;
     }
 
     public String getTitle() throws Exception {
-        return vidInfo().getJSONObject("videoDetails").getString("title");
+        return getVidInfo().getJSONObject("videoDetails")
+                .getString("title");
     }
 
     public String getDescription() throws Exception {
-        return vidInfo().getJSONObject("videoDetails").getString("shortDescription");
+        return getVidInfo().getJSONObject("videoDetails")
+                .getString("shortDescription");
     }
 
     public String getPublishDate() throws Exception {
@@ -123,34 +148,45 @@ public class Youtube {
         if (matcher.find()) {
             return matcher.group(0);
         }else {
-            throw new Exception("RegexMatcherError");
+            throw new Exception("RegexMatcherError: " + pattern);
         }
     }
 
     public Integer length() throws Exception {
-        return vidInfo().getJSONObject("videoDetails").getInt("lengthSeconds");
+        return getVidInfo().getJSONObject("videoDetails")
+                .getInt("lengthSeconds");
     }
 
     public String getThumbnailUrl() throws Exception {
-        JSONArray thumbnails = vidInfo().getJSONObject("videoDetails").getJSONObject("thumbnail").getJSONArray("thumbnails");
-        return new JSONObject(thumbnails.get(thumbnails.length() - 1).toString()).getString("url");
+        JSONArray thumbnails = getVidInfo().getJSONObject("videoDetails")
+                .getJSONObject("thumbnail")
+                .getJSONArray("thumbnails");
+        return thumbnails.getJSONObject(thumbnails.length() - 1).getString("url");
     }
 
     public Integer getViews() throws Exception {
-        return Integer.parseInt(vidInfo().getJSONObject("videoDetails").getString("viewCount"));
+        return Integer.parseInt(getVidInfo().getJSONObject("videoDetails")
+                .getString("viewCount"));
     }
 
     public String getAuthor() throws Exception {
-        return vidInfo().getJSONObject("videoDetails").getString("author");
+        return getVidInfo().getJSONObject("videoDetails")
+                .getString("author");
     }
 
     public ArrayList<Captions> getCaptionTracks() throws Exception {
-        JSONArray rawTracks = vidInfo().getJSONObject("captions").getJSONObject("playerCaptionsTracklistRenderer").getJSONArray("captionTracks");
-        ArrayList<Captions> captions = new ArrayList<>();
-        for(int i = 0; i < rawTracks.length() - 1; i++){
-           captions.add(new Captions(new JSONObject(rawTracks.get(i).toString())));
+        try{
+            JSONArray rawTracks = getVidInfo().getJSONObject("captions")
+                    .getJSONObject("playerCaptionsTracklistRenderer")
+                    .getJSONArray("captionTracks");
+            ArrayList<Captions> captions = new ArrayList<>();
+            for(int i = 0; i < rawTracks.length() - 1; i++){
+                captions.add(new Captions(rawTracks.getJSONObject(i)));
+            }
+            return captions;
+        } catch (JSONException e) {
+            return null;
         }
-        return captions;
     }
 
     public CaptionQuery getCaptions() throws Exception {
@@ -159,8 +195,9 @@ public class Youtube {
 
     public JSONArray getKeywords() throws Exception {
         try {
-            return vidInfo().getJSONObject("videoDetails").getJSONArray("keywords");
-        }catch (Exception e){
+            return getVidInfo().getJSONObject("videoDetails")
+                    .getJSONArray("keywords");
+        }catch (JSONException e){
             return null;
         }
     }

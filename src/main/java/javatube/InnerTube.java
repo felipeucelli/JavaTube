@@ -22,12 +22,9 @@ class InnerTube{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
         try (BufferedReader bf = new BufferedReader(new InputStreamReader(
                 conn.getInputStream())))
         {
-
             boolean keepGoing = true;
             while (keepGoing) {
                 String currentLine = bf.readLine();
@@ -37,12 +34,12 @@ class InnerTube{
                     output.append(currentLine);
                 }
             }
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return output.toString();
     }
+
     public static void get(String videoUrl, String outputFileName, String start, String end) throws IOException {
 
         URL url = new URL(videoUrl);
@@ -55,6 +52,7 @@ class InnerTube{
             fos.getChannel().transferFrom(rbc, Integer.parseInt(start), Integer.parseInt(end));
         }
     }
+
     public static String downloadWebPage(String webpage) throws IOException {
         URL url = new URL(webpage);
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
@@ -64,14 +62,13 @@ class InnerTube{
         InputStreamReader isr = new InputStreamReader(ins);
         BufferedReader in = new BufferedReader(isr);
         String inputLine;
-        String html = "";
+        StringBuilder html = new StringBuilder();
 
         while ((inputLine = in.readLine()) != null) {
-            html += inputLine;
-
+            html.append(inputLine);
         }
         in.close();
-        return html;
+        return html.toString();
     }
 
     public static ByteArrayOutputStream postChunk(String chunk) throws IOException {

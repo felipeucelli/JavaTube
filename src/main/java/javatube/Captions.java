@@ -3,6 +3,7 @@ package javatube;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -13,13 +14,18 @@ import java.util.regex.Pattern;
 
 
 public class Captions {
-
-    public String url;
-    public String code;
+    private final String url;
+    private final String code;
 
     public Captions(JSONObject captionTrack){
         url = captionTrack.getString("baseUrl");
         code = captionTrack.getString("vssId").replace(".", "");
+    }
+    public String getUrl(){
+        return url;
+    }
+    public String getCode(){
+        return code;
     }
 
     private String getXmlCaptions() throws IOException {
@@ -30,8 +36,8 @@ public class Captions {
         return getXmlCaptions();
     }
 
-    private String decodeString(String s){
-        return URLDecoder.decode(s, StandardCharsets.UTF_8);
+    private String decodeString(String s) throws UnsupportedEncodingException {
+        return URLDecoder.decode(s, StandardCharsets.UTF_8.name());
     }
 
     private String srtTimeFormat(Float d){

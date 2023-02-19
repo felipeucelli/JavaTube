@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 
 public class Playlist {
     private final String url;
+    protected String html = null;
+    protected JSONObject json = null;
     public Playlist(String InputUrl){
         url = InputUrl;
     }
@@ -20,11 +22,11 @@ public class Playlist {
         if (matcher.find()){
             return matcher.group(0);
         }else {
-            throw new Exception("RegexMatcherError");
+            throw new Exception("RegexMatcherError: " + pattern);
         }
     }
 
-    public String baseData(String continuation){
+    protected String baseData(String continuation){
         return "{\"continuation\": \"" + continuation + "\", \"context\": {\"client\": {\"clientName\": \"WEB\", \"clientVersion\": \"2.20200720.00.02\"}}}";
     }
 
@@ -36,36 +38,71 @@ public class Playlist {
         return "https://www.youtube.com/playlist?" + getPlaylistId();
     }
 
-    public String getHtml() throws Exception {
+    protected String setHtml() throws Exception {
         return InnerTube.downloadWebPage(getPlaylistUrl());
     }
+    protected String getHtml() throws Exception {
+        if(html == null){
+            html = setHtml();
+        }
+        return html;
+    }
 
-    public JSONObject getJson() throws Exception {
-        Pattern pattern = Pattern.compile("ytInitialData\\s=\\s\\{\\\"responseContext\\\":.*};</script>", Pattern.CASE_INSENSITIVE);
+    protected JSONObject setJson() throws Exception {
+        Pattern pattern = Pattern.compile("ytInitialData\\s=\\s(\\{\\\"responseContext\\\":.*\\});</script>");
         Matcher matcher = pattern.matcher(getHtml());
         if(matcher.find()){
-            return new JSONObject(matcher.group(0).replace("ytInitialData = ", "").replace(";</script>", ""));
+            return new JSONObject(matcher.group(1));
         }else {
-            throw new Exception("RegexMatcherError");
+            throw new Exception("RegexMatcherError: " + pattern);
         }
     }
 
-    public JSONArray buildContinuationUrl(String continuation) throws Exception {
+    protected JSONObject getJson() throws Exception {
+        if(json == null){
+            json = setJson();
+        }
+        return json;
+    }
+
+    protected JSONArray buildContinuationUrl(String continuation) throws Exception {
         return extractVideos(new JSONObject(InnerTube.post(baseParam(), baseData(continuation))));
     }
 
-    public JSONArray extractVideos(JSONObject rawJson) {
+    protected JSONArray extractVideos(JSONObject rawJson) {
         JSONArray swap = new JSONArray();
         try {
             JSONArray importantContent;
             try {
-                JSONObject tabs = new JSONObject(new JSONObject(rawJson.getJSONObject("contents").getJSONObject("twoColumnBrowseResultsRenderer").getJSONArray("tabs").get(0).toString()).getJSONObject("tabRenderer").getJSONObject("content").getJSONObject("sectionListRenderer").getJSONArray("contents").get(0).toString());
-                importantContent = new JSONArray(new JSONObject(tabs.getJSONObject("itemSectionRenderer").getJSONArray("contents").get(0).toString()).getJSONObject("playlistVideoListRenderer").getJSONArray("contents"));
+                JSONObject tabs = rawJson.getJSONObject("contents")
+                        .getJSONObject("twoColumnBrowseResultsRenderer")
+                        .getJSONArray("tabs")
+                        .getJSONObject(0)
+                        .getJSONObject("tabRenderer")
+                        .getJSONObject("content")
+                        .getJSONObject("sectionListRenderer")
+                        .getJSONArray("contents")
+                        .getJSONObject(0);
+
+                importantContent = tabs.getJSONObject("itemSectionRenderer")
+                        .getJSONArray("contents")
+                        .getJSONObject(0)
+                        .getJSONObject("playlistVideoListRenderer")
+                        .getJSONArray("contents");
+
             }catch (JSONException e){
-                importantContent = new JSONArray(new JSONObject(rawJson.getJSONArray("onResponseReceivedActions").get(0).toString()).getJSONObject("appendContinuationItemsAction").getJSONArray("continuationItems"));
+                importantContent = rawJson.getJSONArray("onResponseReceivedActions")
+                        .getJSONObject(0)
+                        .getJSONObject("appendContinuationItemsAction")
+                        .getJSONArray("continuationItems");
             }
             try{
-                String continuation = new JSONObject(importantContent.get(importantContent.length() - 1).toString()).getJSONObject("continuationItemRenderer").getJSONObject("continuationEndpoint").getJSONObject("continuationCommand").getString("token");
+                String continuation = importantContent.getJSONObject(importantContent.length() - 1)
+                        .getJSONObject("continuationItemRenderer")
+                        .getJSONObject("continuationEndpoint")
+                        .getJSONObject("continuationCommand")
+                        .getString("token");
+
                 JSONArray continuationEnd = new JSONArray(buildContinuationUrl(continuation));
 
                 for(int i = 0; i < importantContent.length(); i++){
@@ -95,7 +132,7 @@ public class Playlist {
         try {
             for(int i = 0; i < video.length(); i++){
                 try{
-                    videosId.add("https://www.youtube.com/watch?v=" + new JSONObject(video.get(i).toString()).getJSONObject("playlistVideoRenderer").get("videoId").toString());
+                    videosId.add("https://www.youtube.com/watch?v=" + video.getJSONObject(i).getJSONObject("playlistVideoRenderer").get("videoId").toString());
                 }catch (Exception ignored){
                 }
             }
@@ -103,23 +140,34 @@ public class Playlist {
         } catch (JSONException e) {
             throw new Error(e);
         }
-
     }
 
     private JSONObject getSidebarInfo(Integer i) throws Exception {
-        return new JSONObject(getJson().getJSONObject("sidebar").getJSONObject("playlistSidebarRenderer").getJSONArray("items").get(i).toString());
+        return getJson().getJSONObject("sidebar")
+                .getJSONObject("playlistSidebarRenderer")
+                .getJSONArray("items")
+                .getJSONObject(i);
     }
 
     public String getTitle() throws Exception {
-        return new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONObject("title").getJSONArray("runs").get(0).toString()).getString("text");
+        return getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer")
+                .getJSONObject("title")
+                .getJSONArray("runs")
+                .getJSONObject(0)
+                .getString("text");
     }
 
     public String getDescription() throws Exception {
         try {
             try {
-                return getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONObject("description").getString("simpleText");
+                return getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer")
+                        .getJSONObject("description")
+                        .getString("simpleText");
             }catch (JSONException e) {
-                return new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONObject("description").getJSONArray("runs").get(0).toString()).getString("text");
+                return getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer")
+                        .getJSONObject("description").getJSONArray("runs")
+                        .getJSONObject(0)
+                        .getString("text");
             }
         }catch (Exception e){
             return null;
@@ -127,23 +175,47 @@ public class Playlist {
     }
 
     public String getViews() throws Exception {
-        return new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONArray("stats").get(1).toString()).getString("simpleText");
+        return getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer")
+                .getJSONArray("stats")
+                .getJSONObject(1)
+                .getString("simpleText");
     }
 
     public String getLastUpdated() throws Exception {
         try {
-            return new JSONObject(new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONArray("stats").get(2).toString()).getJSONArray("runs").get(1).toString()).getString("text");
+            return getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer")
+                    .getJSONArray("stats").getJSONObject(2)
+                    .getJSONArray("runs").getJSONObject(1)
+                    .getString("text");
         }catch (JSONException e){
-            return new JSONObject(new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONArray("stats").get(2).toString()).getJSONArray("runs").get(0).toString()).getString("text");
+            return getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer")
+                    .getJSONArray("stats")
+                    .getJSONObject(2)
+                    .getJSONArray("runs")
+                    .getJSONObject(0)
+                    .getString("text");
         }
     }
 
     public String getOwner() throws Exception {
-        return new JSONObject(getSidebarInfo(1).getJSONObject("playlistSidebarSecondaryInfoRenderer").getJSONObject("videoOwner").getJSONObject("videoOwnerRenderer").getJSONObject("title").getJSONArray("runs").get(0).toString()).getString("text");
+        return getSidebarInfo(1).getJSONObject("playlistSidebarSecondaryInfoRenderer")
+                .getJSONObject("videoOwner")
+                .getJSONObject("videoOwnerRenderer")
+                .getJSONObject("title").getJSONArray("runs")
+                .getJSONObject(0)
+                .getString("text");
     }
 
     public String getOwnerId() throws Exception {
-        return new JSONObject(getSidebarInfo(1).getJSONObject("playlistSidebarSecondaryInfoRenderer").getJSONObject("videoOwner").getJSONObject("videoOwnerRenderer").getJSONObject("title").getJSONArray("runs").get(0).toString()).getJSONObject("navigationEndpoint").getJSONObject("browseEndpoint").getString("browseId");
+        return getSidebarInfo(1).getJSONObject("playlistSidebarSecondaryInfoRenderer")
+                .getJSONObject("videoOwner")
+                .getJSONObject("videoOwnerRenderer")
+                .getJSONObject("title")
+                .getJSONArray("runs")
+                .getJSONObject(0)
+                .getJSONObject("navigationEndpoint")
+                .getJSONObject("browseEndpoint")
+                .getString("browseId");
     }
 
     public String getOwnerUrl() throws Exception {
@@ -151,7 +223,14 @@ public class Playlist {
     }
 
     public Integer length() throws Exception {
-        return Integer.parseInt(new JSONObject(new JSONObject(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer").getJSONArray("stats").get(0).toString()).getJSONArray("runs").get(0).toString()).getString("text").replace(",", ""));
+        return Integer.parseInt(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer")
+                .getJSONArray("stats")
+                .getJSONObject(0)
+                .getJSONArray("runs")
+                .getJSONObject(0)
+                .getString("text").
+                replace(",", "")
+        );
     }
 
 }

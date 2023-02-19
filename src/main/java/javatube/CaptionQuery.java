@@ -6,7 +6,7 @@ public class CaptionQuery {
     Map<String, Captions> langCodeIndex = new HashMap<>();
     public CaptionQuery(ArrayList<Captions> captions){
         for(Captions code : captions){
-            langCodeIndex.put(code.code, code);
+            langCodeIndex.put(code.getCode(), code);
         }
     }
     public Captions getByCode(String code){

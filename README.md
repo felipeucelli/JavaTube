@@ -1,5 +1,7 @@
 # JavaTube
-JavaTube is a YouTube video download utility that is based on python's pytube library
+_JavaTube_ is a YouTube video download library based on [pytube](https://github.com/pytube/pytube) library.
+
+_JavaTube_ is a library written in java. It has no third-party dependencies and aims to be highly reliable.
 
 ## Features
 * Support for downloading the full playlist
@@ -10,6 +12,9 @@ JavaTube is a YouTube video download utility that is based on python's pytube li
 * Ability to get video details (Title, Description, Publish Date, Length, Thumbnail Url, Views, Author and Keywords)
 * Subtitle generator for .srt format
 * Support downloading yt_otf streams
+
+# Contribution
+Currently this project is maintained by only one person. Feel free to create issues with questions, bug reports or improvement ideas.
 
 ## Using JavaTube
 
@@ -102,7 +107,7 @@ See available languages.
 ```java
 public static void main(String[] args) throws Exception {
     for(Captions caption: new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo&t=1s").getCaptionTracks()){
-        System.out.println(caption.code);
+        System.out.println(caption.getCode());
         }
     }
 }
@@ -169,6 +174,3 @@ To download you can use the methods:
 
 
 * `"adaptive"` Excludes progressive streams (audio and video are on separate tracks) (e.g.: "true" or "false")
-
-
-

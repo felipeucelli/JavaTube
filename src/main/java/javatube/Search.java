@@ -34,19 +34,25 @@ public class Search {
 
     private ArrayList<Youtube> fetchAndParse() throws Exception {
         JSONObject rawResults = new JSONObject(fetchQuery());
-        JSONObject sections = new JSONObject(rawResults.getJSONObject("contents").getJSONObject("twoColumnSearchResultsRenderer").getJSONObject("primaryContents").getJSONObject("sectionListRenderer").getJSONArray("contents").get(0).toString());
-        JSONArray rawVideoList = new JSONArray(sections.getJSONObject("itemSectionRenderer").getJSONArray("contents"));
+        JSONObject sections = rawResults.getJSONObject("contents")
+                .getJSONObject("twoColumnSearchResultsRenderer")
+                .getJSONObject("primaryContents")
+                .getJSONObject("sectionListRenderer")
+                .getJSONArray("contents")
+                .getJSONObject(0);
+
+        JSONArray rawVideoList = new JSONArray(sections.getJSONObject("itemSectionRenderer")
+                .getJSONArray("contents"));
         ArrayList<Youtube> videos = new ArrayList<>();
         for(int i = 0; i < rawVideoList.length() - 1; i++) {
-            if (!new JSONObject(rawVideoList.get(i).toString()).has("videoRenderer")) {
+            if (!rawVideoList.getJSONObject(i).has("videoRenderer")) {
                 continue;
             }
-            JSONObject vidRenderer = new JSONObject(rawVideoList.get(i).toString()).getJSONObject("videoRenderer");
+            JSONObject vidRenderer = rawVideoList.getJSONObject(i).getJSONObject("videoRenderer");
             String vidId = vidRenderer.getString("videoId");
             String vidUrl = "https://www.youtube.com/watch?v=" + vidId;
             videos.add(new Youtube(vidUrl));
         }
-
         return videos;
     }
 
