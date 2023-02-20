@@ -128,14 +128,20 @@ public class Stream{
         System.out.println(value + "%");
     }
     public void download(String path) throws Exception {
-        startDownload(path, Stream::onProgress);
+        startDownload(path, title, Stream::onProgress);
     }
     public void download(String path, Consumer<Long> progress) throws Exception {
-        startDownload(path, progress);
+        startDownload(path, title, progress);
     }
-    private void startDownload(String path, Consumer<Long> progress) throws Exception {
+    public void download(String path, String fileName) throws Exception {
+        startDownload(path, fileName, Stream::onProgress);
+    }
+    public void download(String path, String fileName, Consumer<Long> progress) throws Exception {
+        startDownload(path, fileName, progress);
+    }
+    private void startDownload(String path, String fileName, Consumer<Long> progress) throws Exception {
         if(!isOtf){
-            String savePath = path + safeFileName(title) + "." + subType;
+            String savePath = path + safeFileName(fileName) + "." + subType;
             int startSize = 0;
             int stopPos;
             int defaultRange = 1048576;
@@ -159,15 +165,15 @@ public class Stream{
                 }
             } while (stopPos != fileSize);
         }else {
-            downloadOtf(path, progress);
+            downloadOtf(path, fileName, progress);
         }
     }
 
-    private void downloadOtf(String path, Consumer<Long> progress) throws Exception {
+    private void downloadOtf(String path, String fileName, Consumer<Long> progress) throws Exception {
         int countChunk = 0;
         byte[] chunkReceived;
         int lastChunk = 0;
-        String savePath = path + safeFileName(title) + "." + subType;
+        String savePath = path + safeFileName(fileName) + "." + subType;
 
         File outputFile = new File(savePath);
         if(outputFile.exists()){
