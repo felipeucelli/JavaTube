@@ -73,17 +73,17 @@ public class Channel extends Playlist{
     }
 
     @Override
-    public String baseData(String continuation){
+    protected String baseData(String continuation){
         return "{\"continuation\": \"" + continuation + "\", \"context\": {\"client\": {\"clientName\": \"WEB\",  \"visitorData\": \"" + visitorData + "\", \"clientVersion\": \"2.20221107.06.00\"}}}";
     }
 
     @Override
-    public String setHtml() throws IOException {
+    protected String setHtml() throws IOException {
         return InnerTube.downloadWebPage(getHtmlUrl());
     }
 
     @Override
-    public JSONArray extractVideos(JSONObject rawJson){
+    protected JSONArray extractVideos(JSONObject rawJson){
         JSONArray swap = new JSONArray();
         try {
             JSONArray importantContent;

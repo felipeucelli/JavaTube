@@ -17,7 +17,7 @@ public class Playlist {
     }
 
     private String getPlaylistId() throws Exception {
-        Pattern pattern = Pattern.compile("list=[a-zA-Z0-9_\\-]*", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("list=[a-zA-Z0-9_\\-]*");
         Matcher matcher = pattern.matcher(url);
         if (matcher.find()){
             return matcher.group(0);
@@ -103,13 +103,13 @@ public class Playlist {
                         .getJSONObject("continuationCommand")
                         .getString("token");
 
-                JSONArray continuationEnd = new JSONArray(buildContinuationUrl(continuation));
+                JSONArray continuationEnd = buildContinuationUrl(continuation);
 
                 for(int i = 0; i < importantContent.length(); i++){
                     swap.put(importantContent.get(i));
                 }
 
-                if (!continuationEnd.isEmpty()){
+                if (continuationEnd.length() > 0){
                     for(int i = 0; i < continuationEnd.length(); i++){
                         swap.put(continuationEnd.get(i));
                     }
