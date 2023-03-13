@@ -1,7 +1,7 @@
 # JavaTube
 _JavaTube_ is a YouTube video download library based on [pytube](https://github.com/pytube/pytube) library.
 
-_JavaTube_ is a library written in java. It has no third-party dependencies and aims to be highly reliable.
+_JavaTube_ is a library written in java and aims to be highly reliable.
 
 ## Features
 * Support for downloading the full playlist

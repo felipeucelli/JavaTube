@@ -156,7 +156,8 @@ public class Stream{
                 if (stopPos >= fileSize) {
                     stopPos = (int) fileSize;
                 }
-                InnerTube.get(url, savePath, Integer.toString(startSize), Integer.toString(stopPos));
+                String chunk = url + "&range=" + startSize + "-" + stopPos;
+                InnerTube.get(chunk, savePath, Integer.toString(startSize), Integer.toString(stopPos));
                 progress.accept((stopPos * 100L) / (fileSize));
                 if(startSize < defaultRange){
                     startSize = stopPos;

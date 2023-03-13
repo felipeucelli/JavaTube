@@ -44,7 +44,6 @@ class InnerTube{
 
         URL url = new URL(videoUrl);
         URLConnection com = url.openConnection();
-        com.setRequestProperty("Range", "bytes="+start+"-"+end);
         com.setRequestProperty("Method", "GET");
         try(
                 ReadableByteChannel rbc = Channels.newChannel(com.getInputStream());

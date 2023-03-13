@@ -106,6 +106,14 @@ public class Youtube {
                 streamManifest.getJSONObject(i).remove("url");
                 streamManifest.getJSONObject(i).put("url", oldUrl + "&sig=" + cipher.getSignature(decodeURL(streamManifest.getJSONObject(i).getString("s")).split("(?!^)")));
             }
+
+            String oldUrl = streamManifest.getJSONObject(i).getString("url");
+            Matcher matcher = Pattern.compile("&n=(.*?)&").matcher(oldUrl);
+            if (matcher.find()) {
+                String newUrl = oldUrl.replaceFirst("&n=(.*?)&", "&n=" + cipher.calculateN(matcher.group(1)) + "&");
+                streamManifest.getJSONObject(i).put("url", newUrl);
+            }
+
             video = new Stream(streamManifest.getJSONObject(i), title);
             fmtStream.add(video);
         }

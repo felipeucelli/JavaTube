@@ -1,5 +1,8 @@
 package javatube;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,12 +12,17 @@ public class Cipher {
     private static String[] transformPlan;
     private static HashMap<String, String> transformMap;
     private static String[] jsFuncPatterns;
+    private static String throttlingFunctionName;
+    private static String throttlingRawCode;
 
     public Cipher(String js) throws Exception {
         transformPlan = getTransformPlan(js);
         String varMatcher = Arrays.asList(transformPlan[0].split("\\.")).get(0);
         transformMap = getTransformMap(js, varMatcher);
         jsFuncPatterns = new String[]{"\\w+\\.(\\w+)\\(\\w,(\\d+)\\)", "\\w+\\[(\\\"\\w+\\\")\\]\\(\\w,(\\d+)\\)"};
+
+        throttlingFunctionName = getThrottlingFunctionName(js);
+        throttlingRawCode = getThrottlingFunctionCode(js);
     }
 
     private static String[] getTransformPlan(String js) throws Exception {
@@ -151,5 +159,42 @@ public class Cipher {
             revArrayList.add(arr.get(i));
         }
         return revArrayList;
+    }
+
+    private String getThrottlingFunctionCode(String js) throws Exception {
+        Pattern regex = Pattern.compile(throttlingFunctionName + "=function\\(\\w\\)(\\{.*?return b.join\\(\\\"\\\"\\)\\}\\;)");
+        Matcher matcher = regex.matcher(js);
+        if (matcher.find()){
+            return matcher.group(1);
+        }
+        throw new Exception("RegexMatcherError");
+    }
+
+    private String getThrottlingFunctionName(String js) throws Exception {
+        String[] functionPatterns = {
+                "a\\.[a-zA-Z]\\s*&&\\s*\\([a-z]\\s*=\\s*a\\.get\\(\\\"n\\\"\\)\\)\\s*&&\\s*\\([a-z]=([a-zA-Z]*\\[\\d\\]).*?\\)"
+        };
+        for(String pattern : functionPatterns){
+            Pattern regex = Pattern.compile(pattern);
+            Matcher matcher = regex.matcher(js);
+            if (matcher.find()){
+              String idx = matcher.group(1);
+              String funName = matcher.group(1).replaceAll("(\\[\\d\\])", "");
+              if(!idx.isEmpty()){
+                  Pattern regex2 = Pattern.compile("var " + funName + "\\s*=\\s*(\\[.+?\\]);");
+                  Matcher matcher2 = regex2.matcher(js);
+                  if (matcher2.find()){
+                      return  matcher2.group(1).replace("[", "").replace("]", "");
+                  }
+              }
+            }
+        }
+        throw new Exception("RegexMatcherError");
+    }
+
+    public String calculateN(String n) throws ScriptException {
+        ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");
+        engine.eval(throttlingFunctionName + "=function(a)" + throttlingRawCode + "var b = " + throttlingFunctionName + "('" + n + "')");
+        return (String) engine.get("b");
     }
 }
