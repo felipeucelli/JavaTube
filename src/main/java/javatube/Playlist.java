@@ -222,15 +222,13 @@ public class Playlist {
         return "https://www.youtube.com/channel/" + getOwnerId();
     }
 
-    public Integer length() throws Exception {
-        return Integer.parseInt(getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer")
+    public String length() throws Exception {
+        return getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer")
                 .getJSONArray("stats")
                 .getJSONObject(0)
                 .getJSONArray("runs")
                 .getJSONObject(0)
-                .getString("text").
-                replace(",", "")
-        );
+                .getString("text");
     }
 
 }
