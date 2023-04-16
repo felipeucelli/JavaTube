@@ -105,20 +105,14 @@ public class Playlist {
 
                 JSONArray continuationEnd = buildContinuationUrl(continuation);
 
-                for(int i = 0; i < importantContent.length(); i++){
-                    swap.put(importantContent.get(i));
-                }
+                swap.putAll(importantContent);
 
                 if (continuationEnd.length() > 0){
-                    for(int i = 0; i < continuationEnd.length(); i++){
-                        swap.put(continuationEnd.get(i));
-                    }
+                    swap.putAll(continuationEnd);
                 }
 
             } catch (Exception e) {
-                for(int i = 0; i < importantContent.length(); i++){
-                    swap.put(importantContent.get(i));
-                }
+                swap.putAll(importantContent);
             }
 
         }catch (Exception ignored){

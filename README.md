@@ -6,14 +6,14 @@ _JavaTube_ is a library written in java and aims to be highly reliable.
 ## Features
 * Support for downloading the full playlist
 * Support for progressive and adaptive streams
-* Interaction with channels (videos, YouTube Shorts and lives)
+* Interaction with channels (Videos, YouTube Shorts, lives and Playlists)
 * onProgress callback register
 * Keyword search support
 * Ability to get video details (Title, Description, Publish Date, Length, Thumbnail Url, Views, Author and Keywords)
 * Subtitle generator for .srt format
 * Support downloading yt_otf streams
 
-# Contribution
+## Contribution
 Currently this project is maintained by only one person. Feel free to create issues with questions, bug reports or improvement ideas.
 
 ## Using JavaTube
@@ -92,6 +92,10 @@ public static void main(String[] args) throws Exception {
 
 * `getLives()`: method returns an ArrayList containing the channel's lives.
 
+
+* `getPlaylists()`: method returns an ArrayList containing the channel's playlists.
+
+
 ```java
 public static void main(String[] args) throws Exception {
     for(String c : new Channel("https://www.youtube.com/channel/UCmRtPmgnQ04CMUpSUqPfhxQ").getVideos()){
@@ -138,6 +142,16 @@ To download you can use the methods:
 * `getHighestResolution()`
 * `getLowestResolution() `
 * `getOnlyAudio() `
+
+
+You can also manually select the stream using `.getAll().get("index")`.
+
+```java
+public static void main(String[] args) throws Exception {
+        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo").streams().getAll().get(1).download("./");
+    }
+}
+```
 
 ## Filters Parameters:
 * `"res"` The video resolution (e.g.: "360p", "720p")

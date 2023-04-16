@@ -40,3 +40,6 @@ bin/
 ### Mac OS ###
 .DS_Store
 .idea/gradle.xml
+*.mp4
+*.mp3
+*.webm
