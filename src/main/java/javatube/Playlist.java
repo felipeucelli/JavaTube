@@ -126,7 +126,9 @@ public class Playlist {
         try {
             for(int i = 0; i < video.length(); i++){
                 try{
-                    videosId.add("https://www.youtube.com/watch?v=" + video.getJSONObject(i).getJSONObject("playlistVideoRenderer").get("videoId").toString());
+                    videosId.add("https://www.youtube.com/watch?v=" + video.getJSONObject(i)
+                            .getJSONObject("playlistVideoRenderer")
+                            .get("videoId").toString());
                 }catch (Exception ignored){
                 }
             }
@@ -141,6 +143,10 @@ public class Playlist {
                 .getJSONObject("playlistSidebarRenderer")
                 .getJSONArray("items")
                 .getJSONObject(i);
+    }
+
+    public String getUrl() throws Exception {
+        return getPlaylistUrl();
     }
 
     public String getTitle() throws Exception {
@@ -159,7 +165,8 @@ public class Playlist {
                         .getString("simpleText");
             }catch (JSONException e) {
                 return getSidebarInfo(0).getJSONObject("playlistSidebarPrimaryInfoRenderer")
-                        .getJSONObject("description").getJSONArray("runs")
+                        .getJSONObject("description")
+                        .getJSONArray("runs")
                         .getJSONObject(0)
                         .getString("text");
             }
@@ -195,7 +202,8 @@ public class Playlist {
         return getSidebarInfo(1).getJSONObject("playlistSidebarSecondaryInfoRenderer")
                 .getJSONObject("videoOwner")
                 .getJSONObject("videoOwnerRenderer")
-                .getJSONObject("title").getJSONArray("runs")
+                .getJSONObject("title")
+                .getJSONArray("runs")
                 .getJSONObject(0)
                 .getString("text");
     }

@@ -72,12 +72,29 @@ The `getVideos()` method will return an ArrayList with the links extracted from 
 
 ### Using the search feature
 
-The `results()` method will return an ArrayList with Youtube objects that can be inspected and downloaded.
+* `getResults()`: method will return an ArrayList with links to videos, shorts, playlists and channels.
 
+
+* `getVideoResults()`: method returns an ArrayList of Youtube objects, containing videos.
+
+
+* `getShortsResults()`: method returns an ArrayList of Youtube objects, containing YouTube Shorts.
+
+
+* `getChannelsResults()`: method returns an ArrayList of Channel objects, containing the channels.
+
+
+*  `getPlaylistsResults()`: method returns an ArrayList of Playlist objects, containing the playlists.
+
+
+* `getCompletionSuggestions()`: method returns a list containing search suggestions.
+
+
+If no match was found the method will return empty, other than `getCompletionSuggestions()` which returns null.
 ```java
 public static void main(String[] args) throws Exception {
-    for(Youtube yt : new Search("YouTube Rewind").results()){
-        System.out.println(yt.getTitle());
+    for(String yt : new Search("Java").getResults()){
+        System.out.println(yt);
     }
 }
 ```

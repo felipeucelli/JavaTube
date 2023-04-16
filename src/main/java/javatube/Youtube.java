@@ -140,6 +140,10 @@ public class Youtube {
         return js;
     }
 
+    public String getUrl(){
+        return watchUrl;
+    }
+
     public String getTitle() throws Exception {
         return getVidInfo().getJSONObject("videoDetails")
                 .getString("title");

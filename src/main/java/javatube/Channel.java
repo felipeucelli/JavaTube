@@ -247,6 +247,11 @@ public class Channel extends Playlist{
     }
 
     @Override
+    public String getUrl() {
+        return getChannelUrl();
+    }
+
+    @Override
     public String getTitle() throws Exception {
         return getChannelName();
     }
