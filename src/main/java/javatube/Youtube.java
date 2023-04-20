@@ -43,7 +43,7 @@ public class Youtube {
         return html;
     }
 
-    private static JSONArray applyDescrambler(JSONObject streamData){
+    private static JSONArray applyDescrambler(JSONObject streamData) throws JSONException{
         JSONArray formats = new JSONArray();
         for(int i = 0; streamData.getJSONArray("formats").length() > i; i++){
             formats.put(streamData.getJSONArray("formats").get(i));

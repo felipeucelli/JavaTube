@@ -105,14 +105,20 @@ public class Playlist {
 
                 JSONArray continuationEnd = buildContinuationUrl(continuation);
 
-                swap.putAll(importantContent);
-
-                if (continuationEnd.length() > 0){
-                    swap.putAll(continuationEnd);
+                for(int i = 0; i < importantContent.length(); i++){
+                    swap.put(importantContent.get(i));
                 }
 
-            } catch (Exception e) {
-                swap.putAll(importantContent);
+                if (continuationEnd.length() > 0){
+                    for(int i = 0; i < continuationEnd.length(); i++){
+                        swap.put(continuationEnd.get(i));
+                    }
+                }
+
+            } catch (JSONException e) {
+                for (int i = 0; i < importantContent.length(); i++) {
+                    swap.put(importantContent.get(i));
+                }
             }
 
         }catch (Exception ignored){
@@ -128,12 +134,12 @@ public class Playlist {
                 try{
                     videosId.add("https://www.youtube.com/watch?v=" + video.getJSONObject(i)
                             .getJSONObject("playlistVideoRenderer")
-                            .get("videoId").toString());
+                            .getString("videoId"));
                 }catch (Exception ignored){
                 }
             }
             return videosId;
-        } catch (JSONException e) {
+        } catch (Exception e) {
             throw new Error(e);
         }
     }

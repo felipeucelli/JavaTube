@@ -82,18 +82,19 @@ public class Channel extends Playlist{
         return InnerTube.downloadWebPage(getHtmlUrl());
     }
 
-    private JSONObject getActiveTab(JSONObject rawJson){
+    private JSONObject getActiveTab(JSONObject rawJson) throws JSONException{
         JSONObject activeTab = new JSONObject();
-        for(Object tab : rawJson.getJSONObject("contents")
+        JSONArray tabs = rawJson.getJSONObject("contents")
                 .getJSONObject("twoColumnBrowseResultsRenderer")
-                .getJSONArray("tabs")) {
-            String tabUrl = new JSONObject(tab.toString()).getJSONObject("tabRenderer")
+                .getJSONArray("tabs");
+        for(int i = 0; tabs.length() > i; i ++ ) {
+            String tabUrl = tabs.getJSONObject(i).getJSONObject("tabRenderer")
                     .getJSONObject("endpoint")
                     .getJSONObject("commandMetadata")
                     .getJSONObject("webCommandMetadata")
                     .getString("url");
             if (tabUrl.substring(tabUrl.lastIndexOf("/") + 1).equals(getHtmlUrl().substring(getHtmlUrl().lastIndexOf("/") + 1))) {
-                activeTab = new JSONObject(tab.toString());
+                activeTab = tabs.getJSONObject(i);
                 break;
             }
         }
@@ -142,7 +143,10 @@ public class Channel extends Playlist{
                     .getJSONObject("shelfRenderer")
                     .getJSONObject("content")
                     .getJSONObject("horizontalListRenderer");
-            items.putAll(shelfRenderer.getJSONArray("items"));
+
+            for(int j = 0; shelfRenderer.getJSONArray("items").length() > j; j++){
+                items.put(shelfRenderer.getJSONArray("items").getJSONObject(j));
+            }
         }
         return items;
     }
@@ -178,14 +182,20 @@ public class Channel extends Playlist{
                         .getString("token");
                 JSONArray continuationEnd = new JSONArray(buildContinuationUrl(continuation));
 
-                swap.putAll(importantContent);
+                for(int i = 0; i < importantContent.length(); i++){
+                    swap.put(importantContent.get(i));
+                }
 
-                if (!continuationEnd.isEmpty()){
-                    swap.putAll(continuationEnd);
+                if (continuationEnd.length() > 0){
+                    for(int i = 0; i < continuationEnd.length(); i++){
+                        swap.put(continuationEnd.get(i));
+                    }
                 }
 
             } catch (JSONException e) {
-                swap.putAll(importantContent);
+                for(int i = 0; i < importantContent.length(); i++){
+                    swap.put(importantContent.get(i));
+                }
             }
 
         } catch (Exception ignored) {
@@ -241,7 +251,7 @@ public class Channel extends Playlist{
                 }
             }
             return videosId;
-        } catch (JSONException e) {
+        } catch (Exception e) {
             throw new Error(e);
         }
     }

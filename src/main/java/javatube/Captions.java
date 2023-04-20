@@ -1,14 +1,14 @@
 package javatube;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,7 +17,7 @@ public class Captions {
     private final String url;
     private final String code;
 
-    public Captions(JSONObject captionTrack){
+    public Captions(JSONObject captionTrack) throws JSONException {
         url = captionTrack.getString("baseUrl");
         code = captionTrack.getString("vssId").replace(".", "");
     }
@@ -86,11 +86,13 @@ public class Captions {
             fullPath = savePath + "/" + filename;
         }
 
-        Path path = Paths.get(fullPath);
 
         if(filename.endsWith(".srt")){
             try {
-                Files.writeString(path, xmlCaptionToSrt(), StandardCharsets.UTF_8);
+                File file = new File(fullPath);
+                FileWriter write = new FileWriter(file);
+                write.write(xmlCaptionToSrt());
+                write.close();
             }
             catch (IOException ex) {
                 System.out.print("Invalid Path");
@@ -99,7 +101,10 @@ public class Captions {
             }
         }else{
             try {
-                Files.writeString(path, getXmlCaptions(), StandardCharsets.UTF_8);
+                File file = new File(fullPath);
+                FileWriter write = new FileWriter(file);
+                write.write(getXmlCaptions());
+                write.close();
             }
             catch (IOException ex) {
                 System.out.print("Invalid Path");

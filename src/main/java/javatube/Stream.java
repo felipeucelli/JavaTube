@@ -1,11 +1,13 @@
 package javatube;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.jar.JarException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static java.lang.Math.min;
@@ -71,7 +73,7 @@ public class Stream{
         return Long.parseLong(size);
     }
 
-    private boolean setIsOtf(JSONObject stream){
+    private boolean setIsOtf(JSONObject stream) throws JSONException {
         if(stream.has("type")){
             return Objects.equals(stream.getString("type"), "FORMAT_STREAM_TYPE_OTF");
         }else{

@@ -5,12 +5,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Search {
 
@@ -22,15 +20,15 @@ public class Search {
         this.query = query;
     }
 
-    private String safeQuery(){
-        return URLEncoder.encode(this.query, StandardCharsets.UTF_8);
+    private String safeQuery() throws UnsupportedEncodingException {
+        return URLEncoder.encode(this.query, StandardCharsets.UTF_8.name());
     }
 
     private String baseData(){
         return "{\"context\": {\"client\": {\"clientName\": \"WEB\", \"clientVersion\": \"2.20200720.00.02\"}}}";
     }
 
-    private String baseParam(){
+    private String baseParam() throws UnsupportedEncodingException {
         return "https://www.youtube.com/youtubei/v1/search?query=" + safeQuery() + "&key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&contentCheckOk=True&racyCheckOk=True";
     }
 
@@ -45,7 +43,7 @@ public class Search {
         return InnerTube.post(baseParam(), baseData());
     }
 
-    private ArrayList<String> extractShelfRenderer(JSONArray items) {
+    private ArrayList<String> extractShelfRenderer(JSONArray items) throws JSONException {
         ArrayList<String> ids = new ArrayList<>();
         for(int i = 0; items.length() > i; i++){
             String vidId = items.getJSONObject(i).getJSONObject("videoRenderer").getString("videoId");
@@ -54,7 +52,7 @@ public class Search {
         return ids;
     }
 
-    private ArrayList<String> extractReelShelfRenderer(JSONArray items) {
+    private ArrayList<String> extractReelShelfRenderer(JSONArray items) throws JSONException {
         ArrayList<String> ids = new ArrayList<>();
         for(int i = 0; items.length() > i; i++){
             String vidId = items.getJSONObject(i).getJSONObject("reelItemRenderer").getString("videoId");
@@ -118,9 +116,14 @@ public class Search {
         return results;
     }
 
-    public List<Object> getCompletionSuggestions() throws Exception {
+    public List<String> getCompletionSuggestions() throws Exception {
+        List<String> result = new ArrayList<>();
         try {
-            return getJsonResult().getJSONArray("refinements").toList();
+            JSONArray refinements = getJsonResult().getJSONArray("refinements");
+            for(int i = 0; refinements.length() > i; i ++){
+                result.add(refinements.getString(i));
+            }
+            return result;
         }catch (JSONException e){
             return null;
         }
