@@ -125,6 +125,15 @@ public class Stream{
         return s.replaceAll("[\"'#$%*,.:;<>?\\\\^|~/]", " ");
     }
 
+    private void checkFile(String filePath) throws IOException {
+        File file = new File(filePath);
+        if(file.exists()){
+            if(!file.delete()){
+                throw new IOException("Failed to delete existing output file: " + file.getName());
+            }
+        }
+    }
+
     public static void onProgress(long value){
         System.out.println(value + "%");
     }
@@ -141,48 +150,46 @@ public class Stream{
         startDownload(path, fileName, progress);
     }
     private void startDownload(String path, String fileName, Consumer<Long> progress) throws Exception {
+        String savePath = path + safeFileName(fileName) + "." + subType;
         if(!isOtf){
-            String savePath = path + safeFileName(fileName) + "." + subType;
-            int startSize = 0;
-            int stopPos;
+            long startSize = 0;
+            long stopPos;
             int defaultRange = 1048576;
-            File f = new File(savePath);
-            if(f.exists()){
-                if(!f.delete()){
-                    throw new IOException("Failed to delete existing output file: " + f.getName());
-                }
-            }
+            long progressPercentage;
+            long lastPrintedProgress = 0;
+            byte[] chunkReceived;
+
+            checkFile(savePath);
             do {
-                stopPos = (int) min(startSize + defaultRange, fileSize);
+                stopPos = min(startSize + defaultRange, fileSize);
                 if (stopPos >= fileSize) {
-                    stopPos = (int) fileSize;
+                    stopPos = fileSize;
                 }
                 String chunk = url + "&range=" + startSize + "-" + stopPos;
-                InnerTube.get(chunk, savePath, Integer.toString(startSize), Integer.toString(stopPos));
-                progress.accept((stopPos * 100L) / (fileSize));
-                if(startSize < defaultRange){
-                    startSize = stopPos;
-                }else{
-                    startSize = stopPos + 1;
+                chunkReceived = InnerTube.get(chunk).toByteArray();
+
+                progressPercentage = (stopPos * 100L) / (fileSize);
+
+                if (progressPercentage != lastPrintedProgress) {
+                    lastPrintedProgress = progressPercentage;
+                    progress.accept(progressPercentage);
+                }
+                startSize = startSize + chunkReceived.length;
+                try (FileOutputStream fos = new FileOutputStream(savePath, true)) {
+                    fos.write(chunkReceived);
                 }
             } while (stopPos != fileSize);
         }else {
-            downloadOtf(path, fileName, progress);
+            downloadOtf(savePath, progress);
         }
     }
 
-    private void downloadOtf(String path, String fileName, Consumer<Long> progress) throws Exception {
+    private void downloadOtf(String savePath, Consumer<Long> progress) throws Exception {
         int countChunk = 0;
         byte[] chunkReceived;
         int lastChunk = 0;
-        String savePath = path + safeFileName(fileName) + "." + subType;
 
-        File outputFile = new File(savePath);
-        if(outputFile.exists()){
-            if(!outputFile.delete()){
-                throw new IOException("Failed to delete existing output file: " + outputFile.getName());
-            }
-        }
+        checkFile(savePath);
         do {
             String chunk = url + "&sq=" + countChunk;
 

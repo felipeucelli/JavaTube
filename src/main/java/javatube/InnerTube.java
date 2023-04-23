@@ -2,10 +2,9 @@ package javatube;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 
 class InnerTube{
     public static String post(String param, String data) throws IOException {
@@ -40,15 +39,26 @@ class InnerTube{
         return output.toString();
     }
 
-    public static void get(String videoUrl, String outputFileName, String start, String end) throws IOException {
+    public static ByteArrayOutputStream get(String videoUrl) throws IOException {
 
-        URL url = new URL(videoUrl);
-        URLConnection com = url.openConnection();
-        com.setRequestProperty("Method", "GET");
-        try(
-                ReadableByteChannel rbc = Channels.newChannel(com.getInputStream());
-                FileOutputStream fos = new FileOutputStream(outputFileName, true)) {
-            fos.getChannel().transferFrom(rbc, Integer.parseInt(start), Integer.parseInt(end));
+        URL urlObj = new URL(videoUrl);
+        HttpURLConnection connection = (HttpURLConnection) urlObj.openConnection();
+        connection.setRequestMethod("GET");
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            InputStream in = new BufferedInputStream(connection.getInputStream());
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[1024];
+            int n;
+            while ((n = in.read(buf)) != -1) {
+                out.write(buf, 0, n);
+            }
+            out.close();
+            in.close();
+            connection.disconnect();
+            return out;
+        } else {
+            throw new IOException("Connection fail. Response code: " + responseCode);
         }
     }
 
