@@ -7,7 +7,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.jar.JarException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static java.lang.Math.min;
@@ -210,116 +209,116 @@ public class Stream{
         Map<Integer, ArrayList<String>> itags = new HashMap<>();
 
         // progressive video
-        itags.put(5, new ArrayList<>(){{add("240p");add("64kbps");}});
-        itags.put(6, new ArrayList<>(){{add("270p");add("64kbps");}});
-        itags.put(13, new ArrayList<>(){{add("144p");add(null);}});
-        itags.put(17, new ArrayList<>(){{add("144p");add("24kbps");}});
-        itags.put(18, new ArrayList<>(){{add("360p");add("96kbps");}});
-        itags.put(22, new ArrayList<>(){{add("720p");add("192kbps");}});
-        itags.put(34, new ArrayList<>(){{add("360p");add("128kbps");}});
-        itags.put(35, new ArrayList<>(){{add("480p");add("128kbps");}});
-        itags.put(36, new ArrayList<>(){{add("240p");add(null);}});
-        itags.put(37, new ArrayList<>(){{add("1080p");add("192kbps");}});
-        itags.put(38, new ArrayList<>(){{add("3072p");add("192kbps");}});
-        itags.put(43, new ArrayList<>(){{add("360p");add("128kbps");}});
-        itags.put(44, new ArrayList<>(){{add("480p");add("128kbps");}});
-        itags.put(45, new ArrayList<>(){{add("720p");add("192kbps");}});
-        itags.put(46, new ArrayList<>(){{add("1080p");add("192kbps");}});
-        itags.put(59, new ArrayList<>(){{add("480p");add("128kbps");}});
-        itags.put(78, new ArrayList<>(){{add("480p");add("128kbps");}});
-        itags.put(82, new ArrayList<>(){{add("360p");add("128kbps");}});
-        itags.put(83, new ArrayList<>(){{add("480p");add("128kbps");}});
-        itags.put(84, new ArrayList<>(){{add("720p");add("192kbps");}});
-        itags.put(85, new ArrayList<>(){{add("1080p");add("192kbps");}});
-        itags.put(91, new ArrayList<>(){{add("144p");add("48kbps");}});
-        itags.put(92, new ArrayList<>(){{add("240p");add("48kbps");}});
-        itags.put(93, new ArrayList<>(){{add("360p");add("128kbps");}});
-        itags.put(94, new ArrayList<>(){{add("480p");add("128kbps");}});
-        itags.put(95, new ArrayList<>(){{add("720p");add("256kbps");}});
-        itags.put(96, new ArrayList<>(){{add("1080p");add("256kbps");}});
-        itags.put(100, new ArrayList<>(){{add("360p");add("128kbps");}});
-        itags.put(101, new ArrayList<>(){{add("480p");add("192kbps");}});
-        itags.put(102, new ArrayList<>(){{add("720p");add("192kbps");}});
-        itags.put(132, new ArrayList<>(){{add("240p");add("48kbps");}});
-        itags.put(151, new ArrayList<>(){{add("720p");add("24kbps");}});
-        itags.put(300, new ArrayList<>(){{add("720p");add("128kbps");}});
-        itags.put(301, new ArrayList<>(){{add("1080p");add("128kbps");}});
+        itags.put(5, new ArrayList<>(Arrays.asList("240p", "64kbps")));
+        itags.put(6, new ArrayList<>(Arrays.asList("270p", "64kbps")));
+        itags.put(13, new ArrayList<>(Arrays.asList("144p", null)));
+        itags.put(17, new ArrayList<>(Arrays.asList("144p", "24kbps")));
+        itags.put(18, new ArrayList<>(Arrays.asList("360p", "96kbps")));
+        itags.put(22, new ArrayList<>(Arrays.asList("720p", "192kbps")));
+        itags.put(34, new ArrayList<>(Arrays.asList("360p", "128kbps")));
+        itags.put(35, new ArrayList<>(Arrays.asList("480p", "128kbps")));
+        itags.put(36, new ArrayList<>(Arrays.asList("240p", null)));
+        itags.put(37, new ArrayList<>(Arrays.asList("1080p", "192kbps")));
+        itags.put(38, new ArrayList<>(Arrays.asList("3072p", "192kbps")));
+        itags.put(43, new ArrayList<>(Arrays.asList("360p", "128kbps")));
+        itags.put(44, new ArrayList<>(Arrays.asList("480p", "128kbps")));
+        itags.put(45, new ArrayList<>(Arrays.asList("720p", "192kbps")));
+        itags.put(46, new ArrayList<>(Arrays.asList("1080p", "192kbps")));
+        itags.put(59, new ArrayList<>(Arrays.asList("480p", "128kbps")));
+        itags.put(78, new ArrayList<>(Arrays.asList("480p", "128kbps")));
+        itags.put(82, new ArrayList<>(Arrays.asList("360p", "128kbps")));
+        itags.put(83, new ArrayList<>(Arrays.asList("480p", "128kbps")));
+        itags.put(84, new ArrayList<>(Arrays.asList("720p", "192kbps")));
+        itags.put(85, new ArrayList<>(Arrays.asList("1080p", "192kbps")));
+        itags.put(91, new ArrayList<>(Arrays.asList("144p", "48kbps")));
+        itags.put(92, new ArrayList<>(Arrays.asList("240p", "48kbps")));
+        itags.put(93, new ArrayList<>(Arrays.asList("360p", "128kbps")));
+        itags.put(94, new ArrayList<>(Arrays.asList("480p", "128kbps")));
+        itags.put(95, new ArrayList<>(Arrays.asList("720p", "256kbps")));
+        itags.put(96, new ArrayList<>(Arrays.asList("1080p", "256kbps")));
+        itags.put(100, new ArrayList<>(Arrays.asList("360p", "128kbps")));
+        itags.put(101, new ArrayList<>(Arrays.asList("480p", "192kbps")));
+        itags.put(102, new ArrayList<>(Arrays.asList("720p", "192kbps")));
+        itags.put(132, new ArrayList<>(Arrays.asList("240p", "48kbps")));
+        itags.put(151, new ArrayList<>(Arrays.asList("720p", "24kbps")));
+        itags.put(300, new ArrayList<>(Arrays.asList("720p", "128kbps")));
+        itags.put(301, new ArrayList<>(Arrays.asList("1080p", "128kbps")));
 
         // dash video
-        itags.put(133, new ArrayList<>(){{add("240p");add(null);}}); // MP4
-        itags.put(134, new ArrayList<>(){{add("360p");add(null);}}); // MP4
-        itags.put(135, new ArrayList<>(){{add("480p");add(null);}}); // MP4
-        itags.put(136, new ArrayList<>(){{add("720p");add(null);}}); // MP4
-        itags.put(137, new ArrayList<>(){{add("1080p");add(null);}}); // MP4
-        itags.put(138, new ArrayList<>(){{add("2160p");add(null);}}); // MP4
-        itags.put(160, new ArrayList<>(){{add("144p");add(null);}}); // WEBM
-        itags.put(167, new ArrayList<>(){{add("360p");add(null);}}); // WEBM
-        itags.put(168, new ArrayList<>(){{add("480p");add(null);}}); // WEBM
-        itags.put(169, new ArrayList<>(){{add("720p");add(null);}}); // WEBM
-        itags.put(170, new ArrayList<>(){{add("1080p");add(null);}}); // WEBM
-        itags.put(212, new ArrayList<>(){{add("480p");add(null);}}); // MP4
-        itags.put(218, new ArrayList<>(){{add("480p");add(null);}}); // WEBM
-        itags.put(219, new ArrayList<>(){{add("480p");add(null);}}); // WEBM
-        itags.put(242, new ArrayList<>(){{add("240p");add(null);}}); // WEBM
-        itags.put(243, new ArrayList<>(){{add("360p");add(null);}}); // WEBM
-        itags.put(244, new ArrayList<>(){{add("480p");add(null);}}); // WEBM
-        itags.put(245, new ArrayList<>(){{add("480p");add(null);}}); // WEBM
-        itags.put(246, new ArrayList<>(){{add("480p");add(null);}}); // WEBM
-        itags.put(247, new ArrayList<>(){{add("720p");add(null);}}); // WEBM
-        itags.put(248, new ArrayList<>(){{add("1080p");add(null);}}); // WEBM
-        itags.put(264, new ArrayList<>(){{add("1440p");add(null);}}); // MP4
-        itags.put(266, new ArrayList<>(){{add("2160p");add(null);}}); // MP4
-        itags.put(271, new ArrayList<>(){{add("1440p");add(null);}}); // WEBM
-        itags.put(272, new ArrayList<>(){{add("4320p");add(null);}}); // WEBM
-        itags.put(278, new ArrayList<>(){{add("144p");add(null);}}); // WEBM
-        itags.put(298, new ArrayList<>(){{add("720p");add(null);}}); // MP4
-        itags.put(299, new ArrayList<>(){{add("1080p");add(null);}}); // MP4
-        itags.put(302, new ArrayList<>(){{add("720p");add(null);}});  // WEBM
-        itags.put(303, new ArrayList<>(){{add("1080p");add(null);}}); // WEBM
-        itags.put(308, new ArrayList<>(){{add("1440p");add(null);}}); // WEBM
-        itags.put(313, new ArrayList<>(){{add("2160p");add(null);}}); // WEBM
-        itags.put(315, new ArrayList<>(){{add("2160p");add(null);}}); // WEBM
-        itags.put(330, new ArrayList<>(){{add("144p");add(null);}}); // WEBM
-        itags.put(331, new ArrayList<>(){{add("240p");add(null);}}); // WEBM
-        itags.put(332, new ArrayList<>(){{add("360p");add(null);}}); // WEBM
-        itags.put(333, new ArrayList<>(){{add("480p");add(null);}}); // WEBM
-        itags.put(334, new ArrayList<>(){{add("720p");add(null);}}); // WEBM
-        itags.put(335, new ArrayList<>(){{add("1080p");add(null);}}); // WEBM
-        itags.put(336, new ArrayList<>(){{add("1440p");add(null);}}); // WEBM
-        itags.put(337, new ArrayList<>(){{add("2160p");add(null);}}); // WEBM
-        itags.put(394, new ArrayList<>(){{add("144p");add(null);}});  // MP4
-        itags.put(395, new ArrayList<>(){{add("240p");add(null);}}); // MP4
-        itags.put(396, new ArrayList<>(){{add("360p");add(null);}}); // MP4
-        itags.put(397, new ArrayList<>(){{add("480p");add(null);}}); // MP4
-        itags.put(398, new ArrayList<>(){{add("720p");add(null);}}); // MP4
-        itags.put(399, new ArrayList<>(){{add("1080p");add(null);}}); // MP4
-        itags.put(400, new ArrayList<>(){{add("1440p");add(null);}}); // MP4
-        itags.put(401, new ArrayList<>(){{add("2160p");add(null);}}); // MP4
-        itags.put(402, new ArrayList<>(){{add("4320p");add(null);}}); // MP4
-        itags.put(571, new ArrayList<>(){{add("4320p");add(null);}}); // MP4
-        itags.put(694, new ArrayList<>(){{add("144p");add(null);}}); // MP4
-        itags.put(695, new ArrayList<>(){{add("240p");add(null);}}); // MP4
-        itags.put(696, new ArrayList<>(){{add("360p");add(null);}}); // MP4
-        itags.put(697, new ArrayList<>(){{add("480p");add(null);}}); // MP4
-        itags.put(698, new ArrayList<>(){{add("720p");add(null);}}); // MP4
-        itags.put(699, new ArrayList<>(){{add("1080p");add(null);}}); // MP4
-        itags.put(700, new ArrayList<>(){{add("1440p");add(null);}}); // MP4
-        itags.put(701, new ArrayList<>(){{add("2160p");add(null);}}); // MP4
-        itags.put(702, new ArrayList<>(){{add("4320p");add(null);}}); // MP4
+        itags.put(133, new ArrayList<>(Arrays.asList("240p", null))); // MP4
+        itags.put(134, new ArrayList<>(Arrays.asList("360p", null))); // MP4
+        itags.put(135, new ArrayList<>(Arrays.asList("480p", null))); // MP4
+        itags.put(136, new ArrayList<>(Arrays.asList("720p", null))); // MP4
+        itags.put(137, new ArrayList<>(Arrays.asList("1080p", null))); // MP4
+        itags.put(138, new ArrayList<>(Arrays.asList("2160p", null))); // MP4
+        itags.put(160, new ArrayList<>(Arrays.asList("144p", null))); // WEBM
+        itags.put(167, new ArrayList<>(Arrays.asList("360p", null))); // WEBM
+        itags.put(168, new ArrayList<>(Arrays.asList("480p", null))); // WEBM
+        itags.put(169, new ArrayList<>(Arrays.asList("720p", null))); // WEBM
+        itags.put(170, new ArrayList<>(Arrays.asList("1080p", null))); // WEBM
+        itags.put(212, new ArrayList<>(Arrays.asList("480p", null))); // MP4
+        itags.put(218, new ArrayList<>(Arrays.asList("480p", null))); // WEBM
+        itags.put(219, new ArrayList<>(Arrays.asList("480p", null))); // WEBM
+        itags.put(242, new ArrayList<>(Arrays.asList("240p", null))); // WEBM
+        itags.put(243, new ArrayList<>(Arrays.asList("360p", null))); // WEBM
+        itags.put(244, new ArrayList<>(Arrays.asList("480p", null))); // WEBM
+        itags.put(245, new ArrayList<>(Arrays.asList("480p", null))); // WEBM
+        itags.put(246, new ArrayList<>(Arrays.asList("480p", null))); // WEBM
+        itags.put(247, new ArrayList<>(Arrays.asList("720p", null))); // WEBM
+        itags.put(248, new ArrayList<>(Arrays.asList("1080p", null))); // WEBM
+        itags.put(264, new ArrayList<>(Arrays.asList("1440p", null))); // MP4
+        itags.put(266, new ArrayList<>(Arrays.asList("2160p", null))); // MP4
+        itags.put(271, new ArrayList<>(Arrays.asList("1440p", null))); // WEBM
+        itags.put(272, new ArrayList<>(Arrays.asList("4320p", null))); // WEBM
+        itags.put(278, new ArrayList<>(Arrays.asList("144p", null))); // WEBM
+        itags.put(298, new ArrayList<>(Arrays.asList("720p", null))); // MP4
+        itags.put(299, new ArrayList<>(Arrays.asList("1080p", null))); // MP4
+        itags.put(302, new ArrayList<>(Arrays.asList("720p", null)));  // WEBM
+        itags.put(303, new ArrayList<>(Arrays.asList("1080p", null))); // WEBM
+        itags.put(308, new ArrayList<>(Arrays.asList("1440p", null))); // WEBM
+        itags.put(313, new ArrayList<>(Arrays.asList("2160p", null))); // WEBM
+        itags.put(315, new ArrayList<>(Arrays.asList("2160p", null))); // WEBM
+        itags.put(330, new ArrayList<>(Arrays.asList("144p", null))); // WEBM
+        itags.put(331, new ArrayList<>(Arrays.asList("240p", null))); // WEBM
+        itags.put(332, new ArrayList<>(Arrays.asList("360p", null))); // WEBM
+        itags.put(333, new ArrayList<>(Arrays.asList("480p", null))); // WEBM
+        itags.put(334, new ArrayList<>(Arrays.asList("720p", null))); // WEBM
+        itags.put(335, new ArrayList<>(Arrays.asList("1080p", null))); // WEBM
+        itags.put(336, new ArrayList<>(Arrays.asList("1440p", null))); // WEBM
+        itags.put(337, new ArrayList<>(Arrays.asList("2160p", null))); // WEBM
+        itags.put(394, new ArrayList<>(Arrays.asList("144p", null)));  // MP4
+        itags.put(395, new ArrayList<>(Arrays.asList("240p", null))); // MP4
+        itags.put(396, new ArrayList<>(Arrays.asList("360p", null))); // MP4
+        itags.put(397, new ArrayList<>(Arrays.asList("480p", null))); // MP4
+        itags.put(398, new ArrayList<>(Arrays.asList("720p", null))); // MP4
+        itags.put(399, new ArrayList<>(Arrays.asList("1080p", null))); // MP4
+        itags.put(400, new ArrayList<>(Arrays.asList("1440p", null))); // MP4
+        itags.put(401, new ArrayList<>(Arrays.asList("2160p", null))); // MP4
+        itags.put(402, new ArrayList<>(Arrays.asList("4320p", null))); // MP4
+        itags.put(571, new ArrayList<>(Arrays.asList("4320p", null))); // MP4
+        itags.put(694, new ArrayList<>(Arrays.asList("144p", null))); // MP4
+        itags.put(695, new ArrayList<>(Arrays.asList("240p", null))); // MP4
+        itags.put(696, new ArrayList<>(Arrays.asList("360p", null))); // MP4
+        itags.put(697, new ArrayList<>(Arrays.asList("480p", null))); // MP4
+        itags.put(698, new ArrayList<>(Arrays.asList("720p", null))); // MP4
+        itags.put(699, new ArrayList<>(Arrays.asList("1080p", null))); // MP4
+        itags.put(700, new ArrayList<>(Arrays.asList("1440p", null))); // MP4
+        itags.put(701, new ArrayList<>(Arrays.asList("2160p", null))); // MP4
+        itags.put(702, new ArrayList<>(Arrays.asList("4320p", null))); // MP4
 
         // dash audio
-        itags.put(139, new ArrayList<>(){{add(null);add("48kbps");}}); // MP4
-        itags.put(140, new ArrayList<>(){{add(null);add("128kbps");}}); // MP4
-        itags.put(141, new ArrayList<>(){{add(null);add("256kbps");}}); // MP4
-        itags.put(171, new ArrayList<>(){{add(null);add("128kbps");}}); // WEBM
-        itags.put(172, new ArrayList<>(){{add(null);add("256kbps");}}); // WEBM
-        itags.put(249, new ArrayList<>(){{add(null);add("50kbps");}}); // WEBM
-        itags.put(250, new ArrayList<>(){{add(null);add("70kbps");}}); // WEBM
-        itags.put(251, new ArrayList<>(){{add(null);add("160kbps");}}); // WEBM
-        itags.put(256, new ArrayList<>(){{add(null);add("192kbps");}}); // MP4
-        itags.put(258, new ArrayList<>(){{add(null);add("384kbps");}}); // MP4
-        itags.put(325, new ArrayList<>(){{add(null);add(null);}}); // MP4
-        itags.put(328, new ArrayList<>(){{add(null);add(null);}}); // MP4
+        itags.put(139, new ArrayList<>(Arrays.asList(null, "48kbps"))); // MP4
+        itags.put(140, new ArrayList<>(Arrays.asList(null, "128kbps"))); // MP4
+        itags.put(141, new ArrayList<>(Arrays.asList(null, "256kbps"))); // MP4
+        itags.put(171, new ArrayList<>(Arrays.asList(null, "128kbps"))); // WEBM
+        itags.put(172, new ArrayList<>(Arrays.asList(null, "256kbps"))); // WEBM
+        itags.put(249, new ArrayList<>(Arrays.asList(null, "50kbps"))); // WEBM
+        itags.put(250, new ArrayList<>(Arrays.asList(null, "70kbps"))); // WEBM
+        itags.put(251, new ArrayList<>(Arrays.asList(null, "160kbps"))); // WEBM
+        itags.put(256, new ArrayList<>(Arrays.asList(null, "192kbps"))); // MP4
+        itags.put(258, new ArrayList<>(Arrays.asList(null, "384kbps"))); // MP4
+        itags.put(325, new ArrayList<>(Arrays.asList(null, null))); // MP4
+        itags.put(328, new ArrayList<>(Arrays.asList(null, null))); // MP4
 
 
         String res, bitrate;

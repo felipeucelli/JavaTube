@@ -115,10 +115,10 @@ public class Cipher {
 
         ArrayList<String> t = null;
         if(Objects.equals(transformMap.get(name), "reverse")){
-            t = reverse(new ArrayList<>(List.of(signature)));
+            t = reverse(new ArrayList<>(Arrays.asList(signature)));
 
         }else if (Objects.equals(transformMap.get(name), "splice")) {
-            t = splice(new ArrayList<>(List.of(signature)), argument);
+            t = splice(new ArrayList<>(Arrays.asList(signature)), argument);
 
         }else if (Objects.equals(transformMap.get(name), "swap")){
             t = swap(signature, argument);
@@ -150,7 +150,7 @@ public class Cipher {
         arr[b] = arr[0];
         arr[0] = temp;
 
-        return new ArrayList<>(List.of(arr));
+        return new ArrayList<>(Arrays.asList(arr));
     }
 
     private static ArrayList<String> reverse(ArrayList<String> arr){
