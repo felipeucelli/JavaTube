@@ -204,61 +204,73 @@ public class Channel extends Playlist{
     }
 
     public ArrayList<String> getVideos() throws Exception {
-        setHtmlUrl(getVideosUrl());
-        return extractVideosId();
+        setHtmlUrl(videosUrl);
+        return extractId();
     }
 
     public ArrayList<String> getShorts() throws Exception {
-        setHtmlUrl(getShortsUrl());
-        return extractVideosId();
+        setHtmlUrl(shortsUrl);
+        return extractId();
     }
 
     public ArrayList<String> getLives() throws Exception {
-        setHtmlUrl(getStreamsUrl());
-        return extractVideosId();
+        setHtmlUrl(streamsUrl);
+        return extractId();
     }
     public ArrayList<String> getPlaylists() throws Exception {
-        setHtmlUrl(getPlaylistUrl());
-        return extractVideosId();
+        setHtmlUrl(playlistUrl);
+        return extractId();
     }
 
-    private ArrayList<String> extractVideosId() throws Exception {
+    private ArrayList<String> extractId() throws Exception {
         JSONArray video = extractVideos(getJson());
         ArrayList<String> videosId = new ArrayList<>();
-        try {
-            for(int i = 0; i < video.length(); i++){
-                try{
-                    try{
-                        try {
-                            videosId.add("https://www.youtube.com/watch?v=" + video.getJSONObject(i)
-                                    .getJSONObject("richItemRenderer")
-                                    .getJSONObject("content")
-                                    .getJSONObject("videoRenderer")
-                                    .getString("videoId"));
-                        }catch (JSONException s){
-                            videosId.add("https://www.youtube.com/watch?v=" + video.getJSONObject(i)
-                                    .getJSONObject("richItemRenderer")
-                                    .getJSONObject("content")
-                                    .getJSONObject("reelItemRenderer")
-                                    .getString("videoId"));
-                        }
-                    }catch (JSONException e){
-                        videosId.add("https://www.youtube.com/playlist?list=" + video.getJSONObject(i)
-                                .getJSONObject("gridPlaylistRenderer")
-                                .getString("playlistId"));
-                    }
-                }catch (Exception ignored){
+
+        for(int i = 0; i < video.length(); i++){
+            try {
+                if(!video.getJSONObject(i).has("continuationItemRenderer")) {
+                    videosId.add(getVideoId(video.getJSONObject(i)));
                 }
+            }catch (JSONException ignored){
             }
-            return videosId;
-        } catch (Exception e) {
-            throw new Error(e);
+        }
+        return videosId;
+    }
+
+    private String getVideoId(JSONObject ids) throws JSONException{
+        try{
+            return "https://www.youtube.com/watch?v=" +  ids.getJSONObject("richItemRenderer")
+                    .getJSONObject("content")
+                    .getJSONObject("videoRenderer")
+                    .getString("videoId");
+        }catch (JSONException e){
+            return getShortId(ids);
+        }
+    }
+
+    private String getShortId(JSONObject ids) throws JSONException{
+        try{
+            return "https://www.youtube.com/watch?v=" +  ids.getJSONObject("richItemRenderer")
+                    .getJSONObject("content")
+                    .getJSONObject("reelItemRenderer")
+                    .getString("videoId");
+        }catch (JSONException e){
+            return getPlaylistId(ids);
+        }
+    }
+
+    private String getPlaylistId(JSONObject ids) throws JSONException{
+        try{
+            return "https://www.youtube.com/playlist?list=" + ids.getJSONObject("gridPlaylistRenderer")
+                    .getString("playlistId");
+        }catch (JSONException e){
+            throw new JSONException(e);
         }
     }
 
     @Override
     public String getUrl() {
-        return getChannelUrl();
+        return channelUrl;
     }
 
     @Override
@@ -268,13 +280,9 @@ public class Channel extends Playlist{
 
     @Override
     public String getLastUpdated() throws Exception {
-        setHtmlUrl(getVideosUrl());
+        setHtmlUrl(videosUrl);
         try {
-            return getJson().getJSONObject("contents")
-                    .getJSONObject("twoColumnBrowseResultsRenderer")
-                    .getJSONArray("tabs")
-                    .getJSONObject(1)
-                    .getJSONObject("tabRenderer")
+            return getActiveTab(getJson()).getJSONObject("tabRenderer")
                     .getJSONObject("content")
                     .getJSONObject("richGridRenderer")
                     .getJSONArray("contents")
@@ -292,7 +300,7 @@ public class Channel extends Playlist{
 
     @Override
     public String length() throws Exception {
-        setHtmlUrl(getChannelUrl());
+        setHtmlUrl(channelUrl);
         return getJson().getJSONObject("header")
                 .getJSONObject("c4TabbedHeaderRenderer")
                 .getJSONObject("videosCountText")
@@ -303,21 +311,21 @@ public class Channel extends Playlist{
 
 
     public String getChannelName() throws Exception {
-        setHtmlUrl(getChannelUrl());
+        setHtmlUrl(channelUrl);
         return getJson().getJSONObject("metadata")
                 .getJSONObject("channelMetadataRenderer")
                 .getString("title");
     }
 
     public String getChannelId() throws Exception {
-        setHtmlUrl(getChannelUrl());
+        setHtmlUrl(channelUrl);
         return getJson().getJSONObject("metadata")
                 .getJSONObject("channelMetadataRenderer")
                 .getString("externalId");
     }
 
     public String getVanityUrl() throws Exception {
-        setHtmlUrl(getChannelUrl());
+        setHtmlUrl(channelUrl);
         return getJson().getJSONObject("metadata")
                 .getJSONObject("channelMetadataRenderer")
                 .getString("vanityChannelUrl");
@@ -325,7 +333,7 @@ public class Channel extends Playlist{
 
     @Override
     public String getDescription() throws Exception {
-        setHtmlUrl(getChannelUrl());
+        setHtmlUrl(channelUrl);
         return getJson().getJSONObject("metadata")
                 .getJSONObject("channelMetadataRenderer")
                 .getString("description");
@@ -344,14 +352,9 @@ public class Channel extends Playlist{
     }
 
     public String getBiography() throws Exception {
-        setHtmlUrl(getAboutUrl());
-        int pos = getJson().getJSONObject("contents").getJSONObject("twoColumnBrowseResultsRenderer").getJSONArray("tabs").length() - 2;
+        setHtmlUrl(aboutUrl);
         try {
-            return getJson().getJSONObject("contents")
-                    .getJSONObject("twoColumnBrowseResultsRenderer")
-                    .getJSONArray("tabs")
-                    .getJSONObject(pos)
-                    .getJSONObject("tabRenderer")
+            return getActiveTab(getJson()).getJSONObject("tabRenderer")
                     .getJSONObject("content")
                     .getJSONObject("sectionListRenderer")
                     .getJSONArray("contents")
@@ -369,14 +372,9 @@ public class Channel extends Playlist{
 
     @Override
     public String getViews() throws Exception {
-        setHtmlUrl(getAboutUrl());
-        int pos = getJson().getJSONObject("contents").getJSONObject("twoColumnBrowseResultsRenderer").getJSONArray("tabs").length() - 2;
+        setHtmlUrl(aboutUrl);
         try {
-            return getJson().getJSONObject("contents")
-                    .getJSONObject("twoColumnBrowseResultsRenderer")
-                    .getJSONArray("tabs")
-                    .getJSONObject(pos)
-                    .getJSONObject("tabRenderer")
+            return getActiveTab(getJson()).getJSONObject("tabRenderer")
                     .getJSONObject("content")
                     .getJSONObject("sectionListRenderer")
                     .getJSONArray("contents")
@@ -393,21 +391,21 @@ public class Channel extends Playlist{
     }
 
     public String getKeywords() throws Exception {
-        setHtmlUrl(getChannelUrl());
+        setHtmlUrl(channelUrl);
         return getJson().getJSONObject("metadata")
                 .getJSONObject("channelMetadataRenderer")
                 .getString("keywords");
     }
 
     public JSONArray getAvailableCountryCodes() throws Exception {
-        setHtmlUrl(getChannelUrl());
+        setHtmlUrl(channelUrl);
         return getJson().getJSONObject("metadata")
                 .getJSONObject("channelMetadataRenderer")
                 .getJSONArray("availableCountryCodes");
     }
 
     public String getThumbnailUrl() throws Exception {
-        setHtmlUrl(getChannelUrl());
+        setHtmlUrl(channelUrl);
         return getJson().getJSONObject("metadata")
                 .getJSONObject("channelMetadataRenderer")
                 .getJSONObject("avatar")
