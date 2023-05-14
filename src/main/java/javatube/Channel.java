@@ -281,21 +281,34 @@ public class Channel extends Playlist{
     @Override
     public String getLastUpdated() throws Exception {
         setHtmlUrl(videosUrl);
-        try {
-            return getActiveTab(getJson()).getJSONObject("tabRenderer")
+        JSONObject lastVideoContent;
+        try{
+             lastVideoContent = getActiveTab(getJson()).getJSONObject("tabRenderer")
                     .getJSONObject("content")
                     .getJSONObject("richGridRenderer")
                     .getJSONArray("contents")
                     .getJSONObject(0)
                     .getJSONObject("richItemRenderer")
                     .getJSONObject("content")
-                    .getJSONObject("videoRenderer")
-                    .getJSONObject("publishedTimeText")
-                    .getString("simpleText");
-        }catch (JSONException j){
+                    .getJSONObject("videoRenderer");
+        }catch (JSONException e){
             return null;
         }
+        String videoId = lastVideoContent.getString("videoId");
 
+        String url = "https://www.youtube.com/youtubei/v1/player?videoId=" + videoId + "&key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
+        String data = "{\"context\": {\"client\": {\"clientName\": \"WEB\", \"clientVersion\": \"2.20200720.00.02\"}}}";
+
+        JSONObject response = new JSONObject(InnerTube.post(url, data));
+        try {
+            return response.getJSONObject("microformat")
+                    .getJSONObject("playerMicroformatRenderer")
+                    .getString("publishDate");
+
+        }catch (JSONException j){
+            return lastVideoContent.getJSONObject("publishedTimeText")
+                    .getString("simpleText");
+        }
     }
 
     @Override
