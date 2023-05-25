@@ -27,14 +27,18 @@ public class Cipher {
 
     private static String[] getTransformPlan(String js) throws Exception {
         String name = getInitialFunctionName(js);
-        String pattern = name + "=function\\(\\w\\)\\{[a-z]=[a-z]\\.[a-z]*\\(\\\"\\\"\\);([\\w*\\.\\w*\\(\\w,\\d\\);]*)(?:return)";
-        //{"kD.EC(a,1)", "kD.UT(a,60)", "kD.gp(a,55)", "kD.UT(a,45)", "kD.EC(a,3)", "kD.UT(a,28)", "kD.gp(a,63)"};
-        Pattern regex = Pattern.compile(pattern);
-        Matcher matcher = regex.matcher(js);
-        if (matcher.find()) {
-           return matcher.group(1).split(";");
+        String[] pattern = {
+                "=function\\(\\w\\)\\{[a-z]=[a-z]\\.[a-z]*\\(\\\"\\\"\\);([\\w*\\.\\w*\\(\\w,\\d\\);]*)(?:return)", //{"kD.EC(a,1)", "kD.UT(a,60)", "kD.gp(a,55)", "kD.UT(a,45)", "kD.EC(a,3)", "kD.UT(a,28)", "kD.gp(a,63)"};
+                "=function\\(\\w\\)\\{[a-z]=[a-z]\\.[a-z]*\\(\\\"\\\"\\);([\\$*\\.\\w*\\(\\w,\\d\\);]*)(?:return)" //{"$F.yG(a,62)", "$F.F5(a,2)", "$F.lt(a,55)", "$F.yG(a,48)"}
+        };
+        for (String s : pattern) {
+            Pattern regex = Pattern.compile(name + s);
+            Matcher matcher = regex.matcher(js);
+            if (matcher.find()) {
+                return matcher.group(1).split(";");
+            }
         }
-        throw new Exception("RegexMatcherError: " + pattern);
+        throw new Exception("RegexMatcherError: \"" + name + "\" function not found");
     }
 
     private static String mapFunction(String jsFunc) throws Exception {
@@ -52,7 +56,7 @@ public class Cipher {
         throw new Exception("RegexMatcherError");
     }
     private static HashMap<String, String> getTransformMap(String js, String var) throws Exception {
-        String[] transformObject = getTransformObject(js, var);
+        String[] transformObject = getTransformObject(js, var.replace("$", "\\$"));
         //{"UT:function(a,b){var c=a[0];a[0]=a[b%a.length];a[b%a.length]=c}", "gp:function(a){a.reverse()}", "EC:function(a,b){a.splice(0,b)}"}
         HashMap<String, String> mapper = new HashMap<>();
         for(String obj: transformObject){
