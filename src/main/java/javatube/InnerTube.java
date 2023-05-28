@@ -7,22 +7,28 @@ import java.net.URL;
 import java.net.URLConnection;
 
 class InnerTube{
+
+    private static final int ConnectTimeout = 5000;
+    private static final int ReadTimeout = 10000;
+
     public static String post(String param, String data) throws IOException {
         StringBuilder output = new StringBuilder();
         URL url = new URL(param);
 
-        URLConnection conn = url.openConnection();
-        conn.setDoOutput(true);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Content-Length", Integer.toString(data.length()));
+        URLConnection connection = url.openConnection();
+        connection.setConnectTimeout(ConnectTimeout);
+        connection.setReadTimeout(ReadTimeout);
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Content-Length", Integer.toString(data.length()));
 
-        try (DataOutputStream dos = new DataOutputStream(conn.getOutputStream())) {
+        try (DataOutputStream dos = new DataOutputStream(connection.getOutputStream())) {
             dos.writeBytes(data);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         try (BufferedReader bf = new BufferedReader(new InputStreamReader(
-                conn.getInputStream())))
+                connection.getInputStream())))
         {
             boolean keepGoing = true;
             while (keepGoing) {
@@ -44,6 +50,8 @@ class InnerTube{
         URL urlObj = new URL(videoUrl);
         HttpURLConnection connection = (HttpURLConnection) urlObj.openConnection();
         connection.setRequestMethod("GET");
+        connection.setConnectTimeout(ConnectTimeout);
+        connection.setReadTimeout(ReadTimeout);
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             InputStream in = new BufferedInputStream(connection.getInputStream());
@@ -64,10 +72,12 @@ class InnerTube{
 
     public static String downloadWebPage(String webpage) throws IOException {
         URL url = new URL(webpage);
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-        con.setRequestProperty ( "accept-language", "en-US,en" );
-        con.setRequestProperty ( "User-Agent", "Mozilla/5.0" );
-        InputStream ins = con.getInputStream();
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+        connection.setRequestProperty ( "accept-language", "en-US,en" );
+        connection.setRequestProperty ( "User-Agent", "Mozilla/5.0" );
+        connection.setConnectTimeout(ConnectTimeout);
+        connection.setReadTimeout(ReadTimeout);
+        InputStream ins = connection.getInputStream();
         InputStreamReader isr = new InputStreamReader(ins);
         BufferedReader in = new BufferedReader(isr);
         String inputLine;
