@@ -54,27 +54,32 @@ public class Captions {
         String root = generateSrtCaptions();
 
         int i = 0;
-        String segments = "";
+        StringBuilder segments = new StringBuilder();
 
-        String pattern = "start=\\\"(.*?)\\\".*?dur=\\\"(.*?)\\\">(.*?)<";
-        Pattern regex = Pattern.compile(pattern);
-        Matcher matcher = regex.matcher(root);
-        while (matcher.find()) {
-            Float start = Float.parseFloat(matcher.group(1));
-            Float duration = Float.parseFloat(matcher.group(2));
-            String caption = decodeString(matcher.group(3));
+        String[] pattern = {
+                "start=\\\"(.*?)\\\".*?dur=\\\"(.*?)\\\">(.*?)<",
+                "t=\\\"(.*?)\\\".*?d=\\\"(.*?)\\\">(.*?)<"
+        };
+        for(String s : pattern){
+            Pattern regex = Pattern.compile(s);
+            Matcher matcher = regex.matcher(root);
+            while (matcher.find()) {
+                Float start = Float.parseFloat(matcher.group(1));
+                Float duration = Float.parseFloat(matcher.group(2));
+                String caption = decodeString(matcher.group(3));
 
-            Float end = start + duration;
-            int sequenceNumber = i + 1;
+                Float end = start + duration;
+                int sequenceNumber = i + 1;
 
-            String line = sequenceNumber + "\n" + srtTimeFormat(start) + " --> " + srtTimeFormat(end) + "\n" + caption + "\n\n";
+                String line = sequenceNumber + "\n" + srtTimeFormat(start) + " --> " + srtTimeFormat(end) + "\n" + caption + "\n\n";
 
-            segments += line;
+                segments.append(line);
 
-            i++;
+                i++;
+            }
         }
 
-        return segments;
+        return segments.toString();
     }
 
     public void download(String filename, String savePath) {
