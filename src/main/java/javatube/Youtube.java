@@ -1,6 +1,5 @@
 package javatube;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -32,8 +31,8 @@ public class Youtube {
         }
     }
 
-    private String setHtml() throws IOException {
-        return InnerTube.downloadWebPage(watchUrl);
+    private String setHtml() throws Exception {
+        return Request.get(watchUrl).toString(StandardCharsets.UTF_8.name());
     }
 
     private String getHtml() throws Exception {
@@ -121,7 +120,7 @@ public class Youtube {
     }
 
     private String getYtPlayerJs() throws Exception {
-        Pattern pattern = Pattern.compile("(/s/player/[\\w\\d]+/[\\w\\d_/.]+/base\\.js)");
+        Pattern pattern = Pattern.compile("(/s/player/[\\w\\d]+/[\\w\\d_/.\\-]+/base\\.js)");
         Matcher matcher = pattern.matcher(getHtml());
         if (matcher.find()) {
             return "https://youtube.com" + matcher.group(1);
@@ -131,7 +130,7 @@ public class Youtube {
     }
 
     private String setJs() throws Exception {
-        return InnerTube.downloadWebPage(getYtPlayerJs());
+        return Request.get(getYtPlayerJs()).toString().replace("\n", "");
     }
     private String getJs() throws Exception {
         if(js == null){

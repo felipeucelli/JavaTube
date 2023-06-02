@@ -4,8 +4,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,8 +79,10 @@ public class Channel extends Playlist{
     }
 
     @Override
-    protected String setHtml() throws IOException {
-        return InnerTube.downloadWebPage(getHtmlUrl());
+    protected String setHtml() throws Exception {
+        Map<String, String> header = new HashMap<>();
+        header.put("User-Agent", "\"Mozilla/5.0\"");
+        return Request.get(getHtmlUrl(), null, header).toString();
     }
 
     private JSONObject getActiveTab(JSONObject rawJson) throws JSONException{
@@ -295,11 +298,7 @@ public class Channel extends Playlist{
             return null;
         }
         String videoId = lastVideoContent.getString("videoId");
-
-        String url = "https://www.youtube.com/youtubei/v1/player?videoId=" + videoId + "&key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
-        String data = "{\"context\": {\"client\": {\"clientName\": \"WEB\", \"clientVersion\": \"2.20200720.00.02\"}}}";
-
-        JSONObject response = new JSONObject(InnerTube.post(url, data));
+        JSONObject response = new InnerTube("WEB").player(videoId);
         try {
             return response.getJSONObject("microformat")
                     .getJSONObject("playerMicroformatRenderer")

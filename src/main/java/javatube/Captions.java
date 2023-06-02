@@ -28,11 +28,11 @@ public class Captions {
         return code;
     }
 
-    private String getXmlCaptions() throws IOException {
-        return InnerTube.downloadWebPage(url).replaceAll("(&#39;)|(&amp;#39;)", "'");
+    private String getXmlCaptions() throws Exception {
+        return Request.get(url).toString(StandardCharsets.UTF_8.name()).replaceAll("(&#39;)|(&amp;#39;)", "'");
     }
 
-    private String generateSrtCaptions() throws IOException {
+    private String generateSrtCaptions() throws Exception {
         return getXmlCaptions();
     }
 
@@ -113,6 +113,8 @@ public class Captions {
             }
             catch (IOException ex) {
                 System.out.print("Invalid Path");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
 

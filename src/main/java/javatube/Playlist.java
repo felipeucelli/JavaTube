@@ -5,6 +5,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +14,7 @@ public class Playlist {
     private final String url;
     protected String html = null;
     protected JSONObject json = null;
+
     public Playlist(String InputUrl){
         url = InputUrl;
     }
@@ -39,7 +42,9 @@ public class Playlist {
     }
 
     protected String setHtml() throws Exception {
-        return InnerTube.downloadWebPage(getPlaylistUrl());
+        Map<String, String> header = new HashMap<>();
+        header.put("User-Agent", "\"Mozilla/5.0\"");
+        return Request.get(getPlaylistUrl(), null, header).toString();
     }
     protected String getHtml() throws Exception {
         if(html == null){
@@ -66,7 +71,7 @@ public class Playlist {
     }
 
     protected JSONArray buildContinuationUrl(String continuation) throws Exception {
-        return extractVideos(new JSONObject(InnerTube.post(baseParam(), baseData(continuation))));
+        return extractVideos(new JSONObject(Request.post(baseParam(), baseData(continuation)).toString()));
     }
 
     protected JSONArray extractVideos(JSONObject rawJson) {

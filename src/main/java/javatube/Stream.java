@@ -166,7 +166,7 @@ public class Stream{
                     stopPos = fileSize;
                 }
                 String chunk = url + "&range=" + startSize + "-" + stopPos;
-                chunkReceived = InnerTube.get(chunk).toByteArray();
+                chunkReceived = Request.get(chunk).toByteArray();
 
                 progressPercentage = (stopPos * 100L) / (fileSize);
 
@@ -193,7 +193,7 @@ public class Stream{
         do {
             String chunk = url + "&sq=" + countChunk;
 
-            chunkReceived = InnerTube.postChunk(chunk).toByteArray();
+            chunkReceived = Request.postChunk(chunk).toByteArray();
 
             if(countChunk == 0){
                 Pattern pattern = Pattern.compile("Segment-Count: (\\d*)");

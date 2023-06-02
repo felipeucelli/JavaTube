@@ -1,108 +1,269 @@
 package javatube;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Iterator;
 
 class InnerTube{
+    private static JSONObject context;
+    private static JSONObject header;
+    private static String apiKey;
 
-    private static final int ConnectTimeout = 5000;
-    private static final int ReadTimeout = 10000;
+    public InnerTube(String client) throws JSONException {
+        JSONObject defaultClient = new JSONObject("{" +
+            "WEB: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: WEB," +
+                        "clientVersion: 2.20200720.00.02" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"Mozilla/5.0\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+             "}," +
+            "ANDROID: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: ANDROID," +
+                        "clientVersion: 17.31.35," +
+                        "androidSdkVersion: 30" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"com.google.android.youtube/\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
+            "IOS: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: IOS," +
+                        "clientVersion: 17.33.2," +
+                        "deviceModel: \"iPhone14,3\"" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"com.google.ios.youtube/\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
 
-    public static String post(String param, String data) throws IOException {
-        StringBuilder output = new StringBuilder();
-        URL url = new URL(param);
+            "WEB_EMBED: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: WEB_EMBEDDED_PLAYER," +
+                        "clientVersion: 2.20210721.00.00," +
+                        "clientScreen: EMBED" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"Mozilla/5.0\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
+            "ANDROID_EMBED: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: ANDROID_EMBEDDED_PLAYER," +
+                        "clientVersion: 17.31.35," +
+                        "clientScreen: EMBED," +
+                        "androidSdkVersion: 30" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"com.google.android.youtube/\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
+            "IOS_EMBED: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: IOS_MESSAGES_EXTENSION," +
+                        "clientVersion: 17.33.2," +
+                        "deviceModel: \"iPhone14,3\"" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"com.google.ios.youtube/\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
 
-        URLConnection connection = url.openConnection();
-        connection.setConnectTimeout(ConnectTimeout);
-        connection.setReadTimeout(ReadTimeout);
-        connection.setDoOutput(true);
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestProperty("Content-Length", Integer.toString(data.length()));
+            "WEB_MUSIC: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: WEB_REMIX," +
+                        "clientVersion: 1.20220727.01.00" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"Mozilla/5.0\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
+            "ANDROID_MUSIC: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: ANDROID_MUSIC," +
+                        "clientVersion: 5.16.51," +
+                        "androidSdkVersion: 30" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"com.google.android.apps.youtube.music/\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
+            "IOS_MUSIC: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: IOS_MUSIC," +
+                        "clientVersion: 5.21," +
+                        "deviceModel: \"iPhone14,3\"" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"com.google.ios.youtubemusic/\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
 
-        try (DataOutputStream dos = new DataOutputStream(connection.getOutputStream())) {
-            dos.writeBytes(data);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try (BufferedReader bf = new BufferedReader(new InputStreamReader(
-                connection.getInputStream())))
-        {
-            boolean keepGoing = true;
-            while (keepGoing) {
-                String currentLine = bf.readLine();
-                if (currentLine == null) {
-                    keepGoing = false;
-                } else {
-                    output.append(currentLine);
-                }
+            "WEB_CREATOR: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: WEB_CREATOR," +
+                        "clientVersion: 1.20220726.00.00" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"Mozilla/5.0\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
+            "ANDROID_CREATOR: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: ANDROID_CREATOR," +
+                        "clientVersion: 22.30.100," +
+                        "androidSdkVersion: 30" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"com.google.android.apps.youtube.creator/\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
+            "IOS_CREATOR: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: IOS_CREATOR," +
+                        "clientVersion: 22.33.101," +
+                        "deviceModel: \"iPhone14,3\"" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"com.google.ios.ytcreator/\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
+
+            "MWEB: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: MWEB," +
+                        "clientVersion: 2.20220801.00.00" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"Mozilla/5.0\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}," +
+
+            "TV_EMBED: {" +
+                "context: {" +
+                    "client: {" +
+                        "clientName: TVHTML5_SIMPLY_EMBEDDED_PLAYER," +
+                        "clientVersion: 2.0" +
+                    "}" +
+                "}," +
+                "header: {" +
+                    "User-Agent: \"Mozilla/5.0\"" +
+                "}," +
+                "apiKey: AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8" +
+            "}" +
+        "}");
+
+        context = defaultClient.getJSONObject(client).getJSONObject("context");
+        header = defaultClient.getJSONObject(client).getJSONObject("header");
+        apiKey = defaultClient.getJSONObject(client).getString("apiKey");
+    }
+
+    private String getBaseUrl(){
+        return "https://www.youtube.com/youtubei/v1";
+    }
+
+    public JSONObject getBaseData() throws JSONException {
+        return  new JSONObject("{context: " + context + "}");
+    }
+
+    private String getBaseParam(){
+        return "key: " + apiKey + "," +
+                "contentCheckOk: \"true\"," +
+                "racyCheckOk: \"true\"";
+    }
+
+    private String urlEncode(JSONObject json){
+        StringBuilder query = new StringBuilder();
+        try {
+            for (Iterator<String> it = json.keys(); it.hasNext(); ) {
+                String key = it.next();
+                String value = json.getString(key);
+                query.append(URLEncoder.encode(key, "UTF-8"));
+                query.append("=");
+                query.append(URLEncoder.encode(value, "UTF-8"));
+                query.append("&");
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return output.toString();
-    }
-
-    public static ByteArrayOutputStream get(String videoUrl) throws IOException {
-
-        URL urlObj = new URL(videoUrl);
-        HttpURLConnection connection = (HttpURLConnection) urlObj.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setConnectTimeout(ConnectTimeout);
-        connection.setReadTimeout(ReadTimeout);
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            InputStream in = new BufferedInputStream(connection.getInputStream());
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            byte[] buf = new byte[1024];
-            int n;
-            while ((n = in.read(buf)) != -1) {
-                out.write(buf, 0, n);
+            if (query.length() > 0) {
+                query.setLength(query.length() - 1);
             }
-            out.close();
-            in.close();
-            connection.disconnect();
-            return out;
-        } else {
-            throw new IOException("Connection fail. Response code: " + responseCode);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return query.toString();
     }
 
-    public static String downloadWebPage(String webpage) throws IOException {
-        URL url = new URL(webpage);
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-        connection.setRequestProperty ( "accept-language", "en-US,en" );
-        connection.setRequestProperty ( "User-Agent", "Mozilla/5.0" );
-        connection.setConnectTimeout(ConnectTimeout);
-        connection.setReadTimeout(ReadTimeout);
-        InputStream ins = connection.getInputStream();
-        InputStreamReader isr = new InputStreamReader(ins);
-        BufferedReader in = new BufferedReader(isr);
-        String inputLine;
-        StringBuilder html = new StringBuilder();
+    private JSONObject callApi(String endpoint, JSONObject query, JSONObject data) throws Exception {
 
-        while ((inputLine = in.readLine()) != null) {
-            html.append(inputLine);
+        String endpointUrl = endpoint + "?" + urlEncode(query);
+
+        HashMap<String, String> headers = new HashMap<>();
+        Iterator<String> keys = header.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            String value = header.getString(key);
+            headers.put(key, value);
         }
-        in.close();
-        return html.toString();
+
+        ByteArrayOutputStream response = Request.post(endpointUrl, data.toString(), headers);
+        return new JSONObject(response.toString());
     }
 
-    public static ByteArrayOutputStream postChunk(String chunk) throws IOException {
-        URL url = new URL(chunk);
-        InputStream in = new BufferedInputStream(url.openStream());
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buf = new byte[1024];
-        int n;
-        while (-1!=(n=in.read(buf))) {
-            out.write(buf, 0, n);
-        }
-        out.close();
-        in.close();
-
-        return out;
+    public JSONObject player(String videoId) throws Exception {
+        String endpoint = getBaseUrl() + "/player";
+        JSONObject query = new JSONObject("{videoId: " + videoId + ", " + getBaseParam() + "}");
+        return callApi(endpoint, query, getBaseData());
     }
 
+    public JSONObject search(String searchQuery) throws Exception {
+        String endpoint = getBaseUrl() + "/search";
+        JSONObject query = new JSONObject("{query: " + searchQuery + ", " + getBaseParam() + "}");
+        return callApi(endpoint, query, getBaseData());
+    }
 }

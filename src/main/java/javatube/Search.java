@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -24,23 +23,15 @@ public class Search {
         return URLEncoder.encode(this.query, StandardCharsets.UTF_8.name());
     }
 
-    private String baseData(){
-        return "{\"context\": {\"client\": {\"clientName\": \"WEB\", \"clientVersion\": \"2.20200720.00.02\"}}}";
-    }
-
-    private String baseParam() throws UnsupportedEncodingException {
-        return "https://www.youtube.com/youtubei/v1/search?query=" + safeQuery() + "&key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&contentCheckOk=True&racyCheckOk=True";
-    }
-
     private JSONObject getJsonResult() throws Exception {
         if(jsonResult == null){
-            jsonResult =  new JSONObject(fetchQuery());
+            jsonResult =  fetchQuery();
         }
         return jsonResult;
     }
 
-    private String fetchQuery() throws IOException {
-        return InnerTube.post(baseParam(), baseData());
+    private JSONObject fetchQuery() throws Exception {
+        return new InnerTube("WEB").search(safeQuery());
     }
 
     private ArrayList<String> extractShelfRenderer(JSONArray items) throws JSONException {
