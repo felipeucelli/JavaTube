@@ -83,7 +83,19 @@ public class Youtube {
         return vidInfo;
     }
 
+    private void checkAvailability() throws Exception {
+        JSONObject status = getVidInfo().getJSONObject("playabilityStatus");
+        if(status.has("liveStreamability")) {
+            throw new Exception("Video is a live stream.");
+        } else if(Objects.equals(status.getString("status"), "LOGIN_REQUIRED")){
+            throw new Exception("This is a private video.");
+        } else if(!Objects.equals(status.getString("status"), "OK")){
+            throw new Exception(status.getString("reason"));
+        }
+    }
+
     private JSONObject streamData() throws Exception {
+        checkAvailability();
         return getVidInfo().getJSONObject("streamingData");
     }
 
