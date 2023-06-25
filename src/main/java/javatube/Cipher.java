@@ -166,7 +166,8 @@ public class Cipher {
     }
 
     private String getThrottlingFunctionCode(String js) throws Exception {
-        Pattern regex = Pattern.compile(throttlingFunctionName + "=function\\(\\w\\)(\\{.*?return b.join\\(\\\"\\\"\\)\\}\\;)");
+        String pattern = throttlingFunctionName + "=function\\(\\w\\)(\\{.*?return b.join\\(\\\"\\\"\\)\\}\\;)";
+        Pattern regex = Pattern.compile(pattern);
         Matcher matcher = regex.matcher(js);
         if (matcher.find()){
             return matcher.group(1);
@@ -175,23 +176,22 @@ public class Cipher {
     }
 
     private String getThrottlingFunctionName(String js) throws Exception {
-        String[] functionPatterns = {
-                "a\\.[a-zA-Z]\\s*&&\\s*\\([a-z]\\s*=\\s*a\\.get\\(\\\"n\\\"\\)\\)\\s*&&\\s*\\([a-z]=([a-zA-Z]*\\[\\d\\]).*?\\)"
-        };
-        for(String pattern : functionPatterns){
-            Pattern regex = Pattern.compile(pattern);
-            Matcher matcher = regex.matcher(js);
-            if (matcher.find()){
-              String idx = matcher.group(1);
-              String funName = matcher.group(1).replaceAll("(\\[\\d\\])", "");
-              if(!idx.isEmpty()){
-                  Pattern regex2 = Pattern.compile("var " + funName + "\\s*=\\s*(\\[.+?\\]);");
-                  Matcher matcher2 = regex2.matcher(js);
-                  if (matcher2.find()){
-                      return  matcher2.group(1).replace("[", "").replace("]", "");
-                  }
+        // a.D && (b = a.get("n")) && (b = Usa[0](b), a.set("n", b), Usa.length || mma(""))
+        String functionPatterns = "a\\.[a-zA-Z]\\s*&&\\s*\\([a-z]\\s*=\\s*a\\.get\\(\\\"n\\\"\\)\\)\\s*&&\\s*\\([a-z]=([a-zA-Z]*\\[\\d\\]).*?\\)";
+        Pattern regex = Pattern.compile(functionPatterns);
+        Matcher matcher = regex.matcher(js);
+        if (matcher.find()){
+          String idx = matcher.group(1); // Usa[0]
+          String funName = matcher.group(1).replaceAll("(\\[\\d\\])", ""); // Usa
+          if(!idx.isEmpty()){
+              // var Usa = [mma], Rsa = !1;
+              Pattern regex2 = Pattern.compile("var " + funName + "\\s*=\\s*(\\[.+?\\])");
+              Matcher matcher2 = regex2.matcher(js);
+              if (matcher2.find()){
+                  String match = matcher2.group(1); // [mma]
+                  return  match.replace("[", "").replace("]", ""); // mma
               }
-            }
+          }
         }
         throw new Exception("RegexMatcherError");
     }

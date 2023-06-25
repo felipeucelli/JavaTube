@@ -144,7 +144,7 @@ public class Youtube {
     private String setJs() throws Exception {
         return Request.get(getYtPlayerJs()).toString().replace("\n", "");
     }
-    private String getJs() throws Exception {
+    public String getJs() throws Exception {
         if(js == null){
             js = setJs();
         }
