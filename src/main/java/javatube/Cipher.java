@@ -14,8 +14,10 @@ public class Cipher {
     private static String[] jsFuncPatterns;
     private static String throttlingFunctionName;
     private static String throttlingRawCode;
+    private static String playerJs;
 
-    public Cipher(String js) throws Exception {
+    public Cipher(String js, String ytPlayerJs) throws Exception {
+        playerJs = ytPlayerJs;
         transformPlan = getTransformPlan(js);
         String varMatcher = Arrays.asList(transformPlan[0].split("\\.")).get(0);
         transformMap = getTransformMap(js, varMatcher);
@@ -38,7 +40,7 @@ public class Cipher {
                 return matcher.group(1).split(";");
             }
         }
-        throw new Exception("RegexMatcherError: \"" + name + "\" function not found");
+        throw new Exception("RegexMatcherError: \"" + name + "\" function not found in playerJs: " + playerJs);
     }
 
     private static String mapFunction(String jsFunc) throws Exception {
@@ -53,7 +55,7 @@ public class Cipher {
                 return mapper[i][1];
             }
         }
-        throw new Exception("RegexMatcherError");
+        throw new Exception("RegexMatcherError. Unable to map function: " + jsFunc);
     }
     private static HashMap<String, String> getTransformMap(String js, String var) throws Exception {
         String[] transformObject = getTransformObject(js, var.replace("$", "\\$"));
@@ -74,7 +76,7 @@ public class Cipher {
         if(matcher.find()){
             return matcher.group(1).replaceAll("(\\}\\,)", "}, ").split(", ");
         }else {
-            throw new Exception("RegexMatcherError: " + pattern);
+            throw new Exception("RegexMatcherError. Could not find transform function: " + pattern + " in playerJs: " + playerJs);
         }
     }
 
@@ -98,7 +100,7 @@ public class Cipher {
                 return matcher.group(1);
             }
         }
-        throw new Exception("RegexMatcherError");
+        throw new Exception("RegexMatcherError. Could not find function name in playerJs:" + playerJs);
     }
 
     private static String[] parseFunction(String jsFunc){
@@ -172,7 +174,7 @@ public class Cipher {
         if (matcher.find()){
             return matcher.group(1);
         }
-        throw new Exception("RegexMatcherError");
+        throw new Exception("RegexMatcherError. Could not find function code: " + pattern + " in playerJs: " + playerJs);
     }
 
     private String getThrottlingFunctionName(String js) throws Exception {
@@ -181,19 +183,21 @@ public class Cipher {
         Pattern regex = Pattern.compile(functionPatterns);
         Matcher matcher = regex.matcher(js);
         if (matcher.find()){
-          String idx = matcher.group(1); // Usa[0]
-          String funName = matcher.group(1).replaceAll("(\\[\\d\\])", ""); // Usa
-          if(!idx.isEmpty()){
-              // var Usa = [mma], Rsa = !1;
-              Pattern regex2 = Pattern.compile("var " + funName + "\\s*=\\s*(\\[.+?\\])");
-              Matcher matcher2 = regex2.matcher(js);
-              if (matcher2.find()){
-                  String match = matcher2.group(1); // [mma]
-                  return  match.replace("[", "").replace("]", ""); // mma
-              }
-          }
+            String idx = matcher.group(1); // Usa[0]
+            String funName = matcher.group(1).replaceAll("(\\[\\d\\])", ""); // Usa
+            if(!idx.isEmpty()){
+                String pattern2 = "var " + funName + "\\s*=\\s*(\\[.+?\\])"; // var Usa = [mma], Rsa = !1;
+                Pattern regex2 = Pattern.compile(pattern2);
+                Matcher matcher2 = regex2.matcher(js);
+                if (matcher2.find()){
+                    String match = matcher2.group(1); // [mma]
+                    return  match.replace("[", "").replace("]", ""); // mma
+                }else {
+                    throw new Exception("RegexMatcherError. Could not find function name: " + pattern2 + " in playerJs: " + playerJs);
+                }
+            }
         }
-        throw new Exception("RegexMatcherError");
+        throw new Exception("RegexMatcherError. Could not find function name: " + functionPatterns + " in playerJs: " + playerJs);
     }
 
     public String calculateN(String n) throws ScriptException {

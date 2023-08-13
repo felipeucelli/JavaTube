@@ -15,6 +15,7 @@ public class Youtube {
     private JSONObject vidInfo = null;
     private String html = null;
     private String js = null;
+    private String playerJs = null;
 
     public Youtube(String url) throws Exception {
         urlVideo = url;
@@ -72,7 +73,7 @@ public class Youtube {
         if(matcher.find()){
            return new JSONObject(matcher.group(1));
         }else {
-            throw new Exception("RegexMatcherError: " + pattern);
+            throw new Exception("RegexMatcherError. Unable to find video information: " + pattern);
         }
     }
 
@@ -110,7 +111,7 @@ public class Youtube {
         ArrayList<Stream> fmtStream = new ArrayList<>();
         String title = getTitle();
         Stream video;
-        Cipher cipher = new Cipher(getJs());
+        Cipher cipher = new Cipher(getJs(), getYtPlayerJs());
         for (int i = 0; streamManifest.length() > i; i++) {
             if(streamManifest.getJSONObject(i).has("signatureCipher")){
                 String oldUrl = decodeURL(streamManifest.getJSONObject(i).getString("url"));
@@ -131,14 +132,20 @@ public class Youtube {
         return fmtStream;
     }
 
-    private String getYtPlayerJs() throws Exception {
+    private String setYtPlayerJs() throws Exception {
         Pattern pattern = Pattern.compile("(/s/player/[\\w\\d]+/[\\w\\d_/.\\-]+/base\\.js)");
         Matcher matcher = pattern.matcher(getHtml());
         if (matcher.find()) {
             return "https://youtube.com" + matcher.group(1);
         }else {
-            throw new Exception("RegexMatcherError: " + pattern);
+            throw new Exception("RegexMatcherError. Could not find playerJs: " + pattern);
         }
+    }
+    public String getYtPlayerJs() throws Exception {
+        if(playerJs == null){
+            playerJs = setYtPlayerJs();
+        }
+        return playerJs;
     }
 
     private String setJs() throws Exception {
@@ -171,7 +178,7 @@ public class Youtube {
         if (matcher.find()) {
             return matcher.group(0);
         }else {
-            throw new Exception("RegexMatcherError: " + pattern);
+            throw new Exception("RegexMatcherError. Unable to find publication date: " + pattern);
         }
     }
 
