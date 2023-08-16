@@ -168,7 +168,7 @@ public class Cipher {
     }
 
     private String getThrottlingFunctionCode(String js) throws Exception {
-        String pattern = throttlingFunctionName + "=function\\(\\w\\)(\\{.*?return b.join\\(\\\"\\\"\\)\\}\\;)";
+        String pattern = Pattern.quote(throttlingFunctionName)+ "=function\\(\\w\\)(\\{.*?return b.join\\(\\\"\\\"\\)\\}\\;)";
         Pattern regex = Pattern.compile(pattern);
         Matcher matcher = regex.matcher(js);
         if (matcher.find()){
