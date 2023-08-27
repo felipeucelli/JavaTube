@@ -105,8 +105,8 @@ class JsToJson{
     Object jsToJson() throws Exception {
         Pattern pattern = Pattern.compile("""
             (?sx)
-                    '(?:\\\\.|[^\\\\'])*'|\\"(?:\\\\.|[^\\\\\\"])*\\"|`(?:\\\\.|[^\\\\`])*`|
-                    /\\*(?:(?!\\*/).)*?\\*/|//[^\\n]*\\n|,(?=\\s*(?:/\\*(?:(?!\\*/).)*?\\*/|//[^\\n]*\\n)?\\s*[\\]}])|
+                    '(?:\\\\.|[^\\\\'])*'|"(?:\\\\.|[^\\\\"])*"|`(?:\\\\.|[^\\\\`])*`|
+                    /\\*(?:(?!\\*/).)*?\\*/|//[^\\n]*\\n|,(?=\\s*(?:/\\*(?:(?!\\*/).)*?\\*/|//[^\\n]*\\n)?\\s*[]}])|
                     void\\s0|(?:(?<![0-9])[eE]|[a-df-zA-DF-Z_$])[.a-zA-Z_$0-9]*|
                     \\b(?:0[xX][0-9a-fA-F]+|0+[0-7]+)(?:\\s*(?:/\\*(?:(?!\\*/).)*?\\*/|//[^\\n]*\\n)?\\s*:)?|
                     [0-9]+(?=\\s*(?:/\\*(?:(?!\\*/).)*?\\*/|//[^\\n]*\\n)?\\s*:)|
@@ -130,7 +130,7 @@ class JsToJson{
         Pattern pattern = Pattern.compile("(?s)(\")|\\\\(.)");
         Matcher matcher = pattern.matcher(escapedString);
         String escape;
-        StringBuilder e = new StringBuilder();
+        StringBuffer e = new StringBuffer();
         while (matcher.find()) {
             escape = matcher.group(1) != null ? matcher.group(1) : matcher.group(2);
             matcher.appendReplacement(e, Matcher.quoteReplacement(escape));
@@ -897,15 +897,15 @@ public class JsInterpreter {
         String reg = """
                 (?x)
                             (?<assign>
-                                (?<out>[a-zA-Z_$][\\w$]*)(?:\\[(?<index>[^\\]]+?)\\])?\\s*
-                                (?<op>\\||\\*\\*|\\-|\\+|\\^|\\&\\&|\\?|/|%|\\|\\||\\&|>>|<<|\\*|\\?\\?)?
+                                (?<out>[a-zA-Z_$][\\w$]*)(?:\\[(?<index>[^]]+?)])?\\s*
+                                (?<op>\\||\\*\\*|-|\\+|\\^|&&|\\?|/|%|\\|\\||&|>>|<<|\\*|\\?\\?)?
                                 =(?!=)(?<expr>.*)$
                             )|(?<return>
                                 (?!if|return|true|false|null|undefined|NaN)(?<name>^[a-zA-Z_$][\\w$]*)$
                             )|(?<indexing>
-                                (?<in>[a-zA-Z_$][\\w$]*)\\[(?<idx>.+)\\]$
+                                (?<in>[a-zA-Z_$][\\w$]*)\\[(?<idx>.+)]$
                             )|(?<attribute>
-                                (?<var>[a-zA-Z_$][\\w$]*)(?:(?<nullish>\\?)?\\.(?<member>[^(]+)|\\[(?<member2>[^\\]]+)\\])\\s*
+                                (?<var>[a-zA-Z_$][\\w$]*)(?:(?<nullish>\\?)?\\.(?<member>[^(]+)|\\[(?<member2>[^]]+)])\\s*
                             )|(?<function>
                                 (?<fname>[a-zA-Z_$][\\w$]*)\\((?<args>.*)\\)$
                             )""";
@@ -1236,8 +1236,8 @@ public class JsInterpreter {
         String fields = matcher.group("fields");
         Pattern pattern1 = Pattern.compile("""
                 (?x)
-                                (?<key>[a-zA-Z$0-9]+|\\"[a-zA-Z$0-9]+\\"|'[a-zA-Z$0-9]+')
-                                \\s*:\\s*function\\s*\\((?<args>(?:[a-zA-Z_$][\\\\w$]*|,)*)\\)\\{(?<code>[^\\}]+)\\}
+                                (?<key>[a-zA-Z$0-9]+|"[a-zA-Z$0-9]+"|'[a-zA-Z$0-9]+')
+                                \\s*:\\s*function\\s*\\((?<args>(?:[a-zA-Z_$][\\\\w$]*|,)*)\\)\\{(?<code>[^}]+)\\}
                 """);
         Matcher fieldsM = pattern1.matcher(fields);
         while (fieldsM.find()){
