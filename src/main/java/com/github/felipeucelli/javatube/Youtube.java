@@ -12,12 +12,38 @@ public class Youtube {
 
     private final String urlVideo;
     private final String watchUrl;
+    private InnerTube innerTube = null;
     private JSONObject vidInfo = null;
     private String html = null;
     private String js = null;
     private String playerJs = null;
 
+    /**
+     * Default client: WEB
+     * */
     public Youtube(String url) throws Exception {
+        urlVideo = url;
+        watchUrl = "https://www.youtube.com/watch?v=" + videoId();
+    }
+    /**
+     * Clients:
+     *          WEB,
+     *          WEB_EMBED,
+     *          WEB_MUSIC,
+     *          WEB_CREATOR,
+     *          ANDROID,
+     *          ANDROID_EMBED,
+     *          ANDROID_MUSIC,
+     *          ANDROID_CREATOR ,
+     *          IOS,
+     *          IOS_EMBED,
+     *          IOS_MUSIC,
+     *          IOS_CREATOR,
+     *          MWEB,
+     *          TV_EMBED
+     * */
+    public Youtube(String url, String clientName) throws Exception {
+        innerTube = new InnerTube(clientName);
         urlVideo = url;
         watchUrl = "https://www.youtube.com/watch?v=" + videoId();
     }
@@ -33,7 +59,8 @@ public class Youtube {
     }
 
     private String setHtml() throws Exception {
-        return Request.get(watchUrl).toString(StandardCharsets.UTF_8.name());
+        Map<String, String> headers = innerTube == null ? null : innerTube.getClientHeaders();
+        return Request.get(watchUrl, headers).toString(StandardCharsets.UTF_8.name());
     }
 
     private String getHtml() throws Exception {
@@ -45,11 +72,11 @@ public class Youtube {
 
     private static JSONArray applyDescrambler(JSONObject streamData) throws JSONException{
         JSONArray formats = new JSONArray();
-        for(int i = 0; streamData.getJSONArray("formats").length() > i; i++){
-            formats.put(streamData.getJSONArray("formats").get(i));
+        if(streamData.has("formats")){
+            formats.putAll(streamData.getJSONArray("formats"));
         }
-        for(int i = 0; streamData.getJSONArray("adaptiveFormats").length() > i; i++){
-            formats.put(streamData.getJSONArray("adaptiveFormats").get(i));
+        if(streamData.has("adaptiveFormats")){
+            formats.putAll(streamData.getJSONArray("adaptiveFormats"));
         }
         for(int i = 0; i < formats.length(); i++){
             if(formats.getJSONObject(i).has("signatureCipher")){
@@ -67,7 +94,7 @@ public class Youtube {
     }
 
     private JSONObject setVidInfo() throws Exception {
-        String pattern = "ytInitialPlayerResponse\\s=\\s(\\{\\\"responseContext\\\":.*?\\});</script>";
+        String pattern = "ytInitialPlayerResponse\\s=\\s(\\{\"responseContext\":.*?\\});(?:var|</script>)";
         Pattern regex = Pattern.compile(pattern);
         Matcher matcher = regex.matcher(getHtml());
         if(matcher.find()){
@@ -79,7 +106,7 @@ public class Youtube {
 
     private JSONObject getVidInfo() throws Exception {
         if(vidInfo == null){
-            vidInfo = setVidInfo();
+            vidInfo = innerTube == null ? setVidInfo() : innerTube.player(videoId());
         }
         return vidInfo;
     }
