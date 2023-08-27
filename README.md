@@ -33,7 +33,7 @@ To download YouTube videos you need to import the YouTube class and pass a YouTu
 
 The streams() method returns a StreamQuery object that lists the properly handled streams.
 
-You must take only one stream to be able to download. You must take only one stream to be able to download it. You can use the methods: 
+You must only get one stream to be able to download it. You can use the methods: 
 
 * `getHighestResolution()`
 * `getLowestResolution() `
