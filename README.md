@@ -1,4 +1,5 @@
-# JavaTube
+# JavaTube [![JDK](https://img.shields.io/badge/JDK-17%2B-blue.svg)](https://www.oracle.com/java/technologies/downloads/#java17)
+
 _JavaTube_ is a YouTube video download library based on [pytube](https://github.com/pytube/pytube) library.
 
 _JavaTube_ is a library written in java and aims to be highly reliable.
@@ -12,18 +13,49 @@ _JavaTube_ is a library written in java and aims to be highly reliable.
 * Ability to get video details (Title, Description, Publish Date, Length, Thumbnail Url, Views, Author and Keywords)
 * Subtitle generator for .srt format
 * Support downloading yt_otf streams
+* Native js interpreter
 
 ## Contribution
 Currently this project is maintained by only one person. Feel free to create issues with questions, bug reports or improvement ideas.
 
+## WARNING
+This code is for educational purposes and must not be used in any way for commercial purposes.
+
+Downloading videos from YouTube without proper authorization may violate the [terms of the platform](https://www.youtube.com/static?template=terms).
+
+Downloading copyrighted videos may infringe on the creators' intellectual property.
+
+I reaffirm not to use this software to violate any laws.
+
 ## Using JavaTube
 
-To download videos from YouTube you need to import the YouTube class and pass a url argument like this to get access to the streams
+To download YouTube videos you need to import the YouTube class and pass a YouTube video url to access the streams.
+
+The streams() method returns a StreamQuery object that lists the properly handled streams.
+
+You must take only one stream to be able to download. You must take only one stream to be able to download it. You can use the methods: 
+
+* `getHighestResolution()`
+* `getLowestResolution() `
+* `getOnlyAudio() `
+
+You can also manually select the stream using `.getAll().get("index")`.
+
+The download() method must receive the path that the stream will be downloaded.
 
 ```java
 public static void main(String[] args) throws Exception {
     Youtube yt = new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo");
     yt.streams().getHighestResolution().download("./");
+}
+```
+
+or
+
+```java
+public static void main(String[] args) throws Exception {
+        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo").streams().getAll().get(1).download("./");
+    }
 }
 ```
 
@@ -148,24 +180,6 @@ Download it in .srt format (if the .srt format is not informed, the xml will be 
 ```java
 public static void main(String[] args) throws Exception {
         new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo&t=1s").getCaptions().getByCode("en").download("caption.srt", "./")
-    }
-}
-```
-
-## Download Methods
-
-To download you can use the methods:
-
-* `getHighestResolution()`
-* `getLowestResolution() `
-* `getOnlyAudio() `
-
-
-You can also manually select the stream using `.getAll().get("index")`.
-
-```java
-public static void main(String[] args) throws Exception {
-        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo").streams().getAll().get(1).download("./");
     }
 }
 ```

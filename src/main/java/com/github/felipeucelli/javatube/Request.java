@@ -1,4 +1,4 @@
-package javatube;
+package com.github.felipeucelli.javatube;
 
 import java.io.*;
 import java.net.HttpURLConnection;

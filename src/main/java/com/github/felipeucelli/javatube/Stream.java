@@ -1,4 +1,4 @@
-package javatube;
+package com.github.felipeucelli.javatube;
 
 import org.json.JSONException;
 import org.json.JSONObject;

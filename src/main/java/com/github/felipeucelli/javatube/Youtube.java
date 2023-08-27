@@ -1,4 +1,4 @@
-package javatube;
+package com.github.felipeucelli.javatube;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -116,13 +116,14 @@ public class Youtube {
             if(streamManifest.getJSONObject(i).has("signatureCipher")){
                 String oldUrl = decodeURL(streamManifest.getJSONObject(i).getString("url"));
                 streamManifest.getJSONObject(i).remove("url");
-                streamManifest.getJSONObject(i).put("url", oldUrl + "&sig=" + cipher.getSignature(decodeURL(streamManifest.getJSONObject(i).getString("s")).split("(?!^)")));
+                String sig = streamManifest.getJSONObject(i).getString("s");
+                streamManifest.getJSONObject(i).put("url", oldUrl + "&sig=" + cipher.getSignature(decodeURL(sig)));
             }
 
             String oldUrl = streamManifest.getJSONObject(i).getString("url");
             Matcher matcher = Pattern.compile("&n=(.*?)&").matcher(oldUrl);
             if (matcher.find()) {
-                String newUrl = oldUrl.replaceFirst("&n=(.*?)&", "&n=" + cipher.calculateN(matcher.group(1)) + "&");
+                String newUrl = oldUrl.replaceFirst("&n=(.*?)&", "&n=" + cipher.getNSig(matcher.group(1)) + "&");
                 streamManifest.getJSONObject(i).put("url", newUrl);
             }
 
