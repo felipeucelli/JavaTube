@@ -1,4 +1,6 @@
-# JavaTube [![JDK](https://img.shields.io/badge/JDK-17%2B-blue.svg)](https://www.oracle.com/java/technologies/downloads/#java17)
+# JavaTube 
+[![JDK](https://img.shields.io/badge/JDK-17%2B-blue.svg)](https://www.oracle.com/java/technologies/downloads/#java17) 
+[![](https://jitpack.io/v/felipeucelli/javatube.svg)](https://jitpack.io/#felipeucelli/javatube)
 
 _JavaTube_ is a YouTube video download library based on [pytube](https://github.com/pytube/pytube) library.
 
