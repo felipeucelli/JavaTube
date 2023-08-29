@@ -42,7 +42,12 @@ class InnerTube{
                        "clientName": "WEB",
                        "clientVersion": "2.20200720.00.02"
                      }
-                   }
+                   },
+                    "playbackContext": {
+                        "contentPlaybackContext": {
+                            "signatureTimestamp": 19593,
+                        }
+                    }
                  },
                  "header": {
                    "User-Agent": "Mozilla/5.0",
@@ -92,7 +97,12 @@ class InnerTube{
                        "clientVersion": "2.20210721.00.00",
                        "clientScreen": "EMBED"
                      }
-                   }
+                   },
+                   "playbackContext": {
+                        "contentPlaybackContext": {
+                            "signatureTimestamp": 19593,
+                        }
+                    }
                  },
                  "header": {
                    "User-Agent": "Mozilla/5.0",
@@ -141,7 +151,12 @@ class InnerTube{
                        "clientName": "WEB_REMIX",
                        "clientVersion": "1.20220727.01.00"
                      }
-                   }
+                   },
+                   "playbackContext": {
+                        "contentPlaybackContext": {
+                            "signatureTimestamp": 19593,
+                        }
+                    }
                  },
                  "header": {
                    "User-Agent": "Mozilla/5.0",
@@ -189,7 +204,12 @@ class InnerTube{
                        "clientName": "WEB_CREATOR",
                        "clientVersion": "1.20220726.00.00"
                      }
-                   }
+                   },
+                   "playbackContext": {
+                        "contentPlaybackContext": {
+                            "signatureTimestamp": 19593,
+                        }
+                    }
                  },
                  "header": {
                    "User-Agent": "Mozilla/5.0",
@@ -237,7 +257,12 @@ class InnerTube{
                        "clientName": "MWEB",
                        "clientVersion": "2.20220801.00.00"
                      }
-                   }
+                   },
+                   "playbackContext": {
+                        "contentPlaybackContext": {
+                            "signatureTimestamp": 19593,
+                        }
+                    }
                  },
                  "header": {
                    "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
@@ -253,10 +278,15 @@ class InnerTube{
                        "clientName": "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
                        "clientVersion": "2.0"
                      }
-                   }
+                   },
+                   "playbackContext": {
+                        "contentPlaybackContext": {
+                            "signatureTimestamp": 19593,
+                        }
+                    }
                  },
                  "header": {
-                   "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
+                   "User-Agent": "Mozilla/5.0",
                    "X-Youtube-Client-Name": "85"
                  },
                  "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
