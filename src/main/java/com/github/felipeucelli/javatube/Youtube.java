@@ -16,6 +16,8 @@ public class Youtube {
     private JSONObject vidInfo = null;
     private String html = null;
     private String js = null;
+    private JSONObject ytCfg = null;
+    private JSONObject signatureTimestamp = null;
     private String playerJs = null;
 
     /**
@@ -60,10 +62,10 @@ public class Youtube {
 
     private String setHtml() throws Exception {
         Map<String, String> headers = innerTube == null ? null : innerTube.getClientHeaders();
-        return Request.get(watchUrl, headers).toString(StandardCharsets.UTF_8.name());
+        return Request.get(watchUrl, headers).toString(StandardCharsets.UTF_8.name()).replace("\n", "");
     }
 
-    private String getHtml() throws Exception {
+    public String getHtml() throws Exception {
         if(html == null){
             html = setHtml();
         }
@@ -105,8 +107,15 @@ public class Youtube {
     }
 
     private JSONObject getVidInfo() throws Exception {
-        if(vidInfo == null){
-            vidInfo = innerTube == null ? setVidInfo() : innerTube.player(videoId());
+        if (vidInfo == null) {
+            if (innerTube == null) {
+                vidInfo = setVidInfo();
+            } else {
+                if (innerTube.getRequireJsPlayer()) {
+                    innerTube.updateInnerTubeContext(getSignatureTimestamp());
+                }
+                vidInfo = innerTube.player(videoId());
+            }
         }
         return vidInfo;
     }
@@ -158,6 +167,46 @@ public class Youtube {
             fmtStream.add(video);
         }
         return fmtStream;
+    }
+    private String setSignatureTimestamp() throws Exception {
+        String pattern = "signatureTimestamp:(\\d*)";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(getJs());
+        if(matcher.find()){
+            return matcher.group(1);
+        }else {
+            throw new Exception("RegexMatcherError. Unable to find signatureTimestamp in playerJs: " + getYtPlayerJs());
+        }
+    }
+    public JSONObject getSignatureTimestamp() throws Exception {
+        if(signatureTimestamp == null){
+            signatureTimestamp =  new JSONObject(
+            "{" +
+                    "playbackContext:{" +
+                        "contentPlaybackContext: {" +
+                            "signatureTimestamp:" + setSignatureTimestamp() + "}" +
+                        "}" +
+                    "}"
+            );
+        }
+        return signatureTimestamp;
+    }
+
+    private JSONObject setYtCfg() throws Exception {
+        Pattern pattern = Pattern.compile("window\\.ytplayer=\\{};ytcfg\\.set\\((\\{.*?\\})\\);");
+        Matcher matcher = pattern.matcher(getHtml());
+        if(matcher.find()){
+            return new JSONObject(matcher.group(1));
+        }else {
+            throw new Exception("RegexMatcherError. Could not find ytCfg: " + pattern);
+        }
+    }
+
+    public JSONObject getYtCfg() throws Exception {
+        if(ytCfg == null){
+            ytCfg = setYtCfg();
+        }
+        return ytCfg;
     }
 
     private String setYtPlayerJs() throws Exception {

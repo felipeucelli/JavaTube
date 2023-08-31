@@ -11,7 +11,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 class InnerTube{
-    private static JSONObject baseData;
+    private static JSONObject innerTubeContext;
+    private static boolean requireJsPlayer;
     private static JSONObject header;
     private static String apiKey;
 
@@ -36,27 +37,23 @@ class InnerTube{
         JSONObject defaultClient = new JSONObject("""
             {
                "WEB": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "WEB",
                        "clientVersion": "2.20200720.00.02"
                      }
-                   },
-                    "playbackContext": {
-                        "contentPlaybackContext": {
-                            "signatureTimestamp": 19593,
-                        }
-                    }
+                   }
                  },
                  "header": {
                    "User-Agent": "Mozilla/5.0",
                    "X-Youtube-Client-Name": "1"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "true"
                },
                "ANDROID": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "ANDROID",
@@ -70,10 +67,11 @@ class InnerTube{
                    "User-Agent": "com.google.android.youtube/",
                    "X-Youtube-Client-Name": "3"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "false"
                },
                "IOS": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "IOS",
@@ -86,32 +84,29 @@ class InnerTube{
                    "User-Agent": "com.google.ios.youtube/",
                    "X-Youtube-Client-Name": "5"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "false"
                },
                
                "WEB_EMBED": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "WEB_EMBEDDED_PLAYER",
                        "clientVersion": "2.20210721.00.00",
                        "clientScreen": "EMBED"
                      }
-                   },
-                   "playbackContext": {
-                        "contentPlaybackContext": {
-                            "signatureTimestamp": 19593,
-                        }
-                    }
+                   }
                  },
                  "header": {
                    "User-Agent": "Mozilla/5.0",
                    "X-Youtube-Client-Name": "56"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "true"
                },
                "ANDROID_EMBED": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "ANDROID_EMBEDDED_PLAYER",
@@ -125,10 +120,11 @@ class InnerTube{
                    "User-Agent": "com.google.android.youtube/",
                    "X-Youtube-Client-Name": "55"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "false"
                },
                "IOS_EMBED": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "IOS_MESSAGES_EXTENSION",
@@ -141,31 +137,28 @@ class InnerTube{
                    "User-Agent": "com.google.ios.youtube/",
                    "X-Youtube-Client-Name": "66"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "false"
                },
                
                "WEB_MUSIC": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "WEB_REMIX",
                        "clientVersion": "1.20220727.01.00"
                      }
-                   },
-                   "playbackContext": {
-                        "contentPlaybackContext": {
-                            "signatureTimestamp": 19593,
-                        }
-                    }
+                   }
                  },
                  "header": {
                    "User-Agent": "Mozilla/5.0",
                    "X-Youtube-Client-Name": "67"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "true"
                },
                "ANDROID_MUSIC": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "ANDROID_MUSIC",
@@ -178,10 +171,11 @@ class InnerTube{
                    "User-Agent": "com.google.android.apps.youtube.music/",
                    "X-Youtube-Client-Name": "21"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "false"
                },
                "IOS_MUSIC": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "IOS_MUSIC",
@@ -191,34 +185,31 @@ class InnerTube{
                    }
                  },
                  "header": {
-                   "User-Agent": "com.google.ios.youtubemusic/"
+                   "User-Agent": "com.google.ios.youtubemusic/",
+                   "X-Youtube-Client-Name": "26"
                  },
                  "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                   "X-Youtube-Client-Name": "26"
+                 "requireJsPlayer": "false"
                },
                
                "WEB_CREATOR": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "WEB_CREATOR",
                        "clientVersion": "1.20220726.00.00"
                      }
-                   },
-                   "playbackContext": {
-                        "contentPlaybackContext": {
-                            "signatureTimestamp": 19593,
-                        }
-                    }
+                   }
                  },
                  "header": {
                    "User-Agent": "Mozilla/5.0",
                    "X-Youtube-Client-Name": "62"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "true"
                },
                "ANDROID_CREATOR": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "ANDROID_CREATOR",
@@ -231,10 +222,11 @@ class InnerTube{
                    "User-Agent": "com.google.android.apps.youtube.creator/",
                    "X-Youtube-Client-Name": "14"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "false"
                },
                "IOS_CREATOR": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "IOS_CREATOR",
@@ -247,64 +239,58 @@ class InnerTube{
                    "User-Agent": "com.google.ios.ytcreator/",
                    "X-Youtube-Client-Name": "15"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "false"
                },
                
                "MWEB": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "MWEB",
                        "clientVersion": "2.20220801.00.00"
                      }
-                   },
-                   "playbackContext": {
-                        "contentPlaybackContext": {
-                            "signatureTimestamp": 19593,
-                        }
-                    }
+                   }
                  },
                  "header": {
                    "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
                    "X-Youtube-Client-Name": "2"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "true"
                },
                
                "TV_EMBED": {
-                 "baseData": {
+                 "innerTubeContext": {
                    "context": {
                      "client": {
                        "clientName": "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
                        "clientVersion": "2.0"
                      }
-                   },
-                   "playbackContext": {
-                        "contentPlaybackContext": {
-                            "signatureTimestamp": 19593,
-                        }
-                    }
+                   }
                  },
                  "header": {
                    "User-Agent": "Mozilla/5.0",
                    "X-Youtube-Client-Name": "85"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "true"
                }
              }
             """);
 
-        baseData = defaultClient.getJSONObject(client).getJSONObject("baseData");
+        innerTubeContext = defaultClient.getJSONObject(client).getJSONObject("innerTubeContext");
+        requireJsPlayer = defaultClient.getJSONObject(client).getBoolean("requireJsPlayer");
         header = defaultClient.getJSONObject(client).getJSONObject("header");
         apiKey = defaultClient.getJSONObject(client).getString("apiKey");
     }
-
-    private String getBaseUrl(){
-        return "https://www.youtube.com/youtubei/v1";
+    public JSONObject getInnerTubeContext() throws JSONException {
+        return innerTubeContext;
     }
-
-    public JSONObject getClientBaseData() throws JSONException {
-        return baseData;
+    public void updateInnerTubeContext(JSONObject extraInfo){
+        for (String key : extraInfo.keySet()) {
+            innerTubeContext.put(key, extraInfo.get(key));
+        }
     }
     public Map<String, String> getClientHeaders() throws JSONException {
         return getHeaderMap();
@@ -312,13 +298,19 @@ class InnerTube{
     public String getClientApiKey() throws JSONException {
         return apiKey;
     }
+    public boolean getRequireJsPlayer(){
+        return requireJsPlayer;
+    }
+
+    private String getBaseUrl(){
+        return "https://www.youtube.com/youtubei/v1";
+    }
 
     private String getBaseParam(){
         return "key: " + apiKey + "," +
                 "contentCheckOk: \"true\"," +
                 "racyCheckOk: \"true\"";
     }
-
     private String urlEncode(JSONObject json){
         StringBuilder query = new StringBuilder();
         for (Iterator<String> it = json.keys(); it.hasNext(); ) {
@@ -357,12 +349,12 @@ class InnerTube{
     public JSONObject player(String videoId) throws Exception {
         String endpoint = getBaseUrl() + "/player";
         JSONObject query = new JSONObject("{videoId: " + videoId + ", " + getBaseParam() + "}");
-        return callApi(endpoint, query, getClientBaseData());
+        return callApi(endpoint, query, getInnerTubeContext());
     }
 
     public JSONObject search(String searchQuery) throws Exception {
         String endpoint = getBaseUrl() + "/search";
         JSONObject query = new JSONObject("{query: " + searchQuery + ", " + getBaseParam() + "}");
-        return callApi(endpoint, query, getClientBaseData());
+        return callApi(endpoint, query, getInnerTubeContext());
     }
 }
