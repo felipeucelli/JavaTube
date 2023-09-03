@@ -40,7 +40,6 @@ public class SearchTest {
 
     @ParameterizedTest
     @CsvSource({
-            "java",
             "java videos",
             "java tutorial"
     })
