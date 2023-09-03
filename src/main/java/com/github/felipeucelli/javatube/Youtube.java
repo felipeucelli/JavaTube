@@ -131,7 +131,7 @@ public class Youtube {
         }
     }
 
-    private JSONObject streamData() throws Exception {
+     JSONObject streamData() throws Exception {
         checkAvailability();
         return getVidInfo().getJSONObject("streamingData");
     }
