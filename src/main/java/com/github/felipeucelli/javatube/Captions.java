@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +32,9 @@ public class Captions {
     }
 
     private String getXmlCaptions() throws Exception {
-        return Request.get(url).toString(StandardCharsets.UTF_8.name()).replaceAll("(&#39;)|(&amp;#39;)", "'");
+        Map<String, String> header = new HashMap<>();
+        header.put("User-Agent", "\"Mozilla/5.0\"");
+        return Request.get(url, header).toString(StandardCharsets.UTF_8.name()).replaceAll("(&#39;)|(&amp;#39;)", "'");
     }
 
     private String generateSrtCaptions() throws Exception {
@@ -47,7 +52,7 @@ public class Captions {
         Integer seconds = ((round / 1000 ) % 60);
         Integer minutes = ( round / 60000 ) % 60;
         Integer hours = round / 3600000;
-        return String.format("%02d:%02d:%02d,", hours, minutes, seconds) + String.format("%.3f", ms).replace("0,", "");
+        return String.format("%02d:%02d:%02d,", hours, minutes, seconds) + String.format("%.3f", ms).replaceAll("0[.,]", "");
     }
 
     public String xmlCaptionToSrt() throws Exception {
