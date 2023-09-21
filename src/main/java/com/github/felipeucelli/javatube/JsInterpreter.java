@@ -1070,7 +1070,7 @@ public class JsInterpreter {
                     }else if (obj == null && variable.equals("Math")){
                         if (finalMember.equals("pow")){
                             assertion(argvals.size() == 2, "takes two arguments");
-                            return (int) Math.pow((int) argvals.get(0), (int) argvals.get(1));
+                            return castToInt(Math.pow(castToInt(argvals.get(0)), castToInt(argvals.get(1))));
                         }
                         throw new Exception("Unsupported Math method " + finalMember);
                     }
