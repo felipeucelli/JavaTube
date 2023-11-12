@@ -337,9 +337,9 @@ public class JsInterpreter {
         if(a instanceof JS_Undefined || b instanceof JS_Undefined){
             return Double.NaN;
         }
-        try {
+        if(a instanceof Number && b instanceof Number) {
             return castToInt(a) + castToInt(b);
-        }catch (Exception e){
+        }else{
             return a + (String) b;
         }
     }

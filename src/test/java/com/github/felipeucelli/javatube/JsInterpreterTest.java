@@ -1,6 +1,7 @@
 package com.github.felipeucelli.javatube;
 
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -34,6 +35,28 @@ public class JsInterpreterTest {
         assertTrue(Files.exists(filePath), "File " + fileName + " not found.");
 
         return new String(Files.readAllBytes(filePath));
+    }
+
+    @Test
+    public void testInterpreterCurrentSig() throws Exception {
+        Youtube yt = new Youtube("https://www.youtube.com/watch?v=O3ElohqHEzQ");
+        Cipher c = new Cipher(yt.getJs(), yt.getYtPlayerJs());
+
+        String sig = "AOq0QJ8wRQIhANGlXiqWj4dne3ftJz6RMy5hK5Xe3QP3oC7MzEWXWYhWAiBOlqAWYj6ZOU-jlBaNLTTUGFOuR%3Dm397tElCFtpaC8jw%3Db";
+
+        new JsInterpreter(yt.getJs()).callFunction(c.getSignatureFunctionName(), sig);
+    }
+
+    @Test
+    public void testInterpreterCurrentNSig() throws Exception {
+        Youtube yt = new Youtube("https://www.youtube.com/watch?v=O3ElohqHEzQ");
+        Cipher c = new Cipher(yt.getJs(), yt.getYtPlayerJs());
+
+        String Nsig = "70QzMb0nhneLLS6BN";
+
+        String result = (String) new JsInterpreter(yt.getJs()).callFunction(c.getThrottlingFunctionName(), Nsig);
+
+        assertFalse(result.startsWith("enhanced_except"));
     }
 
     @ParameterizedTest
