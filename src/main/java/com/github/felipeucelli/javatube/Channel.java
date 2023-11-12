@@ -75,7 +75,16 @@ public class Channel extends Playlist{
 
     @Override
     protected String baseData(String continuation){
-        return "{\"continuation\": \"" + continuation + "\", \"context\": {\"client\": {\"clientName\": \"WEB\",  \"visitorData\": \"" + visitorData + "\", \"clientVersion\": \"2.20221107.06.00\"}}}";
+        return "{" +
+                    "\"continuation\": \"" + continuation + "\"," +
+                    "\"context\": {" +
+                        "\"client\": {" +
+                            "\"clientName\": \"WEB\", " +
+                            "\"visitorData\": \"" + visitorData + "\"," +
+                            "\"clientVersion\": \"2.20221107.06.00\"" +
+                        "}" +
+                    "}" +
+                "}";
     }
 
     @Override
@@ -363,6 +372,7 @@ public class Channel extends Playlist{
         }
     }
 
+    @Deprecated
     public String getBiography() throws Exception {
         setHtmlUrl(aboutUrl);
         try {
@@ -386,7 +396,11 @@ public class Channel extends Playlist{
     public String getViews() throws Exception {
         setHtmlUrl(aboutUrl);
         try {
-            return getActiveTab(getJson()).getJSONObject("tabRenderer")
+            return getJson().getJSONArray("onResponseReceivedEndpoints")
+                    .getJSONObject(0)
+                    .getJSONObject("showEngagementPanelEndpoint")
+                    .getJSONObject("engagementPanel")
+                    .getJSONObject("engagementPanelSectionListRenderer")
                     .getJSONObject("content")
                     .getJSONObject("sectionListRenderer")
                     .getJSONArray("contents")
@@ -394,9 +408,10 @@ public class Channel extends Playlist{
                     .getJSONObject("itemSectionRenderer")
                     .getJSONArray("contents")
                     .getJSONObject(0)
-                    .getJSONObject("channelAboutFullMetadataRenderer")
-                    .getJSONObject("viewCountText")
-                    .getString("simpleText");
+                    .getJSONObject("aboutChannelRenderer")
+                    .getJSONObject("metadata")
+                    .getJSONObject("aboutChannelViewModel")
+                    .getString("subscriberCountText");
         }catch (JSONException e){
             return null;
         }

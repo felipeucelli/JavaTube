@@ -31,7 +31,7 @@ public class PlaylistTest {
             "https://www.youtube.com/playlist?list=PLMC9KNkIncKtGvr2kFRuXBVmBev6cAJ2u"
     })
     public void testLength(String linkToTest) throws Exception {
-        Assertions.assertTrue(100 <= Integer.parseInt(new Playlist(linkToTest).length().replace(",", "")));
+        Assertions.assertTrue(100 < Integer.parseInt(new Playlist(linkToTest).length().replace(",", "")));
     }
 
     @ParameterizedTest

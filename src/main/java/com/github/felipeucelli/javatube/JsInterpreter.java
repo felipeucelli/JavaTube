@@ -581,15 +581,12 @@ public class JsInterpreter {
             String obj = expr.substring(4);
             if (obj.startsWith("Date(")){
                 List<String> result = separateAtParen(obj.substring(4), null);
-                String left = result.get(0).substring(1);
+                String left = result.get(0).substring(1).replace("\"", "");
                 String right = result.get(1);
 
-                OffsetDateTime dateTime = OffsetDateTime.parse(left.replace("\"", ""));
-                Instant instant = dateTime.toInstant();
+                Instant instant = Instant.parse(left);
 
-                double secondsSinceEpoch = instant.toEpochMilli() / Double.parseDouble(right.replace("/", ""));
-                int date = (int) secondsSinceEpoch;
-                expr = dump(date * 1000, localVars) + right;
+                expr = dump(instant.toEpochMilli(), localVars) + right;
             }else {
                 throw new Exception("Unsupported object: " + obj);
             }

@@ -30,7 +30,15 @@ public class Playlist {
     }
 
     protected String baseData(String continuation){
-        return "{\"continuation\": \"" + continuation + "\", \"context\": {\"client\": {\"clientName\": \"WEB\", \"clientVersion\": \"2.20200720.00.02\"}}}";
+        return "{" +
+                    "\"continuation\": \"" + continuation + "\"," +
+                    "\"context\": {" +
+                        "\"client\": {" +
+                            "\"clientName\": \"WEB\"," +
+                            "\"clientVersion\": \"2.20200720.00.02\"" +
+                        "}" +
+                    "}" +
+                "}";
     }
 
     private String baseParam(){

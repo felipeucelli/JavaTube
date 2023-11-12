@@ -72,102 +72,6 @@ public class Youtube {
         return html;
     }
 
-    private static JSONArray applyDescrambler(JSONObject streamData) throws JSONException{
-        JSONArray formats = new JSONArray();
-        if(streamData.has("formats")){
-            formats.putAll(streamData.getJSONArray("formats"));
-        }
-        if(streamData.has("adaptiveFormats")){
-            formats.putAll(streamData.getJSONArray("adaptiveFormats"));
-        }
-        for(int i = 0; i < formats.length(); i++){
-            if(formats.getJSONObject(i).has("signatureCipher")){
-                String rawSig = formats.getJSONObject(i).getString("signatureCipher").replace("sp=sig", "");
-                for(int j = 0; j < rawSig.split("&").length; j++){
-                    if(Arrays.asList(rawSig.split("&")).get(j).startsWith("url")){
-                        formats.getJSONObject(i).put("url", Arrays.asList(rawSig.split("&")).get(j).replace("url=", ""));
-                    }else if(Arrays.asList(rawSig.split("&")).get(j).startsWith("s")){
-                        formats.getJSONObject(i).put("s", Arrays.asList(rawSig.split("&")).get(j).replace("s=", ""));
-                    }
-                }
-            }
-        }
-        return formats;
-    }
-
-    private JSONObject setVidInfo() throws Exception {
-        String pattern = "ytInitialPlayerResponse\\s=\\s(\\{\"responseContext\":.*?\\});(?:var|</script>)";
-        Pattern regex = Pattern.compile(pattern);
-        Matcher matcher = regex.matcher(getHtml());
-        if(matcher.find()){
-           return new JSONObject(matcher.group(1));
-        }else {
-            throw new Exception("RegexMatcherError. Unable to find video information: " + pattern);
-        }
-    }
-
-    private JSONObject getVidInfo() throws Exception {
-        if (vidInfo == null) {
-            if (innerTube == null) {
-                vidInfo = setVidInfo();
-            } else {
-                if (innerTube.getRequireJsPlayer()) {
-                    innerTube.updateInnerTubeContext(getSignatureTimestamp());
-                }
-                vidInfo = innerTube.player(videoId());
-            }
-        }
-        return vidInfo;
-    }
-
-    private void checkAvailability() throws Exception {
-        JSONObject status = getVidInfo().getJSONObject("playabilityStatus");
-        if(status.has("liveStreamability")) {
-            throw new Exception("Video is a live stream.");
-        } else if(Objects.equals(status.getString("status"), "LOGIN_REQUIRED")){
-            throw new Exception("This is a private video.");
-        } else if(!Objects.equals(status.getString("status"), "OK")){
-            throw new Exception(status.getString("reason"));
-        }
-    }
-
-     JSONObject streamData() throws Exception {
-        checkAvailability();
-        return getVidInfo().getJSONObject("streamingData");
-    }
-
-    private String decodeURL(String s) throws UnsupportedEncodingException {
-        return URLDecoder.decode(s, StandardCharsets.UTF_8.name());
-    }
-
-    private ArrayList<Stream> fmtStreams() throws Exception {
-
-        JSONArray streamManifest = applyDescrambler(streamData());
-
-        ArrayList<Stream> fmtStream = new ArrayList<>();
-        String title = getTitle();
-        Stream video;
-        Cipher cipher = new Cipher(getJs(), getYtPlayerJs());
-        for (int i = 0; streamManifest.length() > i; i++) {
-            if(streamManifest.getJSONObject(i).has("signatureCipher")){
-                String oldUrl = decodeURL(streamManifest.getJSONObject(i).getString("url"));
-                streamManifest.getJSONObject(i).remove("url");
-                String sig = streamManifest.getJSONObject(i).getString("s");
-                streamManifest.getJSONObject(i).put("url", oldUrl + "&sig=" + cipher.getSignature(decodeURL(sig)));
-            }
-
-            String oldUrl = streamManifest.getJSONObject(i).getString("url");
-            Matcher matcher = Pattern.compile("&n=(.*?)&").matcher(oldUrl);
-            if (matcher.find()) {
-                String newUrl = oldUrl.replaceFirst("&n=(.*?)&", "&n=" + cipher.getNSig(matcher.group(1)) + "&");
-                streamManifest.getJSONObject(i).put("url", newUrl);
-            }
-
-            video = new Stream(streamManifest.getJSONObject(i), title);
-            fmtStream.add(video);
-        }
-        return fmtStream;
-    }
     private String setSignatureTimestamp() throws Exception {
         String pattern = "signatureTimestamp:(\\d*)";
         Pattern regex = Pattern.compile(pattern);
@@ -181,12 +85,13 @@ public class Youtube {
     public JSONObject getSignatureTimestamp() throws Exception {
         if(signatureTimestamp == null){
             signatureTimestamp =  new JSONObject(
-            "{" +
-                    "playbackContext:{" +
-                        "contentPlaybackContext: {" +
-                            "signatureTimestamp:" + setSignatureTimestamp() + "}" +
-                        "}" +
-                    "}"
+                    "{" +
+                                "playbackContext:{" +
+                                    "contentPlaybackContext: {" +
+                                        "signatureTimestamp:" + setSignatureTimestamp() +
+                                    "}" +
+                                "}" +
+                            "}"
             );
         }
         return signatureTimestamp;
@@ -237,6 +142,103 @@ public class Youtube {
 
     public String getUrl(){
         return watchUrl;
+    }
+
+    private JSONObject setVidInfo() throws Exception {
+        String pattern = "ytInitialPlayerResponse\\s=\\s(\\{\"responseContext\":.*?\\});(?:var|</script>)";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(getHtml());
+        if(matcher.find()){
+           return new JSONObject(matcher.group(1));
+        }else {
+            throw new Exception("RegexMatcherError. Unable to find video information: " + pattern);
+        }
+    }
+
+    private JSONObject getVidInfo() throws Exception {
+        if (vidInfo == null) {
+            if (innerTube == null) {
+                vidInfo = setVidInfo();
+            } else {
+                if (innerTube.getRequireJsPlayer()) {
+                    innerTube.updateInnerTubeContext(getSignatureTimestamp());
+                }
+                vidInfo = innerTube.player(videoId());
+            }
+        }
+        return vidInfo;
+    }
+
+    private void checkAvailability() throws Exception {
+        JSONObject status = getVidInfo().getJSONObject("playabilityStatus");
+        if(status.has("liveStreamability")) {
+            throw new Exception("Video is a live stream.");
+        } else if(Objects.equals(status.getString("status"), "LOGIN_REQUIRED")){
+            throw new Exception("This is a private video.");
+        } else if(!Objects.equals(status.getString("status"), "OK")){
+            throw new Exception(status.getString("reason"));
+        }
+    }
+
+     JSONObject streamData() throws Exception {
+        checkAvailability();
+        return getVidInfo().getJSONObject("streamingData");
+    }
+
+    private String decodeURL(String s) throws UnsupportedEncodingException {
+        return URLDecoder.decode(s, StandardCharsets.UTF_8.name());
+    }
+
+    private static JSONArray applyDescrambler(JSONObject streamData) throws JSONException{
+        JSONArray formats = new JSONArray();
+        if(streamData.has("formats")){
+            formats.putAll(streamData.getJSONArray("formats"));
+        }
+        if(streamData.has("adaptiveFormats")){
+            formats.putAll(streamData.getJSONArray("adaptiveFormats"));
+        }
+        for(int i = 0; i < formats.length(); i++){
+            if(formats.getJSONObject(i).has("signatureCipher")){
+                String rawSig = formats.getJSONObject(i).getString("signatureCipher").replace("sp=sig", "");
+                for(int j = 0; j < rawSig.split("&").length; j++){
+                    if(Arrays.asList(rawSig.split("&")).get(j).startsWith("url")){
+                        formats.getJSONObject(i).put("url", Arrays.asList(rawSig.split("&")).get(j).replace("url=", ""));
+                    }else if(Arrays.asList(rawSig.split("&")).get(j).startsWith("s")){
+                        formats.getJSONObject(i).put("s", Arrays.asList(rawSig.split("&")).get(j).replace("s=", ""));
+                    }
+                }
+            }
+        }
+        return formats;
+    }
+
+    private ArrayList<Stream> fmtStreams() throws Exception {
+
+        JSONArray streamManifest = applyDescrambler(streamData());
+
+        ArrayList<Stream> fmtStream = new ArrayList<>();
+        String title = getTitle();
+        Stream video;
+        Cipher cipher = new Cipher(getJs(), getYtPlayerJs());
+        for (int i = 0; streamManifest.length() > i; i++) {
+            if(streamManifest.getJSONObject(i).has("signatureCipher")){
+                String oldUrl = decodeURL(streamManifest.getJSONObject(i).getString("url"));
+                streamManifest.getJSONObject(i).remove("url");
+                String sig = streamManifest.getJSONObject(i).getString("s");
+                streamManifest.getJSONObject(i).put("url", oldUrl + "&sig=" + cipher.getSignature(decodeURL(sig)));
+            }
+
+            String oldUrl = streamManifest.getJSONObject(i).getString("url");
+            Matcher matcher = Pattern.compile("&n=(.*?)&").matcher(oldUrl);
+            if (matcher.find()) {
+                String newUrl = oldUrl.replaceFirst("&n=(.*?)&", "&n=" + cipher.getNSig(matcher.group(1)) + "&");
+                streamManifest.getJSONObject(i).put("url", newUrl);
+            }
+
+            video = new Stream(streamManifest.getJSONObject(i), title);
+            fmtStream.add(video);
+        }
+        return fmtStream;
     }
 
     public String getTitle() throws Exception {

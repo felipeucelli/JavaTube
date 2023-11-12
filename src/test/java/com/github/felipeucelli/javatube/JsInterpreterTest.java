@@ -25,7 +25,8 @@ public class JsInterpreterTest {
                 "da7c2a60-player_ias.vflset-en_US.txt",
                 "21812a9c-player_ias.vflset-en_US.txt",
                 "c153b631-player-plasma-ias-tablet-en_US.vflset.txt",
-                "019a2dc2-player-ias-vflset_en_US.txt"
+                "019a2dc2-player-ias-vflset_en_US.txt",
+                "5bdfe6d5-player_ias.vflset-en_US.txt"
                 );
     }
     private String readFileContent(String fileName) throws IOException {
@@ -66,6 +67,7 @@ public class JsInterpreterTest {
             case "c153b631-player-plasma-ias-tablet-en_US.vflset.txt" ->
                     List.of("AAnFkOJ694_Uew", "dq", "NL7YwUhStcFhEdqJ");
             case "019a2dc2-player-ias-vflset_en_US.txt" -> List.of("6giJCNZ6QlHatA", "Ula", "mSyHU9iB6viPu5-");
+            case "5bdfe6d5-player_ias.vflset-en_US.txt" -> List.of("6WVNa9oCSHok", "fma", "6giJCNZ6QlHatA");
             default -> List.of("", "", "");
         };
     }
@@ -90,6 +92,7 @@ public class JsInterpreterTest {
                     List.of("4wH9ODMkVi1I6bSu6ToLszs4gJNOwGF6XO=0AQ2T5AEiAUeci1en8CPWsA6WrK1VLwzakAOD-YLj-AJeQBffJluMAhIgRw8JQ0qOAA", "Qja", "AAOq0QJ8wRgIhAMulJffBQeJA-jLY-DOAkazwLV1KrW6AsWPC8ne1iceUAiEA5T2QA0=OX6FGwONJg4szsLoT6u4b6I1iVkMDO9HwSJwv");
             case "019a2dc2-player-ias-vflset_en_US.txt" ->
                     List.of("AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO", "AKa", "AOqAOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo9Oyib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO3");
+            case "5bdfe6d5-player_ias.vflset-en_US.txt" -> List.of("tTxUgoDDREeR36Kj5wrO_NjqCHEmy6PGNIGWF9GKnFEIC4P07pOGh54LI6biy39oUrq5mTnRI3mE0gJchXqWRWNIgIARw8JQ0q", "ZKa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
             default -> List.of("", "", "");
         };
 

@@ -106,13 +106,7 @@ public class ChannelTest {
         Assertions.assertFalse(new Channel(linkToTest).getDescription().isEmpty());
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            "https://www.youtube.com/@Alanwalkermusic"
-    })
-    public void testGetBiography(String linkToTest) throws Exception {
-        Assertions.assertNotNull(new Channel(linkToTest).getBiography());
-    }
+
 
     @ParameterizedTest
     @CsvSource({
@@ -137,7 +131,7 @@ public class ChannelTest {
             "https://www.youtube.com/@spinninrecords"
     })
     public void testGetShorts(String linkToTest) throws Exception {
-        Assertions.assertTrue(48 <= new Channel(linkToTest).getShorts().size());
+        Assertions.assertTrue(48 < new Channel(linkToTest).getShorts().size());
     }
 
     @ParameterizedTest
