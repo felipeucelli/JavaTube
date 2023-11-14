@@ -212,7 +212,7 @@ public class Youtube {
         return formats;
     }
 
-    private ArrayList<Stream> fmtStreams() throws Exception {
+    public ArrayList<Stream> fmtStreams() throws Exception {
 
         JSONArray streamManifest = applyDescrambler(streamData());
 
