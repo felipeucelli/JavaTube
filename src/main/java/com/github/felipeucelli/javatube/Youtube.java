@@ -192,10 +192,14 @@ public class Youtube {
     private static JSONArray applyDescrambler(JSONObject streamData) throws JSONException{
         JSONArray formats = new JSONArray();
         if(streamData.has("formats")){
-            formats.putAll(streamData.getJSONArray("formats"));
+            for(int i = 0; i < streamData.getJSONArray("formats").length(); i ++){
+                formats.put(streamData.getJSONArray("formats").get(i));
+            }
         }
         if(streamData.has("adaptiveFormats")){
-            formats.putAll(streamData.getJSONArray("adaptiveFormats"));
+            for(int i = 0; i < streamData.getJSONArray("adaptiveFormats").length(); i ++){
+                formats.put(streamData.getJSONArray("adaptiveFormats").get(i));
+            }
         }
         for(int i = 0; i < formats.length(); i++){
             if(formats.getJSONObject(i).has("signatureCipher")){

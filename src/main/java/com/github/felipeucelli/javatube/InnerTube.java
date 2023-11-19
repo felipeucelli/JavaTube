@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -287,8 +288,9 @@ class InnerTube{
     public JSONObject getInnerTubeContext() throws JSONException {
         return innerTubeContext;
     }
-    public void updateInnerTubeContext(JSONObject extraInfo){
-        for (String key : extraInfo.keySet()) {
+    public void updateInnerTubeContext(JSONObject extraInfo) throws JSONException {
+        for (Iterator<String> it = extraInfo.keys(); it.hasNext(); ) {
+            String key = it.next();
             innerTubeContext.put(key, extraInfo.get(key));
         }
     }
@@ -311,23 +313,23 @@ class InnerTube{
                 "contentCheckOk: \"true\"," +
                 "racyCheckOk: \"true\"";
     }
-    private String urlEncode(JSONObject json){
+    private String urlEncode(JSONObject json) throws JSONException, UnsupportedEncodingException {
         StringBuilder query = new StringBuilder();
         for (Iterator<String> it = json.keys(); it.hasNext(); ) {
             String key = it.next();
             String value = json.getString(key);
-            query.append(URLEncoder.encode(key, StandardCharsets.UTF_8));
+            query.append(URLEncoder.encode(key, StandardCharsets.UTF_8.name()));
             query.append("=");
-            query.append(URLEncoder.encode(value, StandardCharsets.UTF_8));
+            query.append(URLEncoder.encode(value, StandardCharsets.UTF_8.name()));
             query.append("&");
         }
-        if (!query.isEmpty()) {
+        if (query.length() != 0) {
             query.setLength(query.length() - 1);
         }
         return query.toString();
     }
 
-    private Map<String, String> getHeaderMap(){
+    private Map<String, String> getHeaderMap() throws JSONException {
         HashMap<String, String> headers = new HashMap<>();
         Iterator<String> keys = header.keys();
         while (keys.hasNext()) {

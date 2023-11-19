@@ -144,7 +144,7 @@ public class ChannelTest {
 
     @ParameterizedTest
     @CsvSource({
-            "https://www.youtube.com/@VEVO, 300",
+            "https://www.youtube.com/@Alanwalkermusic, 30",
             "https://www.youtube.com/@Monstercat, 30"
     })
     public void testGetPlaylists(String linkToTest, int expectedOutput) throws Exception {
