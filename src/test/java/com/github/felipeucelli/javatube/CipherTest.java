@@ -26,7 +26,8 @@ public class CipherTest {
                 "da7c2a60-player_ias.vflset-en_US.txt",
                 "21812a9c-player_ias.vflset-en_US.txt",
                 "c153b631-player-plasma-ias-tablet-en_US.vflset.txt",
-                "5bdfe6d5-player_ias.vflset-en_US.txt"
+                "5bdfe6d5-player_ias.vflset-en_US.txt",
+                "31e0b6d9-player_ias.vflset-en_US.txt"
         );
     }
     private String readFileContent(String fileName) throws IOException {
@@ -68,6 +69,7 @@ public class CipherTest {
             case "3cd2d050-player-plasma-ias-tablet-en_US.vflset.txt" -> "$p";
             case "21812a9c-player_ias.vflset-en_US.txt" -> "Tla";
             case "c153b631-player-plasma-ias-tablet-en_US.vflset.txt" -> "dq";
+            case "31e0b6d9-player_ias.vflset-en_US.txt" -> "kma";
             default -> "";
         };
     }
@@ -82,6 +84,7 @@ public class CipherTest {
             case "21812a9c-player_ias.vflset-en_US.txt" -> "$ya";
             case "c153b631-player-plasma-ias-tablet-en_US.vflset.txt" -> "Qja";
             case "5bdfe6d5-player_ias.vflset-en_US.txt" -> "ZKa";
+            case "31e0b6d9-player_ias.vflset-en_US.txt" -> "zLa";
             default -> "";
         };
     }

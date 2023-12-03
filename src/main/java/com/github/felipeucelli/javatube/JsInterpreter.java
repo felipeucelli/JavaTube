@@ -416,7 +416,7 @@ public class JsInterpreter {
         throw new ClassCastException("It was not possible to convert object to Map<String, Object>, because the object is a " + obj.getClass().getName());
     }
     private static Object jsTernary(Object cndn, Object if_true, Object if_false) {
-        if (cndn == null || cndn == JS_Undefined || cndn.equals(Boolean.FALSE) || cndn.equals(0) || cndn.equals("")) {
+        if (cndn == null || cndn == JS_Undefined || cndn.equals(Boolean.FALSE) || cndn.equals(0) || cndn.equals("") || Objects.equals(cndn, "None")) {
             return if_false;
         }
 
@@ -1305,7 +1305,11 @@ public class JsInterpreter {
                 if(idx instanceof Double){
                     finalIdx = (int) Math.round((double) idx);
                 }else {
-                    finalIdx = (int) idx;
+                    if(idx instanceof String){
+                        finalIdx = Integer.parseInt((String) idx);
+                    }else{
+                        finalIdx = (int) idx;
+                    }
                 }
                 return ((ArrayList<?>) obj).get(finalIdx);
             } else if (obj instanceof Map) {
@@ -1326,6 +1330,8 @@ public class JsInterpreter {
             return Integer.parseInt(obj.toString());
         }else if (obj instanceof Boolean){
             return obj.toString();
+        }else if(Objects.equals(obj,"null")){
+            return "None";
         }
         assert namespace instanceof Map;
         return namedObject((Map<String, Object>) namespace, obj);
