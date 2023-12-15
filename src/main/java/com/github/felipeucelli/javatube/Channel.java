@@ -411,7 +411,7 @@ public class Channel extends Playlist{
                     .getJSONObject("aboutChannelRenderer")
                     .getJSONObject("metadata")
                     .getJSONObject("aboutChannelViewModel")
-                    .getString("subscriberCountText");
+                    .getString("viewCountText");
         }catch (JSONException e){
             return null;
         }
