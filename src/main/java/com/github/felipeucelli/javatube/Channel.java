@@ -17,6 +17,7 @@ public class Channel extends Playlist{
     private final String videosUrl;
     private final String shortsUrl;
     private final String streamsUrl;
+    private final String releasesUrl;
     private final String playlistUrl;
     private final String communityUrl;
     private final String featuredChannelUrl;
@@ -33,6 +34,7 @@ public class Channel extends Playlist{
         videosUrl = channelUrl + "/videos";
         shortsUrl = channelUrl + "/shorts";
         streamsUrl = channelUrl + "/streams";
+        releasesUrl = channelUrl + "/releases";
         playlistUrl = channelUrl + "/playlists";
         communityUrl = channelUrl + "/community";
         featuredChannelUrl = channelUrl + "/channels";
@@ -229,6 +231,12 @@ public class Channel extends Playlist{
         setHtmlUrl(streamsUrl);
         return extractId();
     }
+
+    public ArrayList<String> getReleases() throws Exception {
+        setHtmlUrl(releasesUrl);
+        return extractId();
+    }
+
     public ArrayList<String> getPlaylists() throws Exception {
         setHtmlUrl(playlistUrl);
         return extractId();
@@ -266,6 +274,17 @@ public class Channel extends Playlist{
                     .getJSONObject("content")
                     .getJSONObject("reelItemRenderer")
                     .getString("videoId");
+        }catch (JSONException e){
+            return getReleasesId(ids);
+        }
+    }
+
+    private String getReleasesId(JSONObject ids) throws JSONException{
+        try{
+            return "https://www.youtube.com/playlist?list=" + ids.getJSONObject("richItemRenderer")
+                    .getJSONObject("content")
+                    .getJSONObject("playlistRenderer")
+                    .getString("playlistId");
         }catch (JSONException e){
             return getPlaylistId(ids);
         }
@@ -454,6 +473,10 @@ public class Channel extends Playlist{
 
     public String getStreamsUrl(){
         return streamsUrl;
+    }
+
+    public String getReleasesUrl(){
+        return releasesUrl;
     }
 
     public String getPlaylistUrl(){

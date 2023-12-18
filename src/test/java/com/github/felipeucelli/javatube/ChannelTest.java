@@ -128,7 +128,9 @@ public class ChannelTest {
     @ParameterizedTest
     @CsvSource({
             "https://www.youtube.com/@Alanwalkermusic",
-            "https://www.youtube.com/@spinninrecords"
+            "https://www.youtube.com/@spinninrecords",
+            "https://www.youtube.com/@NoCopyrightSounds",
+            "https://www.youtube.com/@Monstercat"
     })
     public void testGetShorts(String linkToTest) throws Exception {
         Assertions.assertTrue(48 < new Channel(linkToTest).getShorts().size());
@@ -136,10 +138,18 @@ public class ChannelTest {
 
     @ParameterizedTest
     @CsvSource({
-            "https://www.youtube.com/@spinninrecords"
+            "https://www.youtube.com/@spinninrecords",
     })
     public void testGetLives(String linkToTest) throws Exception {
         Assertions.assertTrue(30 < new Channel(linkToTest).getLives().size());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "https://www.youtube.com/@Alanwalkermusic"
+    })
+    public void testGetReleases(String linkToTest) throws Exception {
+        Assertions.assertTrue(28 < new Channel(linkToTest).getReleases().size());
     }
 
     @ParameterizedTest
