@@ -293,7 +293,7 @@ public class Youtube {
                     .getJSONObject("playerCaptionsTracklistRenderer")
                     .getJSONArray("captionTracks");
             ArrayList<Captions> captions = new ArrayList<>();
-            for(int i = 0; i < rawTracks.length() - 1; i++){
+            for(int i = 0; i < rawTracks.length(); i++){
                 captions.add(new Captions(rawTracks.getJSONObject(i)));
             }
             return captions;

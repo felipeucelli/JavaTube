@@ -18,16 +18,22 @@ import java.util.regex.Pattern;
 public class Captions {
     private final String url;
     private final String code;
+    private final String name;
 
     public Captions(JSONObject captionTrack) throws JSONException {
         url = captionTrack.getString("baseUrl");
-        code = captionTrack.getString("vssId").replace(".", "");
+        String vssId = captionTrack.getString("vssId");
+        code = vssId.startsWith(".") ? vssId.replace(".", "") : vssId;
+        name = captionTrack.getJSONObject("name").getString("simpleText");
     }
     public String getUrl(){
         return url;
     }
     public String getCode(){
         return code;
+    }
+    public String getName(){
+        return name;
     }
 
     private String getXmlCaptions() throws Exception {
