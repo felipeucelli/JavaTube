@@ -29,6 +29,11 @@ public class Stream{
     private final String abr;
     private Integer fps = null;
     private final String resolution;
+    private final JSONObject multipleAudioTracks;
+    private boolean defaultAudioTrack = true;
+    private String audioTrackName = null;
+    private String audioTrackId = null;
+
 
     public Stream(JSONObject stream, String videoTitle) throws Exception {
         title = videoTitle;
@@ -49,6 +54,12 @@ public class Stream{
             fps = stream.getInt("fps");
         }
         resolution = itagProfile.get("resolution");
+        multipleAudioTracks = stream.has("audioTrack") ? stream.getJSONObject("audioTrack") : null;
+        if(includesMultipleAudioTracks()){
+            defaultAudioTrack = multipleAudioTracks.getBoolean("audioIsDefault");
+            audioTrackName = Arrays.asList(multipleAudioTracks.getString("displayName").split(" ")).get(0);
+            audioTrackId = multipleAudioTracks.getString("id");
+        }
     }
 
     private long setFileSize(String size) throws IOException {
@@ -93,6 +104,10 @@ public class Stream{
     }
 
     public Boolean includeVideoTrack() { return isProgressive() || Objects.equals(type, "video"); }
+
+    public Boolean includesMultipleAudioTracks(){
+        return multipleAudioTracks != null;
+    }
 
     private ArrayList<String> parseCodecs(){
         ArrayList<String> array = new ArrayList<>();
@@ -258,7 +273,7 @@ public class Stream{
         itags.put(136, new ArrayList<>(Arrays.asList("720p", null))); // MP4
         itags.put(137, new ArrayList<>(Arrays.asList("1080p", null))); // MP4
         itags.put(138, new ArrayList<>(Arrays.asList("2160p", null))); // MP4
-        itags.put(160, new ArrayList<>(Arrays.asList("144p", null))); // WEBM
+        itags.put(160, new ArrayList<>(Arrays.asList("144p", null))); // MP4
         itags.put(167, new ArrayList<>(Arrays.asList("360p", null))); // WEBM
         itags.put(168, new ArrayList<>(Arrays.asList("480p", null))); // WEBM
         itags.put(169, new ArrayList<>(Arrays.asList("720p", null))); // WEBM
@@ -303,6 +318,8 @@ public class Stream{
         itags.put(401, new ArrayList<>(Arrays.asList("2160p", null))); // MP4
         itags.put(402, new ArrayList<>(Arrays.asList("4320p", null))); // MP4
         itags.put(571, new ArrayList<>(Arrays.asList("4320p", null))); // MP4
+        itags.put(597, new ArrayList<>(Arrays.asList(null, null))); // MP4
+        itags.put(598, new ArrayList<>(Arrays.asList(null, null))); // WEBM
         itags.put(694, new ArrayList<>(Arrays.asList("144p", null))); // MP4
         itags.put(695, new ArrayList<>(Arrays.asList("240p", null))); // MP4
         itags.put(696, new ArrayList<>(Arrays.asList("360p", null))); // MP4
@@ -326,6 +343,8 @@ public class Stream{
         itags.put(258, new ArrayList<>(Arrays.asList(null, "384kbps"))); // MP4
         itags.put(325, new ArrayList<>(Arrays.asList(null, null))); // MP4
         itags.put(328, new ArrayList<>(Arrays.asList(null, null))); // MP4
+        itags.put(599, new ArrayList<>(Arrays.asList(null, null))); // MP4
+        itags.put(600, new ArrayList<>(Arrays.asList(null, null))); // webm
 
 
         String res, bitrate;
@@ -391,6 +410,15 @@ public class Stream{
     }
     public String getResolution(){
         return resolution;
+    }
+    public boolean isDefaultAudioTrack(){
+        return defaultAudioTrack;
+    }
+    public String getAudioTrackName(){
+        return audioTrackName;
+    }
+    public String getAudioTrackId(){
+        return audioTrackId;
     }
 
 }

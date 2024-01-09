@@ -64,6 +64,26 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
+### Downloading videos with multiple audio tracks
+Videos with multiple progressive audio tracks come with the original audio, which is why we must choose the adaptive types.
+
+Because the dubbed audio tracks have the same tag, we have to filter by name.
+
+This will only list tracks dubbed in the chosen language:
+
+```java
+for(Stream s : new Youtube("https://www.youtube.com/watch?v=g_VxOIlg7q8").streams().getExtraAudioTracksByName("English").getAll()){
+    System.out.println(s.getItag() + " " + s.getAudioTrackName() + " " + s.getAbr() + " " + s.getUrl());
+}
+```
+You can check the dubbed tracks using:
+
+```java
+for(Stream s : new Youtube("https://www.youtube.com/watch?v=g_VxOIlg7q8").streams().getExtraAudioTracks().getAll()){
+    System.out.println(s.getItag() + " " + s.getAudioTrackName() + " " + s.getAbr() + " " + s.getUrl());
+}
+```
+
 ### Download using filters 
 
 You must pass a HashMap String with the filter you want to use and its respective value
