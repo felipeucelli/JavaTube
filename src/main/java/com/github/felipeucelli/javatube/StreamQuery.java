@@ -389,7 +389,7 @@ public class StreamQuery{
     public StreamQuery getExtraAudioTracks(){
         ArrayList<Stream> filter = new ArrayList<>();
         for(Stream st : fmtStreams){
-            if(!st.isDefaultAudioTrack() ){
+            if(!st.isDefaultAudioTrack() && st.includeAudioTrack() && !st.includeVideoTrack()){
                 filter.add(st);
             }
         }
@@ -399,8 +399,10 @@ public class StreamQuery{
     public StreamQuery getExtraAudioTracksById(String id){
         ArrayList<Stream> filter = new ArrayList<>();
         for(Stream st : fmtStreams){
-            if(Objects.equals(st.getAudioTrackId(), id)){
-                filter.add(st);
+            if(st.includesMultipleAudioTracks()) {
+                if (Objects.equals(st.getAudioTrackId(), id)) {
+                    filter.add(st);
+                }
             }
         }
         return new StreamQuery(filter);

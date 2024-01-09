@@ -30,7 +30,7 @@ public class Stream{
     private Integer fps = null;
     private final String resolution;
     private final JSONObject multipleAudioTracks;
-    private boolean defaultAudioTrack = true;
+    private final boolean defaultAudioTrack;
     private String audioTrackName = null;
     private String audioTrackId = null;
 
@@ -59,6 +59,8 @@ public class Stream{
             defaultAudioTrack = multipleAudioTracks.getBoolean("audioIsDefault");
             audioTrackName = Arrays.asList(multipleAudioTracks.getString("displayName").split(" ")).get(0);
             audioTrackId = multipleAudioTracks.getString("id");
+        }else {
+            defaultAudioTrack = includeAudioTrack() && !includeVideoTrack();
         }
     }
 
