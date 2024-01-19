@@ -2,99 +2,107 @@ package com.github.felipeucelli.javatube;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 
 public class StreamQueryTest {
 
+    static ArrayList<StreamQuery> streamTest = new ArrayList<>();
+    static ArrayList<StreamQuery> streamDubbedTest = new ArrayList<>();
+
+    public static void setDubbedStreams() throws Exception {
+        String[] url = {
+                "https://www.youtube.com/watch?v=g_VxOIlg7q8",
+                "https://www.youtube.com/watch?v=WdXQabecaEs"
+        };
+        for(String s : url){
+            streamDubbedTest.add(new Youtube(s).streams());
+        }
+    }
+    public static void setStreams() throws Exception {
+        String[] url = {
+                "https://www.youtube.com/watch?v=60ItHLz5WEA",
+                "https://www.youtube.com/watch?v=2lAe1cqCOXo",
+                "https://www.youtube.com/watch?v=J9Q1J5I7ac0"
+        };
+        for(String s : url){
+            streamTest.add(new Youtube(s).streams());
+        }
+    }
+
+    static ArrayList<StreamQuery> getStreams() throws Exception {
+        if(streamTest.isEmpty()){
+            setStreams();
+        }
+        return streamTest;
+    }
+
+    static ArrayList<StreamQuery> getDubbedStreams() throws Exception {
+        if(streamDubbedTest.isEmpty()){
+            setDubbedStreams();
+        }
+        return streamDubbedTest;
+    }
+
     @ParameterizedTest
-    @CsvSource({
-            "https://www.youtube.com/watch?v=g_VxOIlg7q8",
-            "https://www.youtube.com/watch?v=WdXQabecaEs"
-    })
-    public void testGetDefaultAudioTracks(String url) throws Exception {
-        for(Stream s : new Youtube(url).streams().getDefaultAudioTracks().getAll()){
+    @MethodSource("getDubbedStreams")
+    public void testGetDefaultAudioTracks(StreamQuery streams) {
+        for(Stream s : streams.getDefaultAudioTracks().getAll()){
             Assertions.assertTrue(s.isDefaultAudioTrack());
         }
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "https://www.youtube.com/watch?v=g_VxOIlg7q8",
-            "https://www.youtube.com/watch?v=WdXQabecaEs"
-    })
-    public void testGetExtraAudioTracks(String url) throws Exception {
-        for(Stream s : new Youtube(url).streams().getExtraAudioTracks().getAll()){
+    @MethodSource("getDubbedStreams")
+    public void testGetExtraAudioTracks(StreamQuery streams) {
+        for(Stream s : streams.getExtraAudioTracks().getAll()){
             Assertions.assertFalse(s.isDefaultAudioTrack());
         }
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "https://www.youtube.com/watch?v=g_VxOIlg7q8",
-            "https://www.youtube.com/watch?v=WdXQabecaEs"
-    })
-    public void TestGetExtraAudioTracksByName(String url) throws Exception {
-        ArrayList<Stream> yt = new Youtube(url).streams().getExtraAudioTracksByName("English").getAll();
+    @MethodSource("getDubbedStreams")
+    public void TestGetExtraAudioTracksByName(StreamQuery streams)  {
+        ArrayList<Stream> yt = streams.getExtraAudioTracksByName("English").getAll();
         Assertions.assertFalse(yt.isEmpty());
 
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "https://www.youtube.com/watch?v=60ItHLz5WEA",
-            "https://www.youtube.com/watch?v=2lAe1cqCOXo",
-            "https://www.youtube.com/watch?v=J9Q1J5I7ac0"
-    })
-    public void TestGetProgressive(String url) throws Exception {
-        for(Stream s : new Youtube(url).streams().getProgressive().getAll()){
+    @MethodSource("getStreams")
+    public void TestGetProgressive(StreamQuery streams) {
+        for(Stream s : streams.getProgressive().getAll()){
             Assertions.assertTrue(s.isProgressive());
         }
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "https://www.youtube.com/watch?v=60ItHLz5WEA",
-            "https://www.youtube.com/watch?v=2lAe1cqCOXo",
-            "https://www.youtube.com/watch?v=J9Q1J5I7ac0"
-    })
-    public void TestGetAdaptive(String url) throws Exception {
-        for(Stream s : new Youtube(url).streams().getAdaptive().getAll()){
+    @MethodSource("getStreams")
+    public void TestGetAdaptive(StreamQuery streams) {
+        for(Stream s : streams.getAdaptive().getAll()){
             Assertions.assertTrue(s.isAdaptive());
         }
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "https://www.youtube.com/watch?v=60ItHLz5WEA",
-            "https://www.youtube.com/watch?v=2lAe1cqCOXo",
-            "https://www.youtube.com/watch?v=J9Q1J5I7ac0"
-    })
-    public void TestGetOnlyAudio(String url) throws Exception {
-        Stream yt = new Youtube(url).streams().getOnlyAudio();
+    @MethodSource("getStreams")
+    public void TestGetOnlyAudio(StreamQuery streams) {
+        Stream yt = streams.getOnlyAudio();
         Assertions.assertFalse(yt.includeVideoTrack());
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "https://www.youtube.com/watch?v=60ItHLz5WEA",
-            "https://www.youtube.com/watch?v=2lAe1cqCOXo",
-            "https://www.youtube.com/watch?v=J9Q1J5I7ac0"
-    })
-    public void TestGetLowestResolution(String url) throws Exception {
-        Stream yt = new Youtube(url).streams().getLowestResolution();
+    @MethodSource("getStreams")
+    public void TestGetLowestResolution(StreamQuery streams) {
+        Stream yt = streams.getLowestResolution();
         Assertions.assertTrue(yt.includeVideoTrack() && yt.includeAudioTrack());
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "https://www.youtube.com/watch?v=60ItHLz5WEA",
-            "https://www.youtube.com/watch?v=2lAe1cqCOXo",
-            "https://www.youtube.com/watch?v=J9Q1J5I7ac0"
-    })
-    public void TestGetHighestResolution(String url) throws Exception {
-        Stream yt = new Youtube(url).streams().getHighestResolution();
+    @MethodSource("getStreams")
+    public void TestGetHighestResolution(StreamQuery streams) {
+        Stream yt = streams.getHighestResolution();
         Assertions.assertTrue(yt.includeVideoTrack() && yt.includeAudioTrack());
     }
 
