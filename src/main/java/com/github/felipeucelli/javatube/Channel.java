@@ -4,10 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +22,7 @@ public class Channel extends Playlist{
     private final String url;
     private String htmlPage;
     private String visitorData;
+    private int attempts = 0;
 
     public Channel(String inputUrl) throws Exception {
         super(inputUrl);
@@ -90,10 +88,16 @@ public class Channel extends Playlist{
     }
 
     @Override
-    protected String setHtml() throws Exception {
+    protected Map<String, String> getHeaders(){
         Map<String, String> header = new HashMap<>();
         header.put("User-Agent", "\"Mozilla/5.0\"");
-        return Request.get(getHtmlUrl(), null, header).toString();
+        header.put("X-YouTube-Client-Name", "\"1\"");
+        header.put("X-YouTube-Client-Version", "\"2.20221107.06.00\"");
+        return header;
+    }
+    @Override
+    protected String setHtml() throws Exception {
+        return Request.get(getHtmlUrl(), null, getHeaders()).toString();
     }
 
     private JSONObject getActiveTab(JSONObject rawJson) throws JSONException{
@@ -169,8 +173,8 @@ public class Channel extends Playlist{
     protected JSONArray extractVideos(JSONObject rawJson){
         JSONArray swap = new JSONArray();
         try {
-            JSONArray importantContent;
-            try {
+            JSONArray importantContent = new JSONArray();
+            if(rawJson.has("contents")) {
                 JSONObject activeTab = getActiveTab(rawJson);
 
                 visitorData = rawJson.getJSONObject("responseContext")
@@ -180,33 +184,23 @@ public class Channel extends Playlist{
 
                 importantContent = getImportantContent(activeTab);
 
-
-            }catch (JSONException e){
+            }else if (rawJson.has("onResponseReceivedActions")){
                 importantContent = rawJson.getJSONArray("onResponseReceivedActions")
                         .getJSONObject(0)
                         .getJSONObject("appendContinuationItemsAction")
                         .getJSONArray("continuationItems");
+
+            }else if (attempts < 3){
+                    // YouTube is blocking very quick requests for shorts, so we wait and repeat the request
+                    Thread.sleep(1000);
+                    swap = extractContinuationItems(importantContent);
+                    attempts += 1;
             }
 
-            try{
-                String continuation = importantContent.getJSONObject(importantContent.length() - 1)
-                        .getJSONObject("continuationItemRenderer")
-                        .getJSONObject("continuationEndpoint")
-                        .getJSONObject("continuationCommand")
-                        .getString("token");
-                JSONArray continuationEnd = new JSONArray(buildContinuationUrl(continuation));
-
-                for(int i = 0; i < importantContent.length(); i++){
-                    swap.put(importantContent.get(i));
-                }
-
-                if (continuationEnd.length() > 0){
-                    for(int i = 0; i < continuationEnd.length(); i++){
-                        swap.put(continuationEnd.get(i));
-                    }
-                }
-
-            } catch (JSONException e) {
+            if(importantContent.getJSONObject(importantContent.length() - 1).has("continuationItemRenderer")){
+                setContinuationToken(importantContent);
+                swap = extractContinuationItems(importantContent);
+            } else {
                 for(int i = 0; i < importantContent.length(); i++){
                     swap.put(importantContent.get(i));
                 }
@@ -217,6 +211,7 @@ public class Channel extends Playlist{
         return swap;
     }
 
+    @Override
     public ArrayList<String> getVideos() throws Exception {
         setHtmlUrl(videosUrl);
         return extractId();
@@ -254,7 +249,7 @@ public class Channel extends Playlist{
             }catch (JSONException ignored){
             }
         }
-        return videosId;
+        return unify(videosId);
     }
 
     private String getVideoId(JSONObject ids) throws JSONException{

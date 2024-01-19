@@ -18,7 +18,7 @@ class InnerTube{
     private static String apiKey;
 
     /**
-     * Clients:
+     * @Clients:
      *          WEB,
      *          WEB_EMBED,
      *          WEB_MUSIC,

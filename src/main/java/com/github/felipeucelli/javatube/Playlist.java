@@ -4,9 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +12,7 @@ public class Playlist {
     private final String url;
     protected String html = null;
     protected JSONObject json = null;
+    protected String continuationToken = null;
 
     public Playlist(String InputUrl){
         url = InputUrl;
@@ -49,10 +48,14 @@ public class Playlist {
         return "https://www.youtube.com/playlist?" + getPlaylistId();
     }
 
-    protected String setHtml() throws Exception {
+    protected Map<String, String> getHeaders(){
         Map<String, String> header = new HashMap<>();
         header.put("User-Agent", "\"Mozilla/5.0\"");
-        return Request.get(getPlaylistUrl(), null, header).toString();
+        return header;
+    }
+
+    protected String setHtml() throws Exception {
+        return Request.get(getPlaylistUrl(), null, getHeaders()).toString();
     }
     protected String getHtml() throws Exception {
         if(html == null){
@@ -78,8 +81,31 @@ public class Playlist {
         return json;
     }
 
+    protected void setContinuationToken(JSONArray importantContent) throws JSONException {
+        continuationToken = importantContent.getJSONObject(importantContent.length() - 1)
+                .getJSONObject("continuationItemRenderer")
+                .getJSONObject("continuationEndpoint")
+                .getJSONObject("continuationCommand")
+                .getString("token");
+    }
+
+    protected JSONArray extractContinuationItems(JSONArray importantContent) throws Exception {
+        JSONArray swap = new JSONArray();
+
+        JSONArray continuationEnd = buildContinuationUrl(continuationToken);
+
+        for(int i = 0; i < importantContent.length(); i++){
+            swap.put(importantContent.get(i));
+        }
+
+        for(int i = 0; i < continuationEnd.length(); i++){
+            swap.put(continuationEnd.get(i));
+        }
+        return swap;
+    }
+
     protected JSONArray buildContinuationUrl(String continuation) throws Exception {
-        return extractVideos(new JSONObject(Request.post(baseParam(), baseData(continuation)).toString()));
+        return extractVideos(new JSONObject(Request.post(baseParam(), baseData(continuation), getHeaders()).toString()));
     }
 
     protected JSONArray extractVideos(JSONObject rawJson) {
@@ -109,27 +135,11 @@ public class Playlist {
                         .getJSONObject("appendContinuationItemsAction")
                         .getJSONArray("continuationItems");
             }
-            try{
-                String continuation = importantContent.getJSONObject(importantContent.length() - 1)
-                        .getJSONObject("continuationItemRenderer")
-                        .getJSONObject("continuationEndpoint")
-                        .getJSONObject("continuationCommand")
-                        .getString("token");
-
-                JSONArray continuationEnd = buildContinuationUrl(continuation);
-
+            if(importantContent.getJSONObject(importantContent.length() - 1).has("continuationItemRenderer")){
+                setContinuationToken(importantContent);
+                swap = extractContinuationItems(importantContent);
+            } else {
                 for(int i = 0; i < importantContent.length(); i++){
-                    swap.put(importantContent.get(i));
-                }
-
-                if (continuationEnd.length() > 0){
-                    for(int i = 0; i < continuationEnd.length(); i++){
-                        swap.put(continuationEnd.get(i));
-                    }
-                }
-
-            } catch (JSONException e) {
-                for (int i = 0; i < importantContent.length(); i++) {
                     swap.put(importantContent.get(i));
                 }
             }
@@ -139,7 +149,14 @@ public class Playlist {
         return swap;
     }
 
-    public ArrayList<String>  getVideos() throws Exception {
+    protected ArrayList<String> unify(ArrayList<String> list){
+        LinkedHashSet<String> unifiedList = new LinkedHashSet<>(list);
+        list.clear();
+        list.addAll(unifiedList);
+        return list;
+    }
+
+    public ArrayList<String> getVideos() throws Exception {
         JSONArray video = extractVideos(getJson());
         ArrayList<String> videosId = new ArrayList<>();
         try {
@@ -151,7 +168,7 @@ public class Playlist {
                 }catch (Exception ignored){
                 }
             }
-            return videosId;
+            return unify(videosId);
         } catch (Exception e) {
             throw new Error(e);
         }
