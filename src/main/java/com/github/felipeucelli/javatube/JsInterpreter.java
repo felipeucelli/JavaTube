@@ -1326,6 +1326,9 @@ public class JsInterpreter {
     }
     @SuppressWarnings("unchecked")
     private Object dump(Object obj, Object namespace) {
+        if(obj == null){
+            obj = "null";
+        }
         if(obj.toString().matches("-?\\d+(\\.\\d+)?")){
             return Integer.parseInt(obj.toString());
         }else if (obj instanceof Boolean){
