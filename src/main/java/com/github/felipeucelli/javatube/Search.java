@@ -76,10 +76,12 @@ public class Search {
                 videos.add("https://www.youtube.com/watch?v=" + vidId);
 
             } else if (rawVideoList.getJSONObject(i).has("shelfRenderer")) {
-                videos.addAll(extractShelfRenderer(rawVideoList.getJSONObject(i).getJSONObject("shelfRenderer")
-                        .getJSONObject("content")
-                        .getJSONObject("verticalListRenderer")
-                        .getJSONArray("items")));
+                JSONObject contents = rawVideoList.getJSONObject(i).getJSONObject("shelfRenderer")
+                        .getJSONObject("content");
+                if(contents.has("verticalListRenderer")){
+                    videos.addAll(extractShelfRenderer(contents.getJSONObject("verticalListRenderer")
+                            .getJSONArray("items")));
+                }
 
             } else if (rawVideoList.getJSONObject(i).has("reelShelfRenderer")) {
                 shorts.addAll(extractReelShelfRenderer(rawVideoList.getJSONObject(i)
