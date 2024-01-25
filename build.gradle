@@ -1,21 +1,29 @@
-plugins {
-    id 'java'
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+import org.gradle.util.internal.VersionNumber
+buildscript {
+    ext {
+
+    }
 }
 
-group 'com.github.felipeucelli.javatube'
-
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        gradlePluginPortal()
+        maven{
+            url "https://raw.githubusercontent.com/cybernhl/maven-repository/master/"
+        }
+        mavenCentral()
+        google()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            url = uri('https://maven.pkg.jetbrains.space/public/p/compose/dev')
+        }
+    }
 }
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
-    testImplementation 'junit:junit:4.13.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
-    implementation 'org.json:json:20231013'
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
 
-test {
-    useJUnitPlatform()
-}

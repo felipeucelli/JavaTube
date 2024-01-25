@@ -1,2 +1,36 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        google()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            url = uri('https://maven.pkg.jetbrains.space/public/p/compose/dev')
+        }
+        maven{
+            url "https://raw.githubusercontent.com/cybernhl/maven-repository/master/"
+        }
+    }
+}
 rootProject.name = 'JavaTube'
+include ':JavaTube'
+project(":JavaTube").projectDir = file("./JavaTube")
 
+//dependencyResolutionManagement {
+//    repositories {
+//        gradlePluginPortal()
+//        mavenCentral()
+//        google()
+//        maven {
+//            url "https://plugins.gradle.org/m2/"
+//        }
+//        maven {
+//            url = uri('https://maven.pkg.jetbrains.space/public/p/compose/dev')
+//        }
+//        maven{
+//            url "https://raw.githubusercontent.com/cybernhl/maven-repository/master/"
+//        }
+//    }
+//}
