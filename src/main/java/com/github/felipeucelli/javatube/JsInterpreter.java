@@ -15,27 +15,22 @@ import java.util.regex.Pattern;
 
 
 class LocalNameSpace extends java.util.AbstractMap<String, Object> {
-    private final List<Map<String, Object>> maps;
+    private final Map<String, Object> maps;
 
     public LocalNameSpace(Map<String, Object> maps) {
-        this.maps = Collections.singletonList(maps);
+        this.maps = maps;
     }
 
     public Object getValue(String key){
-        return maps.get(0).get(key);
+        return maps.get(key);
     }
     public LocalNameSpace newChild(Map<String, Object> obj){
-        maps.get(0).putAll(obj);
-        return new LocalNameSpace(maps.get(0));
+        maps.putAll(obj);
+        return new LocalNameSpace(maps);
     }
     @Override
     public Object put(String key, Object value) {
-        for (java.util.Map<String, Object> scope : maps) {
-            if (scope.containsKey(key)) {
-                return scope.put(key, value);
-            }
-        }
-        return maps.get(0).put(key, value);
+        return maps.put(key, value);
     }
 
     @Override
