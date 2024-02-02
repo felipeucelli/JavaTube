@@ -83,30 +83,8 @@ public class Channel extends Playlist{
     }
 
     @Override
-    protected String baseData(String continuation){
-        return "{" +
-                    "\"continuation\": \"" + continuation + "\"," +
-                    "\"context\": {" +
-                        "\"client\": {" +
-                            "\"clientName\": \"WEB\", " +
-                            "\"visitorData\": \"" + visitorData + "\"," +
-                            "\"clientVersion\": \"2.20221107.06.00\"" +
-                        "}" +
-                    "}" +
-                "}";
-    }
-
-    @Override
-    protected Map<String, String> getHeaders(){
-        Map<String, String> header = new HashMap<>();
-        header.put("User-Agent", "\"Mozilla/5.0\"");
-        header.put("X-YouTube-Client-Name", "\"1\"");
-        header.put("X-YouTube-Client-Version", "\"2.20221107.06.00\"");
-        return header;
-    }
-    @Override
     protected String setHtml() throws Exception {
-        return Request.get(getHtmlUrl(), null, getHeaders()).toString();
+        return Request.get(getHtmlUrl(), null, innerTube.getClientHeaders()).toString();
     }
 
     private JSONObject getActiveTab(JSONObject rawJson) throws JSONException{
@@ -176,6 +154,19 @@ public class Channel extends Playlist{
             }
         }
         return items;
+    }
+
+    @Override
+    protected JSONArray buildContinuationUrl(String continuation) throws Exception {
+        String data = "{" +
+                        "\"continuation\": \"" + continuation + "\"," +
+                        "\"context\": {" +
+                            "\"client\": {" +
+                                "\"visitorData\": \"" + visitorData + "\"" +
+                            "}" +
+                        "}" +
+                    "}";
+        return extractVideos(innerTube.browse(new JSONObject(data)));
     }
 
     @Override

@@ -170,7 +170,7 @@ public class Youtube {
                 vidInfo = setVidInfo();
             } else {
                 if (innerTube.getRequireJsPlayer()) {
-                    innerTube.updateInnerTubeContext(getSignatureTimestamp());
+                    innerTube.updateInnerTubeContext(innerTube.getInnerTubeContext(), getSignatureTimestamp());
                 }
                 vidInfo = innerTube.player(videoId());
             }

@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 class InnerTube{
     private static JSONObject innerTubeContext;
@@ -288,10 +289,14 @@ class InnerTube{
     public JSONObject getInnerTubeContext() throws JSONException {
         return innerTubeContext;
     }
-    public void updateInnerTubeContext(JSONObject extraInfo) throws JSONException {
+    public void updateInnerTubeContext(JSONObject innerTubeContext, JSONObject extraInfo) throws JSONException {
         for (Iterator<String> it = extraInfo.keys(); it.hasNext(); ) {
             String key = it.next();
-            innerTubeContext.put(key, extraInfo.get(key));
+            if (innerTubeContext.has(key) && innerTubeContext.get(key) instanceof JSONObject) {
+                updateInnerTubeContext(innerTubeContext.getJSONObject(key), extraInfo.getJSONObject(key));
+            } else {
+                innerTubeContext.put(key, extraInfo.get(key));
+            }
         }
     }
     public Map<String, String> getClientHeaders() throws JSONException {
@@ -354,9 +359,19 @@ class InnerTube{
         return callApi(endpoint, query, getInnerTubeContext());
     }
 
-    public JSONObject search(String searchQuery) throws Exception {
+    public JSONObject browse(JSONObject data) throws Exception {
+        String endpoint = getBaseUrl() + "/browse";
+        JSONObject query = new JSONObject("{" + getBaseParam() + "}");
+        updateInnerTubeContext(getInnerTubeContext(), data);
+        return callApi(endpoint, query, getInnerTubeContext());
+    }
+
+    public JSONObject search(String searchQuery, String continuationToken) throws Exception {
         String endpoint = getBaseUrl() + "/search";
         JSONObject query = new JSONObject("{query: " + searchQuery + ", " + getBaseParam() + "}");
+        if(!Objects.equals(continuationToken, "")){
+            updateInnerTubeContext(getInnerTubeContext(), new JSONObject("{continuation:" + continuationToken + "}"));
+        }
         return callApi(endpoint, query, getInnerTubeContext());
     }
 }

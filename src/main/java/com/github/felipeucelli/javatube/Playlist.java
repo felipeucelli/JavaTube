@@ -13,9 +13,11 @@ public class Playlist {
     protected String html = null;
     protected JSONObject json = null;
     protected String continuationToken = null;
+    InnerTube innerTube;
 
     public Playlist(String InputUrl){
         url = InputUrl;
+        innerTube = new InnerTube("WEB");
     }
 
     @Override
@@ -37,34 +39,12 @@ public class Playlist {
         }
     }
 
-    protected String baseData(String continuation){
-        return "{" +
-                    "\"continuation\": \"" + continuation + "\"," +
-                    "\"context\": {" +
-                        "\"client\": {" +
-                            "\"clientName\": \"WEB\"," +
-                            "\"clientVersion\": \"2.20200720.00.02\"" +
-                        "}" +
-                    "}" +
-                "}";
-    }
-
-    private String baseParam(){
-        return "https://www.youtube.com/youtubei/v1/browse?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
-    }
-
     private String getPlaylistUrl() throws Exception {
         return "https://www.youtube.com/playlist?list=" + getPlaylistId();
     }
 
-    protected Map<String, String> getHeaders(){
-        Map<String, String> header = new HashMap<>();
-        header.put("User-Agent", "\"Mozilla/5.0\"");
-        return header;
-    }
-
     protected String setHtml() throws Exception {
-        return Request.get(getPlaylistUrl(), null, getHeaders()).toString();
+        return Request.get(getPlaylistUrl(), null, innerTube.getClientHeaders()).toString();
     }
     protected String getHtml() throws Exception {
         if(html == null){
@@ -114,7 +94,10 @@ public class Playlist {
     }
 
     protected JSONArray buildContinuationUrl(String continuation) throws Exception {
-        return extractVideos(new JSONObject(Request.post(baseParam(), baseData(continuation), getHeaders()).toString()));
+        String data = "{" +
+                        "\"continuation\": \"" + continuation + "\"" +
+                    "}";
+        return extractVideos(innerTube.browse(new JSONObject(data)));
     }
 
     protected JSONArray extractVideos(JSONObject rawJson) {
