@@ -44,7 +44,7 @@ You must only get one stream to be able to download it. You can use the methods:
 * `getLowestResolution() `
 * `getOnlyAudio() `
 
-You can also manually select the stream using `.getAll().get("index")`.
+You can also manually select the stream using `.get("index")`.
 
 The download() method must receive the path that the stream will be downloaded.
 
@@ -59,7 +59,7 @@ or
 
 ```java
 public static void main(String[] args) throws Exception {
-        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo").streams().getAll().get(1).download("./");
+        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo").streams().get(1).download("./");
     }
 }
 ```
@@ -145,6 +145,9 @@ The `getVideos()` method will return an ArrayList with the links extracted from 
 
 
 * `getCompletionSuggestions()`: method returns a list containing search suggestions.
+
+
+*  `generateContinuation()`: method will not return anything, just add the continuation of the items to their respective lists.
 
 
 If no match was found the method will return empty, other than `getCompletionSuggestions()` which returns null.

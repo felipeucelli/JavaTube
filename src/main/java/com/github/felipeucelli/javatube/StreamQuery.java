@@ -16,6 +16,10 @@ public class StreamQuery{
         return fmtStreams;
     }
 
+    public Stream get(int index){
+        return fmtStreams.get(index);
+    }
+
     public StreamQuery filter(HashMap<String, String> filters){
 
         ArrayList<Stream> streamFilter = new ArrayList<>();
