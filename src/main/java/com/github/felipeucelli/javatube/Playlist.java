@@ -18,13 +18,22 @@ public class Playlist {
         url = InputUrl;
     }
 
+    @Override
+    public String toString(){
+        try {
+            return "<com.github.felipeucelli.javatube.Playlist object: playlistId=" + getPlaylistId() + ">";
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private String getPlaylistId() throws Exception {
-        Pattern pattern = Pattern.compile("list=[a-zA-Z0-9_\\-]*");
+        Pattern pattern = Pattern.compile("list=([a-zA-Z0-9_\\-]*)");
         Matcher matcher = pattern.matcher(url);
         if (matcher.find()){
-            return matcher.group(0);
+            return matcher.group(1);
         }else {
-            throw new Exception("RegexMatcherError: " + pattern);
+            throw new Exception("RegexMatcherError. Unable to find match on: " + url);
         }
     }
 
@@ -45,7 +54,7 @@ public class Playlist {
     }
 
     private String getPlaylistUrl() throws Exception {
-        return "https://www.youtube.com/playlist?" + getPlaylistId();
+        return "https://www.youtube.com/playlist?list=" + getPlaylistId();
     }
 
     protected Map<String, String> getHeaders(){

@@ -64,6 +64,25 @@ public class Stream{
         }
     }
 
+    @Override
+    public String toString(){
+        ArrayList<String> parts = new ArrayList<>(Arrays.asList(
+                "itag=\"" + itag + "\"", "mime_type=\"" + mimeType + "\""));
+        if(includeVideoTrack()){
+            parts.addAll(Arrays.asList("res=\"" + resolution + "\"", "fps=\"" + fps + "\""));
+            if(!isAdaptive()){
+                parts.addAll(Arrays.asList("vcodec=\"" + videoCodec + "\"", "acodec=\"" + audioCodec + "\""));
+            }else {
+                parts.add("vcodec=\"" + videoCodec + "\"");
+            }
+        }
+        else {
+            parts.addAll(Arrays.asList("abr=\"" + abr + "\"", "acodec=\"" + audioCodec + "\""));
+        }
+        parts.addAll(Arrays.asList("progressive=\"" + isProgressive() + "\"", "type=\"" + type + "\""));
+        return "<Stream: " + String.join(" ", parts) + ">";
+    }
+
     private long setFileSize(String size) throws IOException {
         if (Objects.equals(size, null)) {
             if(!isOtf){

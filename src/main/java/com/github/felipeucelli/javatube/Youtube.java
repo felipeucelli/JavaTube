@@ -60,6 +60,15 @@ public class Youtube {
         }
     }
 
+    @Override
+    public String toString(){
+        try {
+            return "<com.github.felipeucelli.javatube.Youtube object: videoId=" + videoId() + ">";
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private String setHtml() throws Exception {
         Map<String, String> headers = innerTube == null ? null : innerTube.getClientHeaders();
         return Request.get(watchUrl, headers).toString(StandardCharsets.UTF_8.name()).replace("\n", "");

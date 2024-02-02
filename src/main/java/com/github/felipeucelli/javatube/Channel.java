@@ -39,6 +39,15 @@ public class Channel extends Playlist{
         aboutUrl = channelUrl + "/about";
     }
 
+    @Override
+    public String toString(){
+        try {
+            return "<com.github.felipeucelli.javatube.Channel object: channelUrl=" + extractUrl() + ">";
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private String extractUrl() throws Exception {
         ArrayList<String> re = new ArrayList<>();
         re.add("(?:\\/(c)\\/([%\\d\\w_\\-]+)(\\/.*)?)");
@@ -58,7 +67,7 @@ public class Channel extends Playlist{
                 }
             }
         }
-        throw new Exception("RegexMatcherError");
+        throw new Exception("RegexMatcherError. Unable to find match on: " + url);
     }
 
     private void setHtmlUrl(String url){
