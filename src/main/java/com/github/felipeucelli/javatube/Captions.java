@@ -26,6 +26,12 @@ public class Captions {
         code = vssId.startsWith(".") ? vssId.replace(".", "") : vssId;
         name = captionTrack.getJSONObject("name").getString("simpleText");
     }
+
+    @Override
+    public String toString(){
+        return "<Caption lang=\"" + name + "\" code=\"" + code + "\">";
+    }
+
     public String getUrl(){
         return url;
     }
