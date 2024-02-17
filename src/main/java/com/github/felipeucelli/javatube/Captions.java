@@ -24,7 +24,11 @@ public class Captions {
         url = captionTrack.getString("baseUrl");
         String vssId = captionTrack.getString("vssId");
         code = vssId.startsWith(".") ? vssId.replace(".", "") : vssId;
-        name = captionTrack.getJSONObject("name").getString("simpleText");
+        JSONObject nameContent = captionTrack.getJSONObject("name");
+        name = nameContent.has("simpleText") ? nameContent.getString("simpleText") : nameContent
+                .getJSONArray("runs")
+                .getJSONObject(0)
+                .getString("text");
     }
 
     @Override
