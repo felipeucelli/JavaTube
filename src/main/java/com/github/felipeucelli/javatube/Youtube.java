@@ -286,8 +286,8 @@ public class Youtube {
         return thumbnails.getJSONObject(thumbnails.length() - 1).getString("url");
     }
 
-    public Integer getViews() throws Exception {
-        return Integer.parseInt(getVidInfo().getJSONObject("videoDetails")
+    public Long getViews() throws Exception {
+        return Long.parseLong(getVidInfo().getJSONObject("videoDetails")
                 .getString("viewCount"));
     }
 
