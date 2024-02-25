@@ -29,7 +29,8 @@ public class JsInterpreterTest {
                 "019a2dc2-player-ias-vflset_en_US.txt",
                 "5bdfe6d5-player_ias.vflset-en_US.txt",
                 "31e0b6d9-player_ias.vflset-en_US.txt",
-                "42a553e1-player_ias.vflset-en_US.txt"
+                "42a553e1-player_ias.vflset-en_US.txt",
+                "3ffefd71-player_ias.vflset-en_US.txt"
                 );
     }
     private String readFileContent(String fileName) throws IOException {
@@ -95,6 +96,7 @@ public class JsInterpreterTest {
             case "5bdfe6d5-player_ias.vflset-en_US.txt" -> List.of("6WVNa9oCSHok", "fma", "6giJCNZ6QlHatA");
             case "31e0b6d9-player_ias.vflset-en_US.txt" -> List.of("BVP_Rb2aDs", "kma", "6giJCNZ6QlHatA");
             case "42a553e1-player_ias.vflset-en_US.txt" -> List.of("t5Jp2AyA1Jog2", "ema", "70QzMb0nhneLLS6BN");
+            case "3ffefd71-player_ias.vflset-en_US.txt" -> List.of("Qp4YR89PTr-vmb", "ima", "70QzMb0nhneLLS6BN");
             default -> List.of("", "", "");
         };
     }
@@ -122,6 +124,7 @@ public class JsInterpreterTest {
             case "5bdfe6d5-player_ias.vflset-en_US.txt" -> List.of("tTxUgoDDREeR36Kj5wrO_NjqCHEmy6PGNIGWF9GKnFEIC4P07pOGh54LI6biy39oUrq5mTnRI3mE0gJchXqWRWNIgIARw8JQ0q", "ZKa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
             case "31e0b6d9-player_ias.vflset-en_US.txt" -> List.of("OTxUgoDDREeR36Kj5wrO_NjqCHEmy6PGNIGTF9GKnFEIC4P07ptGh54LI6biy39oUrq5m0nRI3mE0gJchXqWRWNIgIARw8JQA", "zLa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
             case "42a553e1-player_ias.vflset-en_US.txt" -> List.of("xUgoDDREeR36Kj5wrObNjqCHEmy6PGNIGWF9GKnFEIC4P07ptGh54AI6Oiy39oUrq5mTnRI3mE0gJchXqWRWNIgIARw8JQ0qO", "YLa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
+            case "3ffefd71-player_ias.vflset-en_US.txt"  -> List.of("UgoDDREeR36Kj5wrO_NjqCHEmy6PGNIGWO9GKnFEIC4P0JptGh54LI6biy39oUrq5mTnRI3mE0gJchXqWRWNIgIARw8", "CMa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
             default -> List.of("", "", "");
         };
 

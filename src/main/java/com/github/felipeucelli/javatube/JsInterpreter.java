@@ -135,10 +135,13 @@ class JsToJson{
     }
     private String fixKv(Matcher m2) throws Exception {
         String v = m2.group(0);
-        if (v.equals("true") || v.equals("false") || v.equals("null")){
+        if (v.equals("true") || v.equals("false")){
             return v;
-        }else if (v.equals("undefined") || v.equals("void 0")){
-            return "null";
+        }else if(v.equals("null")){
+            return "None";
+        }
+        else if (v.equals("undefined") || v.equals("void 0")){
+            return "None";
         }else if (v.startsWith("/*") || v.startsWith("//") || v.startsWith("!") || v.equals(",")){
             return "";
         }
