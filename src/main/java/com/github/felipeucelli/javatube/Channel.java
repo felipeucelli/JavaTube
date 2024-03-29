@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 public class Channel extends Playlist{
 
     private final String channelUrl;
+    private final String featuredUrl;
     private final String videosUrl;
     private final String shortsUrl;
     private final String streamsUrl;
@@ -29,6 +30,7 @@ public class Channel extends Playlist{
         url = inputUrl;
         channelUrl = "https://www.youtube.com" + extractUrl();
 
+        featuredUrl = channelUrl + "/featured";
         videosUrl = channelUrl + "/videos";
         shortsUrl = channelUrl + "/shorts";
         streamsUrl = channelUrl + "/streams";
@@ -93,14 +95,16 @@ public class Channel extends Playlist{
                 .getJSONObject("twoColumnBrowseResultsRenderer")
                 .getJSONArray("tabs");
         for(int i = 0; tabs.length() > i; i ++ ) {
-            String tabUrl = tabs.getJSONObject(i).getJSONObject("tabRenderer")
-                    .getJSONObject("endpoint")
-                    .getJSONObject("commandMetadata")
-                    .getJSONObject("webCommandMetadata")
-                    .getString("url");
-            if (tabUrl.substring(tabUrl.lastIndexOf("/") + 1).equals(getHtmlUrl().substring(getHtmlUrl().lastIndexOf("/") + 1))) {
-                activeTab = tabs.getJSONObject(i);
-                break;
+            if(tabs.getJSONObject(i).has("tabRenderer")){
+                String tabUrl = tabs.getJSONObject(i).getJSONObject("tabRenderer")
+                        .getJSONObject("endpoint")
+                        .getJSONObject("commandMetadata")
+                        .getJSONObject("webCommandMetadata")
+                        .getString("url");
+                if (tabUrl.substring(tabUrl.lastIndexOf("/") + 1).equals(getHtmlUrl().substring(getHtmlUrl().lastIndexOf("/") + 1))) {
+                    activeTab = tabs.getJSONObject(i);
+                    break;
+                }
             }
         }
         return activeTab;
@@ -169,6 +173,69 @@ public class Channel extends Playlist{
         return extractVideos(innerTube.browse(new JSONObject(data)));
     }
 
+    private JSONArray extractHomePage(JSONObject rawJson){
+        JSONArray items = new JSONArray();
+        try{
+            JSONArray contents = getActiveTab(rawJson)
+                    .getJSONObject("tabRenderer")
+                    .getJSONObject("content")
+                    .getJSONObject("sectionListRenderer")
+                    .getJSONArray("contents");
+
+            for(int i = 0; i < contents.length(); i ++){
+                JSONObject itemSectionRenderer = contents.getJSONObject(i)
+                        .getJSONObject("itemSectionRenderer")
+                        .getJSONArray("contents")
+                        .getJSONObject(0);
+
+                // Skip the presentation videos for non-subscribers
+                if(itemSectionRenderer.has("channelVideoPlayerRenderer")){
+                    continue;
+                }
+
+                // Skip presentation videos for subscribers
+                if(itemSectionRenderer.has("channelFeaturedContentRenderer")){
+                    continue;
+                }
+
+                // Skip the list with channel members
+                if(itemSectionRenderer.has("recognitionShelfRenderer")){
+                    continue;
+                }
+
+                // Get the horizontal shorts
+                if(itemSectionRenderer.has("reelShelfRenderer")){
+                    for(int k = 0; k < itemSectionRenderer.length(); k ++){
+                        items.put(itemSectionRenderer.getJSONObject("reelShelfRenderer")
+                                .getJSONArray("items"));
+                    }
+                }
+
+                // Get videos, playlist and horizontal channels
+                if(itemSectionRenderer.has("shelfRenderer")){
+                    if(itemSectionRenderer
+                            .getJSONObject("shelfRenderer")
+                            .getJSONObject("content")
+                            .has("horizontalListRenderer")){
+
+                        JSONArray obj = itemSectionRenderer.getJSONObject("shelfRenderer")
+                                .getJSONObject("content")
+                                .getJSONObject("horizontalListRenderer")
+                                .getJSONArray("items");
+
+                        for(int j = 0; obj.length() > j; j++){
+                            items.put(obj.getJSONObject(j));
+                        }
+                    }
+
+                }
+            }
+        }catch (Exception e){
+            return new JSONArray();
+        }
+        return items;
+    }
+
     @Override
     protected JSONArray extractVideos(JSONObject rawJson){
         JSONArray swap = new JSONArray();
@@ -211,45 +278,49 @@ public class Channel extends Playlist{
         return swap;
     }
 
+    public ArrayList<String> getHome() throws Exception {
+        setHtmlUrl(featuredUrl);
+        return extractId(extractHomePage(getJson()));
+    }
+
     @Override
     public ArrayList<String> getVideos() throws Exception {
         setHtmlUrl(videosUrl);
-        return extractId();
+        return extractId(extractVideos(getJson()));
     }
 
     public ArrayList<String> getShorts() throws Exception {
         setHtmlUrl(shortsUrl);
-        return extractId();
+        return extractId(extractVideos(getJson()));
     }
 
     public ArrayList<String> getLives() throws Exception {
         setHtmlUrl(streamsUrl);
-        return extractId();
+        return extractId(extractVideos(getJson()));
     }
 
     public ArrayList<String> getReleases() throws Exception {
         setHtmlUrl(releasesUrl);
-        return extractId();
+        return extractId(extractVideos(getJson()));
     }
 
     public ArrayList<String> getPlaylists() throws Exception {
         setHtmlUrl(playlistUrl);
-        return extractId();
+        return extractId(extractVideos(getJson()));
     }
 
-    private ArrayList<String> extractId() throws Exception {
-        JSONArray video = extractVideos(getJson());
-        ArrayList<String> videosId = new ArrayList<>();
+    private ArrayList<String> extractId(JSONArray obj) throws Exception {
+        ArrayList<String> objId = new ArrayList<>();
 
-        for(int i = 0; i < video.length(); i++){
+        for(int i = 0; i < obj.length(); i++){
             try {
-                if(!video.getJSONObject(i).has("continuationItemRenderer")) {
-                    videosId.add(getVideoId(video.getJSONObject(i)));
+                if(!obj.getJSONObject(i).has("continuationItemRenderer")) {
+                    objId.add(getVideoId(obj.getJSONObject(i)));
                 }
             }catch (JSONException ignored){
             }
         }
-        return unify(videosId);
+        return unify(objId);
     }
 
     private String getVideoId(JSONObject ids) throws JSONException{
@@ -281,6 +352,15 @@ public class Channel extends Playlist{
                     .getJSONObject("playlistRenderer")
                     .getString("playlistId");
         }catch (JSONException e){
+            return getVideoIdFromHome(ids);
+        }
+    }
+
+    private String getVideoIdFromHome(JSONObject ids){
+        try{
+            return "https://www.youtube.com/watch?v=" + ids.getJSONObject("gridVideoRenderer")
+                    .getString("videoId");
+        }catch (JSONException e){
             return getPlaylistId(ids);
         }
     }
@@ -288,6 +368,26 @@ public class Channel extends Playlist{
     private String getPlaylistId(JSONObject ids) throws JSONException{
         try{
             return "https://www.youtube.com/playlist?list=" + ids.getJSONObject("gridPlaylistRenderer")
+                    .getString("playlistId");
+        }catch (JSONException e){
+            return getChannelIdFromHome(ids);
+        }
+    }
+
+    private String getChannelIdFromHome(JSONObject ids) throws JSONException{
+        try{
+            return "https://www.youtube.com/playlist?list=" + ids.getJSONObject("gridChannelRenderer")
+                    .getString("channelId");
+        }catch (JSONException e){
+            return getCompactStationRenderer(ids);
+        }
+    }
+
+    private String getCompactStationRenderer(JSONObject ids) throws JSONException{
+        try{
+            return "https://www.youtube.com/playlist?list=" + ids.getJSONObject("compactStationRenderer")
+                    .getJSONObject("navigationEndpoint")
+                    .getJSONObject("watchPlaylistEndpoint")
                     .getString("playlistId");
         }catch (JSONException e){
             throw new JSONException(e);
