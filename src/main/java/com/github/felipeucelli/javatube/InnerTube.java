@@ -63,7 +63,7 @@ class InnerTube{
                        "androidSdkVersion": "30"
                      }
                    },
-                   "params": "CgIQBg"
+                   "params": "CgIIAdgDAQ%3D%3D"
                  },
                  "header": {
                    "User-Agent": "com.google.android.youtube/",
