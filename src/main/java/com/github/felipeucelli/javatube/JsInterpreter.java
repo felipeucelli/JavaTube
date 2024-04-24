@@ -374,6 +374,9 @@ public class JsInterpreter {
     }
 
     private static int zeroise(Object x) {
+        if (x instanceof Boolean){
+            return (boolean) x ? 1 : 0;
+        }
         if(x == null){
             return 0;
         }
