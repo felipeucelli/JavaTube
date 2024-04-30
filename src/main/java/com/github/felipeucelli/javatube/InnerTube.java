@@ -32,6 +32,7 @@ class InnerTube{
      *          IOS_EMBED,
      *          IOS_MUSIC,
      *          IOS_CREATOR,
+     *          ANDROID_TESTSUITE,
      *          MWEB,
      *          TV_EMBED
      * */
@@ -43,7 +44,7 @@ class InnerTube{
                    "context": {
                      "client": {
                        "clientName": "WEB",
-                       "clientVersion": "2.20200720.00.02"
+                       "clientVersion": "2.20240422.01.00"
                      }
                    }
                  },
@@ -244,7 +245,23 @@ class InnerTube{
                  "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
                  "requireJsPlayer": "false"
                },
-               
+               "ANDROID_TESTSUITE": {
+                 "innerTubeContext": {
+                   "context": {
+                     "client": {
+                       "clientName": "ANDROID_TESTSUITE",
+                       "clientVersion": "1.9",
+                       "androidSdkVersion": "30"
+                     }
+                   }
+                 },
+                 "header": {
+                   "User-Agent": "com.google.android.youtube/",
+                   "X-Youtube-Client-Name": "30"
+                 },
+                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "requireJsPlayer": "false"
+               },
                "MWEB": {
                  "innerTubeContext": {
                    "context": {

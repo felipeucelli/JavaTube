@@ -41,6 +41,7 @@ public class Youtube {
      *          IOS_EMBED,
      *          IOS_MUSIC,
      *          IOS_CREATOR,
+     *          ANDROID_TESTSUITE,
      *          MWEB,
      *          TV_EMBED
      * */
