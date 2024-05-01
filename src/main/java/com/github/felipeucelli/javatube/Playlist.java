@@ -15,7 +15,7 @@ public class Playlist {
     protected String continuationToken = null;
     InnerTube innerTube;
 
-    public Playlist(String InputUrl){
+    public Playlist(String InputUrl) throws JSONException {
         url = InputUrl;
         innerTube = new InnerTube("WEB");
     }

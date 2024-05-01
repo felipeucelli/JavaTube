@@ -17,7 +17,7 @@ public class Search {
     private Map<String, ArrayList<String>> results = new HashMap<>();
     private String continuationToken = "";
 
-    public Search(String query){
+    public Search(String query) throws JSONException {
         this.query = query;
     }
 

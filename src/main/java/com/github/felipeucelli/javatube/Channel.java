@@ -356,7 +356,7 @@ public class Channel extends Playlist{
         }
     }
 
-    private String getVideoIdFromHome(JSONObject ids){
+    private String getVideoIdFromHome(JSONObject ids) throws JSONException {
         try{
             return "https://www.youtube.com/watch?v=" + ids.getJSONObject("gridVideoRenderer")
                     .getString("videoId");
