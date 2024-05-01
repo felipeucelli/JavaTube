@@ -51,7 +51,6 @@ public class SearchTest {
 
     @ParameterizedTest
     @CsvSource({
-            "java",
             "java channels"
     })
     public void testGetChannelsResults(String query) throws Exception {

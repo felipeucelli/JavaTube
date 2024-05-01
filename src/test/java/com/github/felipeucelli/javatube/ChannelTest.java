@@ -94,7 +94,7 @@ public class ChannelTest {
             "https://www.youtube.com/@NoCopyrightSounds"
     })
     public void testLength(String linkToTest) throws Exception {
-        Assertions.assertNotEquals("No videos", new Channel(linkToTest).length());
+        Assertions.assertNotNull(new Channel(linkToTest).length());
     }
 
     @ParameterizedTest

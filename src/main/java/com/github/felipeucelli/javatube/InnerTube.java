@@ -44,7 +44,7 @@ class InnerTube{
                    "context": {
                      "client": {
                        "clientName": "WEB",
-                       "clientVersion": "2.20240422.01.00"
+                       "clientVersion": "2.20240430.01.00"
                      }
                    }
                  },

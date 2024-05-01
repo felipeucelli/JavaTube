@@ -435,15 +435,34 @@ public class Channel extends Playlist{
 
     @Override
     public String length() throws Exception {
-        setHtmlUrl(channelUrl);
-        return getJson().getJSONObject("header")
-                .getJSONObject("c4TabbedHeaderRenderer")
-                .getJSONObject("videosCountText")
-                .getJSONArray("runs")
-                .getJSONObject(0)
-                .getString("text");
-    }
+        setHtmlUrl(getChannelUrl());
+        try {
+            JSONObject header = getJson().getJSONObject("header");
 
+            if(header.has("c4TabbedHeaderRenderer")){
+                return header.getJSONObject("c4TabbedHeaderRenderer")
+                        .getJSONObject("videosCountText")
+                        .getJSONArray("runs")
+                        .getJSONObject(0)
+                        .getString("text");
+            }else {
+                return header.getJSONObject("pageHeaderRenderer")
+                        .getJSONObject("content")
+                        .getJSONObject("pageHeaderViewModel")
+                        .getJSONObject("metadata")
+                        .getJSONObject("contentMetadataViewModel")
+                        .getJSONArray("metadataRows")
+                        .getJSONObject(1)
+                        .getJSONArray("metadataParts")
+                        .getJSONObject(1)
+                        .getJSONObject("text")
+                        .getString("content");
+            }
+        }catch (JSONException j){
+            return null;
+        }
+
+    }
 
     public String getChannelName() throws Exception {
         setHtmlUrl(channelUrl);
@@ -477,10 +496,27 @@ public class Channel extends Playlist{
     public String getSubscribers() throws Exception {
         setHtmlUrl(getChannelUrl());
         try{
-            return getJson().getJSONObject("header")
-                    .getJSONObject("c4TabbedHeaderRenderer")
-                    .getJSONObject("subscriberCountText")
-                    .getString("simpleText");
+            JSONObject header = getJson().getJSONObject("header");
+
+            if(header.has("c4TabbedHeaderRenderer")){
+                return getJson().getJSONObject("header")
+                        .getJSONObject("c4TabbedHeaderRenderer")
+                        .getJSONObject("subscriberCountText")
+                        .getString("simpleText");
+            }else {
+                return header.getJSONObject("pageHeaderRenderer")
+                        .getJSONObject("content")
+                        .getJSONObject("pageHeaderViewModel")
+                        .getJSONObject("metadata")
+                        .getJSONObject("contentMetadataViewModel")
+                        .getJSONArray("metadataRows")
+                        .getJSONObject(1)
+                        .getJSONArray("metadataParts")
+                        .getJSONObject(0)
+                        .getJSONObject("text")
+                        .getString("content");
+            }
+
         }catch (JSONException e){
             return null;
         }
