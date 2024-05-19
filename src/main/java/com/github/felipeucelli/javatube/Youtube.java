@@ -234,6 +234,8 @@ public class Youtube {
         String title = getTitle();
         Stream video;
         Cipher cipher = new Cipher(getJs(), getYtPlayerJs());
+        Pattern nSigPattern = Pattern.compile("&n=(.*?)&");
+        Map<String, String> discoveredNSig = new HashMap<>();
         for (int i = 0; streamManifest.length() > i; i++) {
             if(streamManifest.getJSONObject(i).has("signatureCipher")){
                 String oldUrl = decodeURL(streamManifest.getJSONObject(i).getString("url"));
@@ -243,9 +245,13 @@ public class Youtube {
             }
 
             String oldUrl = streamManifest.getJSONObject(i).getString("url");
-            Matcher matcher = Pattern.compile("&n=(.*?)&").matcher(oldUrl);
+            Matcher matcher = nSigPattern.matcher(oldUrl);
             if (matcher.find()) {
-                String newUrl = oldUrl.replaceFirst("&n=(.*?)&", "&n=" + cipher.getNSig(matcher.group(1)) + "&");
+                String nSig = matcher.group(1);
+                if(!discoveredNSig.containsKey(nSig)){
+                    discoveredNSig.put(nSig, cipher.getNSig(nSig));
+                }
+                String newUrl = oldUrl.replaceFirst("&n=(.*?)&", "&n=" + discoveredNSig.get(nSig) + "&");
                 streamManifest.getJSONObject(i).put("url", newUrl);
             }
 
