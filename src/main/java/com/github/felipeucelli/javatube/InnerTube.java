@@ -78,19 +78,19 @@ class InnerTube{
                    "context": {
                      "client": {
                        "clientName": "IOS",
-                       "clientVersion": "19.08.35",
+                       "clientVersion": "19.09.3",
                        "deviceModel": "iPhone14,3"
                      }
                    }
                  },
                  "header": {
-                   "User-Agent": "com.google.ios.youtube/",
+                   "User-Agent": "com.google.ios.youtube/19.09.3 (iPhone14,3; U; CPU iOS 15_6 like Mac OS X)",
                    "X-Youtube-Client-Name": "5"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "apiKey": "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
                  "requireJsPlayer": "false"
                },
-               
+            
                "WEB_EMBED": {
                  "innerTubeContext": {
                    "context": {
@@ -131,16 +131,16 @@ class InnerTube{
                    "context": {
                      "client": {
                        "clientName": "IOS_MESSAGES_EXTENSION",
-                       "clientVersion": "19.08.35",
+                       "clientVersion": "19.09.3",
                        "deviceModel": "iPhone14,3"
                      }
                    }
                  },
                  "header": {
-                   "User-Agent": "com.google.ios.youtube/",
+                   "User-Agent": "com.google.ios.youtube/19.09.3 (iPhone14,3; U; CPU iOS 15_6 like Mac OS X)",
                    "X-Youtube-Client-Name": "66"
                  },
-                 "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+                 "apiKey": "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
                  "requireJsPlayer": "false"
                },
                
