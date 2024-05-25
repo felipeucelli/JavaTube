@@ -1145,7 +1145,6 @@ public class JsInterpreter {
                         case "push" -> {
                             assertion(argvals, "takes one or more arguments");
                             assert obj != null;
-                            assert obj instanceof List;
 
                             ((List<Object>) obj).addAll(argvals);
                             return obj;
