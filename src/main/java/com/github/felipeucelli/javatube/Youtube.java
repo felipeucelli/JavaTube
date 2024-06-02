@@ -33,16 +33,16 @@ public class Youtube {
      *          WEB_EMBED,
      *          WEB_MUSIC,
      *          WEB_CREATOR,
+     *          MWEB,
      *          ANDROID,
      *          ANDROID_EMBED,
      *          ANDROID_MUSIC,
-     *          ANDROID_CREATOR ,
+     *          ANDROID_CREATOR,
+     *          ANDROID_TESTSUITE,
      *          IOS,
      *          IOS_EMBED,
      *          IOS_MUSIC,
      *          IOS_CREATOR,
-     *          ANDROID_TESTSUITE,
-     *          MWEB,
      *          TV_EMBED
      * */
     public Youtube(String url, String clientName) throws Exception {
