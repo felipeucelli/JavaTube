@@ -40,12 +40,12 @@ public class Cipher {
     }
     private String getThrottlingFunctionName(String js) throws Exception {
         // a.D && (b = a.get("n")) && (b = Usa[0](b), a.set("n", b), Usa.length || mma(""))
-        String functionPatterns = "a\\.[a-zA-Z]\\s*&&\\s*\\([a-z]\\s*=\\s*a\\.get\\(\\\"n\\\"\\)\\)\\s*&&\\s*\\([a-z]=([a-zA-Z]*\\[\\d\\]).*?\\)";
+        String functionPatterns = "a\\.[a-zA-Z]\\s*&&\\s*\\([a-z]\\s*=\\s*a\\.get\\(\\\"n\\\"\\)\\)\\s*&&\\s*\\([a-z]=([$a-zA-Z]*\\[\\d\\]).*?\\)";
         Pattern regex = Pattern.compile(functionPatterns);
         Matcher matcher = regex.matcher(js);
         if (matcher.find()){
             String idx = matcher.group(1); // Usa[0]
-            String funName = matcher.group(1).replaceAll("(\\[\\d\\])", ""); // Usa
+            String funName = Pattern.quote(matcher.group(1).replaceAll("(\\[\\d\\])", "")); // Usa
             if(!idx.isEmpty()){
                 String pattern2 = "var " + funName + "\\s*=\\s*(\\[.+?\\])"; // var Usa = [mma], Rsa = !1;
                 Pattern regex2 = Pattern.compile(pattern2);
