@@ -7,6 +7,8 @@ import org.json.JSONObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.*;
@@ -584,7 +586,9 @@ public class JsInterpreter {
                 String left = result.get(0).substring(1).replace("\"", "");
                 String right = result.get(1);
 
-                Instant instant = Instant.parse(left);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse(left, formatter);
+                Instant instant = zonedDateTime.toInstant();
 
                 expr = dump(instant.toEpochMilli(), localVars) + right;
             }else {
