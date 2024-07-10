@@ -31,7 +31,8 @@ public class JsInterpreterTest {
                 "31e0b6d9-player_ias.vflset-en_US.txt",
                 "42a553e1-player_ias.vflset-en_US.txt",
                 "3ffefd71-player_ias.vflset-en_US.txt",
-                "bc657243-player_ias.vflset-en_US.txt"
+                "bc657243-player_ias.vflset-en_US.txt",
+                "b22ef6e7-player_ias.vflset-en_US.txt"
                 );
     }
     private String readFileContent(String fileName) throws IOException {
@@ -100,6 +101,7 @@ public class JsInterpreterTest {
             case "3ffefd71-player_ias.vflset-en_US.txt" -> List.of("Qp4YR89PTr-vmb", "ima", "70QzMb0nhneLLS6BN");
             case "d8a5aa5e-player_ias.vflset-en_US.txt" -> List.of("KvdthMya5dxi87dY", "ema", "70QzMb0nhneLLS6BN");
             case "bc657243-player_ias.vflset-en_US.txt" -> List.of("l_slyNHt1evTOm", "Ula", "70QzMb0nhneLLS6BN");
+            case "b22ef6e7-player_ias.vflset-en_US.txt"  -> List.of("3imMGazkXNJnWK", "Ima", "70QzMb0nhneLLS6BN");
             default -> List.of("", "", "");
         };
     }
@@ -127,9 +129,10 @@ public class JsInterpreterTest {
             case "5bdfe6d5-player_ias.vflset-en_US.txt" -> List.of("tTxUgoDDREeR36Kj5wrO_NjqCHEmy6PGNIGWF9GKnFEIC4P07pOGh54LI6biy39oUrq5mTnRI3mE0gJchXqWRWNIgIARw8JQ0q", "ZKa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
             case "31e0b6d9-player_ias.vflset-en_US.txt" -> List.of("OTxUgoDDREeR36Kj5wrO_NjqCHEmy6PGNIGTF9GKnFEIC4P07ptGh54LI6biy39oUrq5m0nRI3mE0gJchXqWRWNIgIARw8JQA", "zLa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
             case "42a553e1-player_ias.vflset-en_US.txt" -> List.of("xUgoDDREeR36Kj5wrObNjqCHEmy6PGNIGWF9GKnFEIC4P07ptGh54AI6Oiy39oUrq5mTnRI3mE0gJchXqWRWNIgIARw8JQ0qO", "YLa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
-            case "3ffefd71-player_ias.vflset-en_US.txt"  -> List.of("UgoDDREeR36Kj5wrO_NjqCHEmy6PGNIGWO9GKnFEIC4P0JptGh54LI6biy39oUrq5mTnRI3mE0gJchXqWRWNIgIARw8", "CMa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
-            case "d8a5aa5e-player_ias.vflset-en_US.txt"  -> List.of("gxUToDDREeR36Kj5wrO_NjqCHEqy6PGNIGWF9GKnFEIC4P07ptGh54LI6biy39oUrq5mTnRImmE0gJchXqWRWNIgIARw8JQ03", "MNa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
-            case "bc657243-player_ias.vflset-en_US.txt"  -> List.of("pOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGt970P4CIEFnKGOFWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTA", "GOa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
+            case "3ffefd71-player_ias.vflset-en_US.txt" -> List.of("UgoDDREeR36Kj5wrO_NjqCHEmy6PGNIGWO9GKnFEIC4P0JptGh54LI6biy39oUrq5mTnRI3mE0gJchXqWRWNIgIARw8", "CMa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
+            case "d8a5aa5e-player_ias.vflset-en_US.txt" -> List.of("gxUToDDREeR36Kj5wrO_NjqCHEqy6PGNIGWF9GKnFEIC4P07ptGh54LI6biy39oUrq5mTnRImmE0gJchXqWRWNIgIARw8JQ03", "MNa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
+            case "bc657243-player_ias.vflset-en_US.txt" -> List.of("pOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGt970P4CIEFnKGOFWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTA", "GOa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
+            case "b22ef6e7-player_ias.vflset-en_US.txt" -> List.of("goDDREeR36Kj5wrO_NjqCHEmy6PANTGWF9GKnFEIC4P07ptGh54LI6biy39oUrq5ITnRI3mE0gJchXqWRWNIgIARw8JQ0qOG", "LPa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
             default -> List.of("", "", "");
         };
 

@@ -1015,18 +1015,18 @@ public class JsInterpreter {
                 remaining = argStr;
                 argStr = null;
             }
-            String finalMember = member;
+            final String[] finalMember = {member};
             String finalArgStr = argStr;
             int finalAllowRecursion = allowRecursion;
             class InnerClass {
                 void assertion(Object cndn, String msg) throws Exception {
                     try {
                         if(!(boolean) cndn){
-                            throw new Exception(finalMember + msg);
+                            throw new Exception(finalMember[0] + msg);
                         }
                     }catch (Exception e){
                         if(cndn.toString().isEmpty()){
-                            throw new Exception(finalMember + msg);
+                            throw new Exception(finalMember[0] + msg);
                         }
                     }
                 }
@@ -1034,9 +1034,9 @@ public class JsInterpreter {
                 Object evalMethod() throws Exception {
                     Object obj = localVars.getValue(variable);
                     if (finalArgStr == null){
-                        return index(obj, finalMember, Boolean.parseBoolean(nullish));
+                        return index(obj, finalMember[0], Boolean.parseBoolean(nullish));
                     }
-                    if(obj == null && !variable.equals("String") && !variable.equals("Math")){
+                    if(obj == null && !variable.equals("String") && !variable.equals("Math") && !variable.equals("Array")){
                         if(!_objects.containsValue(variable)){
                             try {
                                 _objects.put(variable, extractObject(variable));
@@ -1055,8 +1055,31 @@ public class JsInterpreter {
                     for(String v : _separate(finalArgStr, ",", null)){
                         argvals.add(interpretExpression(v, localVars, finalAllowRecursion));
                     }
+
+                    if (finalMember[0].startsWith("prototype.")) {
+                        String[] parts = finalMember[0].split("\\.");
+                        String new_member = parts[1];
+                        String func_prototype = parts[2];
+
+                        assertion(!argvals.isEmpty(), "takes one or more arguments");
+
+                        if (func_prototype.equals("call")) {
+                            obj = argvals.get(0);
+                            argvals = argvals.subList(1, argvals.size());
+                        } else if (func_prototype.equals("apply")) {
+                            assertion(argvals.size() == 2, "takes two arguments");
+                            obj = argvals.get(0);
+                            argvals = (List<Object>) argvals.get(1);
+                            assertion(argvals != null, "second argument needs to be a list");
+                        } else {
+                            throw new RuntimeException("Unsupported Function method " + func_prototype);
+                        }
+
+                        finalMember[0] = new_member;
+                    }
+
                     if (obj == null && variable.equals("String")){
-                        if (finalMember.equals("fromCharCode")){
+                        if (finalMember[0].equals("fromCharCode")){
                             assertion(argvals, "takes one or more arguments");
                             StringBuilder result = new StringBuilder();
                             for (Object ob : argvals) {
@@ -1067,15 +1090,15 @@ public class JsInterpreter {
                             }
                             return result.toString();
                         }
-                        throw new Exception("Unsupported String method " + finalMember);
+                        throw new Exception("Unsupported String method " + finalMember[0]);
                     }else if (obj == null && variable.equals("Math")){
-                        if (finalMember.equals("pow")){
+                        if (finalMember[0].equals("pow")){
                             assertion(argvals.size() == 2, "takes two arguments");
                             return castToInt(Math.pow(castToInt(argvals.get(0)), castToInt(argvals.get(1))));
                         }
-                        throw new Exception("Unsupported Math method " + finalMember);
+                        throw new Exception("Unsupported Math method " + finalMember[0]);
                     }
-                    switch (finalMember) {
+                    switch (finalMember[0]) {
                         case "split" -> {
                             assertion(argvals, "takes one or more arguments");
                             assertion(argvals.size() == 1, "with limit argument is not implemented");
@@ -1191,9 +1214,9 @@ public class JsInterpreter {
                         }
                     }
                     if (obj instanceof List) {
-                        return ((List<?>) obj).get(Integer.parseInt(finalMember));
+                        return ((List<?>) obj).get(Integer.parseInt(finalMember[0]));
                     } else if (obj instanceof Map) {
-                        return ((FunctionWithRepr)((Map<?, ?>) obj).get(finalMember)).call(argvals.toArray(new Object[0]), finalAllowRecursion);
+                        return ((FunctionWithRepr)((Map<?, ?>) obj).get(finalMember[0])).call(argvals.toArray(new Object[0]), finalAllowRecursion);
                     }else {
                         throw new Exception("Cannot get index for unsupported object type " + obj);
                     }

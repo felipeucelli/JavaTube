@@ -40,7 +40,13 @@ public class Cipher {
     }
     private String getThrottlingFunctionName(String js) throws Exception {
         // a.D && (b = a.get("n")) && (b = Usa[0](b), a.set("n", b), Usa.length || mma(""))
-        String functionPatterns = "a\\.[a-zA-Z]\\s*&&\\s*\\([a-z]\\s*=\\s*a\\.get\\(\\\"n\\\"\\)\\)\\s*&&\\s*\\([a-z]=([$a-zA-Z]*\\[\\d\\]).*?\\)";
+        // a\\.[a-zA-Z]\\s*&&\\s*\\([a-z]\\s*=\\s*a\\.get\\(\\\"n\\\"\\)\\)\\s*&&\\s*\\([a-z]=([$a-zA-Z]*\\[\\d\\]).*?\\)"
+
+        // New pattern added on July 9, 2024
+        // In this example we can find the name of the function at index "0" of "IRa"
+        // a.D && (b = String.fromCharCode(110), c = a.get(b)) && (c = IRa[0](c), a.set(b,c), IRa.length || Ima(""))
+
+        String functionPatterns = "(?:\\.get\\(\"n\"\\)\\)&&\\(b=|b=String\\.fromCharCode\\(\\d+\\),c=a\\.get\\(b\\)\\)&&\\(c=)([a-zA-Z0-9$]+)(?:\\[(\\d+)])?\\([a-zA-Z0-9]\\)";
         Pattern regex = Pattern.compile(functionPatterns);
         Matcher matcher = regex.matcher(js);
         if (matcher.find()){

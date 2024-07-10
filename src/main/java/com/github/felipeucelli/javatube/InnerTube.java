@@ -46,7 +46,7 @@ class InnerTube{
                           "clientName": "WEB",
                           "osName": "Windows",
                           "osVersion": "10.0",
-                          "clientVersion": "2.20240530.02.00",
+                          "clientVersion": "2.20240709.01.00",
                           "platform": "DESKTOP"
                         }
                       }
@@ -54,7 +54,7 @@ class InnerTube{
                     "header": {
                       "User-Agent": "Mozilla/5.0",
                       "X-Youtube-Client-Name": "1",
-                      "X-Youtube-Client-Version": "2.20240530.02.00"
+                      "X-Youtube-Client-Version": "2.20240709.01.00"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
                     "requireJsPlayer": "true"
