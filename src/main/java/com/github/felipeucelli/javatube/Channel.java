@@ -1,5 +1,6 @@
 package com.github.felipeucelli.javatube;
 
+import com.github.felipeucelli.javatube.exceptions.RegexMatchError;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,7 +70,7 @@ public class Channel extends Playlist{
                 }
             }
         }
-        throw new Exception("RegexMatcherError. Unable to find match on: " + url);
+        throw new RegexMatchError("extractUrl: Unable to find match on: " + url);
     }
 
     private void setHtmlUrl(String url){

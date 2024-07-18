@@ -1,5 +1,7 @@
 package com.github.felipeucelli.javatube;
 
+import com.github.felipeucelli.javatube.exceptions.RegexMatchError;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,7 +38,7 @@ public class Cipher {
                 return matcher.group(1);
             }
         }
-        throw new Exception("RegexMatcherError. Could not find function name in playerJs:" + playerJs);
+        throw new RegexMatchError("getInitialFunctionName: Could not find function name in playerJs:" + playerJs);
     }
     private String getThrottlingFunctionName(String js) throws Exception {
         // a.D && (b = a.get("n")) && (b = Usa[0](b), a.set("n", b), Usa.length || mma(""))
@@ -60,11 +62,11 @@ public class Cipher {
                     String match = matcher2.group(1); // [mma]
                     return  match.replace("[", "").replace("]", ""); // mma
                 }else {
-                    throw new Exception("RegexMatcherError. Could not find function name: " + pattern2 + " in playerJs: " + playerJs);
+                    throw new RegexMatchError("Could not find function name: " + pattern2 + " in playerJs: " + playerJs);
                 }
             }
         }
-        throw new Exception("RegexMatcherError. Could not find function name: " + functionPatterns + " in playerJs: " + playerJs);
+        throw new RegexMatchError("getThrottlingFunctionName: Could not find function name: " + functionPatterns + " in playerJs: " + playerJs);
     }
 
     public String getSignatureFunctionName(){

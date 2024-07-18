@@ -5,6 +5,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.*;
+
+import com.github.felipeucelli.javatube.exceptions.*;
 import org.json.*;
 
 
@@ -57,7 +59,7 @@ public class Youtube {
         if (matcher.find()) {
             return matcher.group(1);
         }else {
-            throw new Exception("RegexMatcherError: " + pattern);
+            throw new RegexMatchError("videoId: could not find match for " + pattern);
         }
     }
 
@@ -89,7 +91,7 @@ public class Youtube {
         if(matcher.find()){
             return matcher.group(1);
         }else {
-            throw new Exception("RegexMatcherError. Unable to find signatureTimestamp in playerJs: " + getYtPlayerJs());
+            throw new RegexMatchError("setSignatureTimestamp: Unable to find signatureTimestamp in playerJs: " + getYtPlayerJs());
         }
     }
     public JSONObject getSignatureTimestamp() throws Exception {
@@ -113,7 +115,7 @@ public class Youtube {
         if(matcher.find()){
             return new JSONObject(matcher.group(1));
         }else {
-            throw new Exception("RegexMatcherError. Could not find ytCfg: " + pattern);
+            throw new RegexMatchError("setYtCfg: Could not find ytCfg: " + pattern);
         }
     }
 
@@ -130,7 +132,7 @@ public class Youtube {
         if (matcher.find()) {
             return "https://youtube.com" + matcher.group(1);
         }else {
-            throw new Exception("RegexMatcherError. Could not find playerJs: " + pattern);
+            throw new RegexMatchError("setYtPlayerJs: Could not find playerJs: " + pattern);
         }
     }
     public String getYtPlayerJs() throws Exception {
@@ -161,7 +163,7 @@ public class Youtube {
         if(matcher.find()){
            return new JSONObject(matcher.group(1));
         }else {
-            throw new Exception("RegexMatcherError. Unable to find video information: " + pattern);
+            throw new RegexMatchError("setVidInfo: Unable to find video information: " + pattern);
         }
     }
 
@@ -179,14 +181,50 @@ public class Youtube {
         return vidInfo;
     }
 
-    private void checkAvailability() throws Exception {
-        JSONObject status = getVidInfo().getJSONObject("playabilityStatus");
-        if(status.has("liveStreamability")) {
-            throw new Exception("Video is a live stream.");
-        } else if(Objects.equals(status.getString("status"), "LOGIN_REQUIRED")){
-            throw new Exception("This is a private video.");
-        } else if(!Objects.equals(status.getString("status"), "OK")){
-            throw new Exception(status.getString("reason"));
+     void checkAvailability() throws Exception {
+        JSONObject playabilityStatus = getVidInfo().getJSONObject("playabilityStatus");
+        String status = "";
+        String reason = "";
+
+        if (playabilityStatus.has("status")){
+            status = playabilityStatus.getString("status");
+
+            if (playabilityStatus.has("reason")){
+                reason = playabilityStatus.getString("reason");
+
+            } else if (playabilityStatus.has("messages")){
+                reason = playabilityStatus.getJSONArray("messages").getString(0);
+            }
+        }
+
+        switch (status) {
+            case "UNPLAYABLE" -> {
+                if (reason.equals("Join this channel to get access to members-only content like this video, and other exclusive perks.")) {
+                    throw new MembersOnlyError(videoId());
+
+                } else if (reason.equals("This live stream recording is not available.")){
+                    throw new RecordingUnavailableError(videoId());
+
+                } else {
+                    throw new VideoUnavailableError(videoId());
+                }
+            }
+            case "LOGIN_REQUIRED" -> {
+                if (reason.equals("Sign in to confirm your age") || reason.equals("This video may be inappropriate for some users.")) {
+                    throw new AgeRestrictedError(videoId());
+
+                }else {
+                    throw new VideoPrivateError(videoId());
+                }
+            }
+            case "ERROR" -> {
+                if (reason.equals("Video unavailable")) {
+                    throw new VideoUnavailableError(videoId());
+                }
+            }
+        }
+        if (playabilityStatus.has("liveStreamability") || getVidInfo().getJSONObject("videoDetails").getBoolean("isLiveContent")){
+            throw new LiveStreamError(videoId());
         }
     }
 
@@ -277,7 +315,7 @@ public class Youtube {
         if (matcher.find()) {
             return matcher.group(0);
         }else {
-            throw new Exception("RegexMatcherError. Unable to find publication date: " + pattern);
+            throw new RegexMatchError("getPublishDate: Unable to find publication date: " + pattern);
         }
     }
 

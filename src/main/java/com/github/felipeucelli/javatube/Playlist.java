@@ -1,5 +1,6 @@
 package com.github.felipeucelli.javatube;
 
+import com.github.felipeucelli.javatube.exceptions.RegexMatchError;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,7 +36,7 @@ public class Playlist {
         if (matcher.find()){
             return matcher.group(1);
         }else {
-            throw new Exception("RegexMatcherError. Unable to find match on: " + url);
+            throw new RegexMatchError("getPlaylistId: Unable to find match on: " + url);
         }
     }
 
@@ -59,7 +60,7 @@ public class Playlist {
         if(matcher.find()){
             return new JSONObject(matcher.group(1));
         }else {
-            throw new Exception("RegexMatcherError: " + pattern);
+            throw new RegexMatchError("setJson: " + pattern);
         }
     }
 

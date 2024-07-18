@@ -1,5 +1,6 @@
 package com.github.felipeucelli.javatube;
 
+import com.github.felipeucelli.javatube.exceptions.RegexMatchError;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -153,7 +154,7 @@ public class Stream{
         if (matcher.find()) {
             return matcher;
         }else {
-            throw new Exception("RegexMatcherError: " + pattern);
+            throw new RegexMatchError("mimeTypeCodec: " + pattern);
         }
     }
 
@@ -237,7 +238,7 @@ public class Stream{
                 if (matcher.find()){
                     lastChunk = Integer.parseInt(matcher.group(1));
                 }else{
-                    throw new Exception("RegexMatcherError: " + pattern);
+                    throw new RegexMatchError("downloadOtf: " + pattern);
                 }
             }
             progress.accept((countChunk * 100L) / (lastChunk));
