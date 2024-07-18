@@ -271,11 +271,23 @@ public class Youtube {
         ArrayList<Stream> fmtStream = new ArrayList<>();
         String title = getTitle();
         Stream video;
+
+        if(innerTube.getRequireJsPlayer()){
+            applySignature(streamManifest);
+        }
+        for (int i = 0; streamManifest.length() > i; i++) {
+            video = new Stream(streamManifest.getJSONObject(i), title);
+            fmtStream.add(video);
+        }
+        return fmtStream;
+    }
+
+    private void applySignature(JSONArray streamManifest) throws Exception {
         Cipher cipher = new Cipher(getJs(), getYtPlayerJs());
         Pattern nSigPattern = Pattern.compile("&n=(.*?)&");
         Map<String, String> discoveredNSig = new HashMap<>();
         for (int i = 0; streamManifest.length() > i; i++) {
-            if(streamManifest.getJSONObject(i).has("signatureCipher")){
+            if (streamManifest.getJSONObject(i).has("signatureCipher")) {
                 String oldUrl = decodeURL(streamManifest.getJSONObject(i).getString("url"));
                 streamManifest.getJSONObject(i).remove("url");
                 String sig = streamManifest.getJSONObject(i).getString("s");
@@ -292,11 +304,7 @@ public class Youtube {
                 String newUrl = oldUrl.replaceFirst("&n=(.*?)&", "&n=" + discoveredNSig.get(nSig) + "&");
                 streamManifest.getJSONObject(i).put("url", newUrl);
             }
-
-            video = new Stream(streamManifest.getJSONObject(i), title);
-            fmtStream.add(video);
         }
-        return fmtStream;
     }
 
     public String getTitle() throws Exception {
