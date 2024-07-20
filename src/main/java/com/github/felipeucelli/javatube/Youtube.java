@@ -272,7 +272,7 @@ public class Youtube {
         String title = getTitle();
         Stream video;
 
-        if(innerTube.getRequireJsPlayer()){
+        if(innerTube == null || innerTube.getRequireJsPlayer()){
             applySignature(streamManifest);
         }
         for (int i = 0; streamManifest.length() > i; i++) {

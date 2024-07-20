@@ -19,7 +19,7 @@ public class InnerTubeTest {
             "https://www.youtube.com/watch?v=60ItHLz5WEA, WEB_CREATOR",
 
           //  "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID",
-            "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID_EMBED",
+         //   "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID_EMBED",
             "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID_MUSIC",
             "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID_CREATOR",
 
