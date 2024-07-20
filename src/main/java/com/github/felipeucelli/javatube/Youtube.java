@@ -223,7 +223,7 @@ public class Youtube {
                 }
             }
         }
-        if (playabilityStatus.has("liveStreamability") || getVidInfo().getJSONObject("videoDetails").getBoolean("isLiveContent")){
+        if (playabilityStatus.has("liveStreamability")){
             throw new LiveStreamError(videoId());
         }
     }
