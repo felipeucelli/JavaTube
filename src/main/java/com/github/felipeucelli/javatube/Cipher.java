@@ -48,12 +48,25 @@ public class Cipher {
         // In this example we can find the name of the function at index "0" of "IRa"
         // a.D && (b = String.fromCharCode(110), c = a.get(b)) && (c = IRa[0](c), a.set(b,c), IRa.length || Ima(""))
 
-        String functionPatterns = "(?:\\.get\\(\"n\"\\)\\)&&\\(b=|b=String\\.fromCharCode\\(\\d+\\),c=a\\.get\\(b\\)\\)&&\\(c=)([a-zA-Z0-9$]+)(?:\\[(\\d+)])?\\([a-zA-Z0-9]\\)";
+
+        // New pattern added on July 23, 2024
+        // a.D&&(b="nn"[+a.D],c=a.get(b))&&(c=rDa[0](c),a.set(b,c),rDa.length||rma(""))
+        // (?:\\.get\\(\"n\"\\)\\)&&\\(b=|b=String\\.fromCharCode\\(\\d+\\),c=a\\.get\\(b\\)\\)&&\\(c=)([a-zA-Z0-9$]+)(?:\\[(\\d+)])?\\([a-zA-Z0-9]\\)
+        String functionPatterns = """
+                (?x)
+                            (?:
+                                \\.get\\("n"\\)\\)&&\\(b=|
+                                (?:
+                                    b=String\\.fromCharCode\\(110\\)|
+                                    ([a-zA-Z0-9$.]+)&&\\(b="nn"\\[\\+\\1]
+                                ),c=a\\.get\\(b\\)\\)&&\\(c=
+                            )
+                            (?<nfunc>[a-zA-Z0-9$]+)(?:\\[(?<idx>\\d+)])?\\([a-zA-Z0-9]\\)""";
         Pattern regex = Pattern.compile(functionPatterns);
         Matcher matcher = regex.matcher(js);
         if (matcher.find()){
-            String idx = matcher.group(1); // Usa[0]
-            String funName = Pattern.quote(matcher.group(1).replaceAll("(\\[\\d\\])", "")); // Usa
+            String idx = matcher.group("idx"); // Usa[0]
+            String funName = Pattern.quote(matcher.group("nfunc").replaceAll("(\\[\\d])", "")); // Usa
             if(!idx.isEmpty()){
                 String pattern2 = "var " + funName + "\\s*=\\s*(\\[.+?\\])"; // var Usa = [mma], Rsa = !1;
                 Pattern regex2 = Pattern.compile(pattern2);

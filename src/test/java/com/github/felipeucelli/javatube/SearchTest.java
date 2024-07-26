@@ -51,7 +51,7 @@ public class SearchTest {
 
     @ParameterizedTest
     @CsvSource({
-            "java channels"
+            "java"
     })
     public void testGetChannelsResults(String query) throws Exception {
         Assertions.assertFalse(new Search(query).getChannelsResults().isEmpty());
