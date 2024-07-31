@@ -18,19 +18,22 @@ public class InnerTubeTest {
             "https://www.youtube.com/watch?v=60ItHLz5WEA, WEB_MUSIC",
             "https://www.youtube.com/watch?v=60ItHLz5WEA, WEB_CREATOR",
 
-          //  "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID",
-         //   "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID_EMBED",
+            "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID",
+            "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID_VR",
             "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID_MUSIC",
             "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID_CREATOR",
+            "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID_TESTSUITE",
+            "https://www.youtube.com/watch?v=60ItHLz5WEA, ANDROID_PRODUCER",
 
             "https://www.youtube.com/watch?v=60ItHLz5WEA, IOS",
-        //    "https://www.youtube.com/watch?v=60ItHLz5WEA, IOS_EMBED",
             "https://www.youtube.com/watch?v=60ItHLz5WEA, IOS_MUSIC",
             "https://www.youtube.com/watch?v=60ItHLz5WEA, IOS_CREATOR",
 
             "https://www.youtube.com/watch?v=60ItHLz5WEA, MWEB",
 
-            "https://www.youtube.com/watch?v=60ItHLz5WEA, TV_EMBED"
+            "https://www.youtube.com/watch?v=60ItHLz5WEA, TV_EMBED",
+
+            "https://www.youtube.com/watch?v=60ItHLz5WEA, MEDIA_CONNECT"
     })
     public void testGetStreamData(String linkToTest, String client) {
         assertDoesNotThrow(() ->

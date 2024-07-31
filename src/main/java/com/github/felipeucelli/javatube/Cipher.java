@@ -2,6 +2,7 @@ package com.github.felipeucelli.javatube;
 
 import com.github.felipeucelli.javatube.exceptions.RegexMatchError;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,30 +53,36 @@ public class Cipher {
         // New pattern added on July 23, 2024
         // a.D&&(b="nn"[+a.D],c=a.get(b))&&(c=rDa[0](c),a.set(b,c),rDa.length||rma(""))
         // (?:\\.get\\(\"n\"\\)\\)&&\\(b=|b=String\\.fromCharCode\\(\\d+\\),c=a\\.get\\(b\\)\\)&&\\(c=)([a-zA-Z0-9$]+)(?:\\[(\\d+)])?\\([a-zA-Z0-9]\\)
+
+        // New pattern used in player "20dfca59" on July 29, 2024
+        // a.D && (b = a.get("n")) && (b = Msa[0](b), a.set("n",b), Msa.length || ema(""))
         String functionPatterns = """
-                (?x)
-                            (?:
-                                \\.get\\("n"\\)\\)&&\\(b=|
-                                (?:
-                                    b=String\\.fromCharCode\\(110\\)|
-                                    ([a-zA-Z0-9$.]+)&&\\(b="nn"\\[\\+\\1]
-                                ),c=a\\.get\\(b\\)\\)&&\\(c=
-                            )
-                            (?<nfunc>[a-zA-Z0-9$]+)(?:\\[(?<idx>\\d+)])?\\([a-zA-Z0-9]\\)""";
+                            (?x)
+                                            [abc]=(?<func>[a-zA-Z0-9$]+)
+                                            \\[(?<idx>\\d+)]\\([abc]\\),
+                                            a\\.set\\([a-zA-Z0-9$",]+\\),
+                                            [a-zA-Z0-9$]+\\.length
+                                            \\|\\|
+                                            (?<nfunc>[a-zA-Z0-9$]+)
+                                            \\(""\\)""";
         Pattern regex = Pattern.compile(functionPatterns);
         Matcher matcher = regex.matcher(js);
         if (matcher.find()){
-            String idx = matcher.group("idx"); // Usa[0]
-            String funName = Pattern.quote(matcher.group("nfunc").replaceAll("(\\[\\d])", "")); // Usa
+            String funName = Pattern.quote(matcher.group("func"));
+            String idx = matcher.group("idx");
+            String Nfunc = matcher.group("nfunc");
             if(!idx.isEmpty()){
-                String pattern2 = "var " + funName + "\\s*=\\s*(\\[.+?\\])"; // var Usa = [mma], Rsa = !1;
+                String pattern2 = "var " + funName + "\\s*=\\s*\\[(.+?)]";
                 Pattern regex2 = Pattern.compile(pattern2);
-                Matcher matcher2 = regex2.matcher(js);
-                if (matcher2.find()){
-                    String match = matcher2.group(1); // [mma]
-                    return  match.replace("[", "").replace("]", ""); // mma
+                Matcher nFuncFound = regex2.matcher(js);
+                if (nFuncFound.find()){
+                    if (Objects.equals(nFuncFound.group(1), Nfunc)){
+                        return Nfunc;
+                    }else {
+                        throw new RegexMatchError("getThrottlingFunctionName:" + Nfunc + " does not match the one found in playerJs: " + playerJs);
+                    }
                 }else {
-                    throw new RegexMatchError("Could not find function name: " + pattern2 + " in playerJs: " + playerJs);
+                    throw new RegexMatchError("getThrottlingFunctionName: Could not find function name " + pattern2 + " in playerJs: " + playerJs);
                 }
             }
         }
