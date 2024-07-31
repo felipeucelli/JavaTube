@@ -35,17 +35,19 @@ public class Youtube {
      *          WEB_EMBED,
      *          WEB_MUSIC,
      *          WEB_CREATOR,
+     *          WEB_SAFARI,
      *          MWEB,
      *          ANDROID,
-     *          ANDROID_EMBED,
+     *          ANDROID_VR,
      *          ANDROID_MUSIC,
      *          ANDROID_CREATOR,
      *          ANDROID_TESTSUITE,
+     *          ANDROID_PRODUCER,
      *          IOS,
-     *          IOS_EMBED,
      *          IOS_MUSIC,
      *          IOS_CREATOR,
-     *          TV_EMBED
+     *          TV_EMBED,
+     *          MEDIA_CONNECT
      * */
     public Youtube(String url, String clientName) throws Exception {
         innerTube = new InnerTube(clientName);
