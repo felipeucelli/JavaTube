@@ -1124,10 +1124,10 @@ public class JsInterpreter {
                         }
                         case "slice" -> {
                             assertion(obj instanceof List<?>, "must be applied on a list");
-                            assertion(argvals.size() == 1, "takes exactly one argument");
+                            assertion(argvals.size() == 2, "takes exactly one argument");
                             assert obj != null;
 
-                            return obj.toString().substring((Integer) argvals.get(0));
+                            return obj.toString().substring((Integer) argvals.get(0), argvals.size() > 1 ? (int) argvals.get(1) : obj.toString().length());
                         }
                         case "splice" -> {
                             assertion(obj instanceof List<?>, "must be applied on a list");

@@ -34,7 +34,8 @@ public class JsInterpreterTest {
                 "bc657243-player_ias.vflset-en_US.txt",
                 "b22ef6e7-player_ias.vflset-en_US.txt",
                 "1f8742dc-player_ias.vflset-en_US.txt",
-                "20dfca59-player_ias.vflset-en_US.txt"
+                "20dfca59-player_ias.vflset-en_US.txt",
+                "b12cc44b-player_ias.vflset-en_US.txt"
                 );
     }
     private String readFileContent(String fileName) throws IOException {
@@ -106,6 +107,7 @@ public class JsInterpreterTest {
             case "b22ef6e7-player_ias.vflset-en_US.txt"  -> List.of("3imMGazkXNJnWK", "Ima", "70QzMb0nhneLLS6BN");
             case "1f8742dc-player_ias.vflset-en_US.txt"  -> List.of("wx4GPH8bp1v7A9", "rma", "70QzMb0nhneLLS6BN");
             case "20dfca59-player_ias.vflset-en_US.txt"  -> List.of("zmLIydxjzkWeBA9", "rma", "70QzMb0nhneLLS6BN");
+            case "b12cc44b-player_ias.vflset-en_US.txt"  -> List.of("FnDBX5UEM1NHNyr", "Ema", "70QzMb0nhneLLS6BN");
             default -> List.of("", "", "");
         };
     }
@@ -139,6 +141,7 @@ public class JsInterpreterTest {
             case "b22ef6e7-player_ias.vflset-en_US.txt" -> List.of("goDDREeR36Kj5wrO_NjqCHEmy6PANTGWF9GKnFEIC4P07ptGh54LI6biy39oUrq5ITnRI3mE0gJchXqWRWNIgIARw8JQ0qOG", "LPa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
             case "1f8742dc-player_ias.vflset-en_US.txt" -> List.of("mQJ8wRAIgINW9WqXhcJg0E03IRnTm5qrUoA3yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO", "HBa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
             case "20dfca59-player_ias.vflset-en_US.txt" -> List.of("U0QJ8wRAIgINWRWqXhcJg0qm3IRnTm5qrEo93yib6IL45hGtp70P4CTEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxI", "EBa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
+            case "b12cc44b-player_ias.vflset-en_US.txt" -> List.of("EJ8wRAIgINWRWqXhcJg0Am3IRnTm5qrUo93yib6IL45hGtp70P4CQEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDoOU", "PBa", "AOq0QJ8wRAIgINWRWqXhcJg0Em3IRnTm5qrUo93yib6IL45hGtp70P4CIEFnKG9FWGINGP6ymEHCqjN_Orw5jK63ReERDDogUxTO");
             default -> List.of("", "", "");
         };
 
