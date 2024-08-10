@@ -30,6 +30,8 @@ public class Youtube {
     public Youtube(String url) throws Exception {
         urlVideo = url;
         watchUrl = "https://www.youtube.com/watch?v=" + videoId();
+        client = "ANDROID_TESTSUITE";
+        innerTube = new InnerTube(client);
     }
     /**
      * @Clients:
@@ -78,7 +80,7 @@ public class Youtube {
     }
 
     private String setHtml() throws Exception {
-        Map<String, String> headers = innerTube == null ? null : innerTube.getClientHeaders();
+        Map<String, String> headers = new InnerTube("WEB").getClientHeaders();
         return Request.get(watchUrl, headers).toString(StandardCharsets.UTF_8.name()).replace("\n", "");
     }
 
@@ -103,9 +105,10 @@ public class Youtube {
         if(signatureTimestamp == null){
             signatureTimestamp =  new JSONObject(
                     "{" +
-                                "playbackContext:{" +
-                                    "contentPlaybackContext: {" +
-                                        "signatureTimestamp:" + setSignatureTimestamp() +
+                                "\"playbackContext\": {" +
+                                    "\"contentPlaybackContext\": {" +
+                                        "\"signatureTimestamp\": " + setSignatureTimestamp() + "," +
+                                        "\"referer\": \"https://www.youtube.com/watch?v=" + videoId() + "\"" +
                                     "}" +
                                 "}" +
                             "}"
@@ -379,7 +382,7 @@ public class Youtube {
     }
 
     public String getThumbnailUrl() throws Exception {
-        JSONArray thumbnails = getVidInfo().getJSONObject("videoDetails")
+        JSONArray thumbnails = new InnerTube("WEB").player(videoId()).getJSONObject("videoDetails")
                 .getJSONObject("thumbnail")
                 .getJSONArray("thumbnails");
         return thumbnails.getJSONObject(thumbnails.length() - 1).getString("url");
@@ -397,7 +400,7 @@ public class Youtube {
 
     public ArrayList<Captions> getCaptionTracks() throws Exception {
         try{
-            JSONArray rawTracks = getVidInfo().getJSONObject("captions")
+            JSONArray rawTracks = new InnerTube("WEB").player(videoId()).getJSONObject("captions")
                     .getJSONObject("playerCaptionsTracklistRenderer")
                     .getJSONArray("captionTracks");
             ArrayList<Captions> captions = new ArrayList<>();
