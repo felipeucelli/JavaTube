@@ -80,7 +80,7 @@ public class Youtube {
     }
 
     private String setHtml() throws Exception {
-        Map<String, String> headers = new InnerTube("WEB").getClientHeaders();
+        Map<String, String> headers =  !client.contains("WEB") ? null : innerTube.getClientHeaders();
         return Request.get(watchUrl, headers).toString(StandardCharsets.UTF_8.name()).replace("\n", "");
     }
 
@@ -107,8 +107,7 @@ public class Youtube {
                     "{" +
                                 "\"playbackContext\": {" +
                                     "\"contentPlaybackContext\": {" +
-                                        "\"signatureTimestamp\": " + setSignatureTimestamp() + "," +
-                                        "\"referer\": \"https://www.youtube.com/watch?v=" + videoId() + "\"" +
+                                        "\"signatureTimestamp\": " + setSignatureTimestamp() +
                                     "}" +
                                 "}" +
                             "}"
