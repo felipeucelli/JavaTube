@@ -17,21 +17,18 @@ public class Youtube {
     private InnerTube innerTube = null;
     private String client = null;
     private JSONObject vidInfo = null;
-    private int poTokenAttempts = 1;
     private String html = null;
     private String js = null;
     private JSONObject ytCfg = null;
     private JSONObject signatureTimestamp = null;
     private String playerJs = null;
+    private final boolean usePoToken;
 
     /**
      * Default client: WEB
      * */
     public Youtube(String url) throws Exception {
-        urlVideo = url;
-        watchUrl = "https://www.youtube.com/watch?v=" + videoId();
-        client = "ANDROID_TESTSUITE";
-        innerTube = new InnerTube(client);
+        this(url, "ANDROID_TESTSUITE", false, false);
     }
     /**
      * @Clients:
@@ -54,8 +51,44 @@ public class Youtube {
      *          MEDIA_CONNECT
      * */
     public Youtube(String url, String clientName) throws Exception {
-        client = clientName;
-        innerTube = new InnerTube(client);
+        this(url, clientName, false, false);
+    }
+    /**
+     * Default client: WEB
+     * */
+    public Youtube(String url, boolean usePoToken) throws Exception {
+        this(url, "ANDROID_TESTSUITE", usePoToken, false);
+    }
+    /**
+     * Default client: WEB
+     * */
+    public Youtube(String url, boolean usePoToken, boolean allowCache) throws Exception {
+        this(url, "ANDROID_TESTSUITE", usePoToken, allowCache);
+    }
+    /**
+     * @Clients:
+     *          WEB,
+     *          WEB_EMBED,
+     *          WEB_MUSIC,
+     *          WEB_CREATOR,
+     *          WEB_SAFARI,
+     *          MWEB,
+     *          ANDROID,
+     *          ANDROID_VR,
+     *          ANDROID_MUSIC,
+     *          ANDROID_CREATOR,
+     *          ANDROID_TESTSUITE,
+     *          ANDROID_PRODUCER,
+     *          IOS,
+     *          IOS_MUSIC,
+     *          IOS_CREATOR,
+     *          TV_EMBED,
+     *          MEDIA_CONNECT
+     * */
+    public Youtube(String url, String clientName, boolean usePoToken, boolean allowCache) throws Exception {
+        client = usePoToken ? "WEB" : clientName;
+        this.usePoToken = usePoToken;
+        innerTube = new InnerTube(client, usePoToken, allowCache);
         urlVideo = url;
         watchUrl = "https://www.youtube.com/watch?v=" + videoId();
     }
@@ -188,49 +221,8 @@ public class Youtube {
         return vidInfo;
     }
 
-    void checkPoToken() throws Exception {
-        if(innerTube == null || client.contains("WEB")){
-            // https://github.com/yt-dlp/yt-dlp/pull/10456
-            List<String> poTokenExperiments = List.of("51217476", "51217102");
-
-            String value = "";
-
-            for (int i = 0; i < vidInfo.getJSONObject("responseContext").getJSONArray("serviceTrackingParams").length(); i++){
-                JSONObject service = vidInfo.getJSONObject("responseContext").getJSONArray("serviceTrackingParams").getJSONObject(i);
-                if (service.has("service")){
-                    JSONArray params = service.getJSONArray("params");
-                    for (int j = 0; j < params.length(); j++){
-                        if (Objects.equals(params.getJSONObject(j).getString("key"), "e")){
-                            value = params.getJSONObject(j).getString("value");
-                            break;
-                        }
-                    }
-                }
-            }
-
-            for (String po : poTokenExperiments){
-                if (value.contains(po)){
-                    if(poTokenAttempts <= 3){
-                        System.out.print("API returned broken formats (poToken experiment detected). ");
-                        System.out.println("Trying again " + poTokenAttempts + "/3.");
-                        vidInfo = null;
-                        poTokenAttempts += 1;
-                        checkAvailability();
-                        break;
-                    }
-                    System.out.println("Trying ANDROID_TESTSUITE client.");
-                    innerTube = new InnerTube("ANDROID_TESTSUITE");
-                    vidInfo = null;
-                    break;
-                }
-            }
-        }
-
-    }
-
      void checkAvailability() throws Exception {
         JSONObject playabilityStatus = getVidInfo().getJSONObject("playabilityStatus");
-        checkPoToken();
         String status = "";
         String reason = "";
 
@@ -371,6 +363,11 @@ public class Youtube {
                     discoveredNSig.put(nSig, cipher.getNSig(nSig));
                 }
                 String newUrl = oldUrl.replaceFirst("&n=(.*?)&", "&n=" + discoveredNSig.get(nSig) + "&");
+                streamManifest.getJSONObject(i).put("url", newUrl);
+            }
+            if(usePoToken){
+                oldUrl = streamManifest.getJSONObject(i).getString("url");
+                String newUrl = oldUrl + "&pot=" + innerTube.getPoToken();
                 streamManifest.getJSONObject(i).put("url", newUrl);
             }
         }

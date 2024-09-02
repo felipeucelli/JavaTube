@@ -14,6 +14,13 @@ out/
 !**/src/test/**/out/
 
 /src/test/java/test.java
+/src/test/java/com/github/felipeucelli/javatube/CaptionsTest.java
+/src/test/java/com/github/felipeucelli/javatube/ChannelTest.java
+/src/test/java/com/github/felipeucelli/javatube/InnerTubeTest.java
+/src/test/java/com/github/felipeucelli/javatube/PlaylistTest.java
+/src/test/java/com/github/felipeucelli/javatube/SearchTest.java
+/src/test/java/com/github/felipeucelli/javatube/StreamQueryTest.java
+/src/test/java/com/github/felipeucelli/javatube/YoutubeTest.java
 
 ### Eclipse ###
 .apt_generated
@@ -46,3 +53,5 @@ bin/
 *.mp3
 *.webm
 *.srt
+
+.cache/*

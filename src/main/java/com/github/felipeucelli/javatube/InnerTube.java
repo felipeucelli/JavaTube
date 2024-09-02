@@ -4,42 +4,26 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
-class InnerTube{
+public class InnerTube{
     private static JSONObject innerTubeContext;
     private static boolean requireJsPlayer;
     private static JSONObject header;
     private static String apiKey;
 
-    /**
-     * @Clients:
-     *          WEB,
-     *          WEB_EMBED,
-     *          WEB_MUSIC,
-     *          WEB_CREATOR,
-     *          WEB_SAFARI,
-     *          MWEB,
-     *          ANDROID,
-     *          ANDROID_VR,
-     *          ANDROID_MUSIC,
-     *          ANDROID_CREATOR,
-     *          ANDROID_TESTSUITE,
-     *          ANDROID_PRODUCER,
-     *          IOS,
-     *          IOS_MUSIC,
-     *          IOS_CREATOR,
-     *          TV_EMBED,
-     *          MEDIA_CONNECT
-     * */
-    public InnerTube(String client) throws JSONException {
-        JSONObject defaultClient = new JSONObject("""
+    private final boolean usePoToken;
+    private String accessPoToken;
+    private String accessVisitorData;
+
+    JSONObject defaultClient = new JSONObject("""
                 {
                   "WEB": {
                     "innerTubeContext": {
@@ -379,13 +363,99 @@ class InnerTube{
                 }
                 """);
 
+
+    /**
+     * @Clients:
+     *          WEB,
+     *          WEB_EMBED,
+     *          WEB_MUSIC,
+     *          WEB_CREATOR,
+     *          WEB_SAFARI,
+     *          MWEB,
+     *          ANDROID,
+     *          ANDROID_VR,
+     *          ANDROID_MUSIC,
+     *          ANDROID_CREATOR,
+     *          ANDROID_TESTSUITE,
+     *          ANDROID_PRODUCER,
+     *          IOS,
+     *          IOS_MUSIC,
+     *          IOS_CREATOR,
+     *          TV_EMBED,
+     *          MEDIA_CONNECT
+     * */
+    public InnerTube(String client, boolean usePoToken, boolean allowCache) throws JSONException {
+
         innerTubeContext = defaultClient.getJSONObject(client).getJSONObject("innerTubeContext");
         requireJsPlayer = defaultClient.getJSONObject(client).getBoolean("requireJsPlayer");
         header = defaultClient.getJSONObject(client).getJSONObject("header");
 
         // API keys are not required, see: https://github.com/TeamNewPipe/NewPipeExtractor/pull/1168
         apiKey = defaultClient.getJSONObject(client).getString("apiKey");
+
+        this.usePoToken = usePoToken;
+
+        try {
+            Path path = Paths.get(".cache/tokens.json");
+            if(usePoToken && allowCache && Files.exists(path)){
+                String content = new String(Files.readAllBytes(path));
+                JSONObject jsonObject = new JSONObject(content);
+                accessVisitorData = jsonObject.getString("visitorData");
+                accessPoToken = jsonObject.getString("poToken");
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
+
+    /**
+     * @Clients:
+     *          WEB,
+     *          WEB_EMBED,
+     *          WEB_MUSIC,
+     *          WEB_CREATOR,
+     *          WEB_SAFARI,
+     *          MWEB,
+     *          ANDROID,
+     *          ANDROID_VR,
+     *          ANDROID_MUSIC,
+     *          ANDROID_CREATOR,
+     *          ANDROID_TESTSUITE,
+     *          ANDROID_PRODUCER,
+     *          IOS,
+     *          IOS_MUSIC,
+     *          IOS_CREATOR,
+     *          TV_EMBED,
+     *          MEDIA_CONNECT
+     * */
+    public InnerTube(String client, boolean usePoToken) throws JSONException {
+        this(client, usePoToken, false);
+    }
+
+    /**
+     * @Clients:
+     *          WEB,
+     *          WEB_EMBED,
+     *          WEB_MUSIC,
+     *          WEB_CREATOR,
+     *          WEB_SAFARI,
+     *          MWEB,
+     *          ANDROID,
+     *          ANDROID_VR,
+     *          ANDROID_MUSIC,
+     *          ANDROID_CREATOR,
+     *          ANDROID_TESTSUITE,
+     *          ANDROID_PRODUCER,
+     *          IOS,
+     *          IOS_MUSIC,
+     *          IOS_CREATOR,
+     *          TV_EMBED,
+     *          MEDIA_CONNECT
+     * */
+    public InnerTube(String client) throws JSONException {
+        this(client, false, false);
+    }
+
     public JSONObject getInnerTubeContext() throws JSONException {
         return innerTubeContext;
     }
@@ -410,6 +480,14 @@ class InnerTube{
         return requireJsPlayer;
     }
 
+    public String getVisitorData(){
+        return accessVisitorData;
+    }
+
+    public String getPoToken(){
+        return accessPoToken;
+    }
+
     private String getBaseUrl(){
         return "https://www.youtube.com/youtubei/v1";
     }
@@ -417,6 +495,60 @@ class InnerTube{
     private String getBaseParam(){
         return "{prettyPrint: \"false\"}";
     }
+
+    private String[] defaultPoTokenVerifier(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("You can use the tool: https://github.com/YunzheZJU/youtube-po-token-generator, to get the token");
+        System.out.print("Enter with your visitorData: ");
+        String visitorData = scanner.nextLine();
+        System.out.print("Enter with your PoToken: ");
+        String poToken = scanner.nextLine();
+        return new String[]{visitorData, poToken};
+    }
+
+    public void cacheTokens() throws JSONException {
+        if (usePoToken){
+            JSONObject data = new JSONObject(
+                    "{" +
+                                "\"visitorData\": \"" + accessVisitorData + "\"," +
+                                "\"poToken\": \"" + accessPoToken + "\"" +
+                            "}"
+            );
+
+            String filePath = ".cache/tokens.json";
+            try {
+                Path path = Paths.get(filePath);
+                Files.write(path, data.toString(4).getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void insetPoToken() throws JSONException {
+        JSONObject context = new JSONObject(
+                "{" +
+                            "\"context\": {" +
+                                "\"client\": {" +
+                                    "\"visitorData\": \"" + accessVisitorData + "\"" +
+                                "}"+
+                            "}," +
+                            "\"serviceIntegrityDimensions\": {" +
+                                "\"poToken\": \"" + accessPoToken + "\"" +
+                            "}" +
+                        "}"
+        );
+        updateInnerTubeContext(innerTubeContext, context);
+    }
+
+    public void fetchPoToken() throws JSONException {
+        String[] token = defaultPoTokenVerifier();
+        accessVisitorData = token[0];
+        accessPoToken = token[1];
+        cacheTokens();
+        insetPoToken();
+    }
+
     private String urlEncode(JSONObject json) throws JSONException, UnsupportedEncodingException {
         StringBuilder query = new StringBuilder();
         for (Iterator<String> it = json.keys(); it.hasNext(); ) {
@@ -444,11 +576,19 @@ class InnerTube{
         return headers;
     }
 
-    private JSONObject callApi(String endpoint, JSONObject query, JSONObject data) throws Exception {
+    private JSONObject callApi(String endpoint, JSONObject query) throws Exception {
 
         String endpointUrl = endpoint + "?" + urlEncode(query);
 
-        ByteArrayOutputStream response = Request.post(endpointUrl, data.toString(), getHeaderMap());
+        if(usePoToken){
+            if(accessPoToken != null){
+                insetPoToken();
+            }else {
+                fetchPoToken();
+            }
+        }
+
+        ByteArrayOutputStream response = Request.post(endpointUrl, getInnerTubeContext().toString(), getHeaderMap());
         return new JSONObject(response.toString());
     }
 
@@ -457,14 +597,14 @@ class InnerTube{
         JSONObject query = new JSONObject(getBaseParam());
         JSONObject context = new JSONObject("{videoId: " + videoId + ", " + "contentCheckOk: \"true\"" + "}");
         updateInnerTubeContext(getInnerTubeContext(), context);
-        return callApi(endpoint, query, getInnerTubeContext());
+        return callApi(endpoint, query);
     }
 
     public JSONObject browse(JSONObject data) throws Exception {
         String endpoint = getBaseUrl() + "/browse";
         JSONObject query = new JSONObject(getBaseParam());
         updateInnerTubeContext(getInnerTubeContext(), data);
-        return callApi(endpoint, query, getInnerTubeContext());
+        return callApi(endpoint, query);
     }
 
     public JSONObject search(String searchQuery, String continuationToken) throws Exception {
@@ -475,6 +615,6 @@ class InnerTube{
         if(!Objects.equals(continuationToken, "")){
             updateInnerTubeContext(getInnerTubeContext(), new JSONObject("{continuation:" + continuationToken + "}"));
         }
-        return callApi(endpoint, query, getInnerTubeContext());
+        return callApi(endpoint, query);
     }
 }
