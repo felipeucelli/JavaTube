@@ -253,6 +253,9 @@ public class Youtube {
                 } else if (reason.equals("This live stream recording is not available.")){
                     throw new RecordingUnavailableError(videoId());
 
+                } else if(reason.equals("The uploader has not made this video available in your country")){
+                    throw new VideoRegionBlockedError(videoId());
+
                 } else {
                     throw new VideoUnavailableError(videoId());
                 }
@@ -261,6 +264,9 @@ public class Youtube {
                 if (reason.equals("Sign in to confirm your age") || reason.equals("This video may be inappropriate for some users.")) {
                     throw new AgeRestrictedError(videoId());
 
+                } else if (reason.equals("Sign in to confirm you’re not a bot")){
+                    throw new BotDetectionError(videoId());
+
                 }else {
                     throw new VideoPrivateError(videoId());
                 }
@@ -268,6 +274,21 @@ public class Youtube {
             case "ERROR" -> {
                 if (reason.equals("Video unavailable")) {
                     throw new VideoUnavailableError(videoId());
+
+                }else if(reason.equals("This video is private")){
+                    throw new VideoPrivateError(videoId());
+
+                }else if (reason.equals("This video is unavailable")){
+                    throw new VideoUnavailableError(videoId());
+
+                }else if (reason.equals("This video has been removed by the uploader")){
+                    throw new VideoUnavailableError(videoId());
+
+                }else if (reason.equals("This video is no longer available because the YouTube account associated with this video has been terminated.")){
+                    throw new VideoUnavailableError(videoId());
+
+                }else {
+                    throw new UnknownVideoError(videoId(), status, reason);
                 }
             }
         }
