@@ -48,7 +48,21 @@ public class Search {
     private ArrayList<String> extractReelShelfRenderer(JSONArray items) throws JSONException {
         ArrayList<String> ids = new ArrayList<>();
         for(int i = 0; items.length() > i; i++){
-            String vidId = items.getJSONObject(i).getJSONObject("reelItemRenderer").getString("videoId");
+            String vidId;
+            if (items.getJSONObject(i).has("reelItemRenderer")){
+                vidId = items.getJSONObject(i)
+                        .getJSONObject("reelItemRenderer")
+                        .getString("videoId");
+            }else {
+                vidId = items.getJSONObject(i)
+                        .getJSONObject("shortsLockupViewModel")
+                        .getJSONObject("inlinePlayerData")
+                        .getJSONObject("onVisible")
+                        .getJSONObject("innertubeCommand")
+                        .getJSONObject("watchEndpoint")
+                        .getString("videoId");
+            }
+
             ids.add("https://www.youtube.com/shorts/" + vidId);
         }
         return ids;
@@ -90,6 +104,8 @@ public class Search {
         ArrayList<String> playlist = new ArrayList<>();
 
         for(int i = 0; i < rawVideoList.length() - 1; i++) {
+
+            // Get videos results
             if (rawVideoList.getJSONObject(i).has("videoRenderer")) {
                 JSONObject vidRenderer = rawVideoList.getJSONObject(i).getJSONObject("videoRenderer");
                 String vidId = vidRenderer.getString("videoId");
@@ -103,16 +119,19 @@ public class Search {
                             .getJSONArray("items")));
                 }
 
+                // Get shorts results
             } else if (rawVideoList.getJSONObject(i).has("reelShelfRenderer")) {
                 shorts.addAll(extractReelShelfRenderer(rawVideoList.getJSONObject(i)
                         .getJSONObject("reelShelfRenderer")
                         .getJSONArray("items")));
 
+                // Get channel results
             } else if (rawVideoList.getJSONObject(i).has("channelRenderer")) {
                 String channelId = rawVideoList.getJSONObject(i).getJSONObject("channelRenderer")
                         .getString("channelId");
                 channel.add("https://www.youtube.com/channel/" + channelId);
 
+                // Get playlist results
             } else if (rawVideoList.getJSONObject(i).has("playlistRenderer")) {
                 String playlistId = rawVideoList.getJSONObject(i).getJSONObject("playlistRenderer")
                         .getString("playlistId");
