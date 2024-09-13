@@ -337,10 +337,21 @@ public class Channel extends Playlist{
 
     private String getShortId(JSONObject ids) throws JSONException{
         try{
-            return "https://www.youtube.com/watch?v=" +  ids.getJSONObject("richItemRenderer")
-                    .getJSONObject("content")
-                    .getJSONObject("reelItemRenderer")
-                    .getString("videoId");
+            JSONObject content = ids.getJSONObject("richItemRenderer").getJSONObject("content");
+            String videoId;
+            if (content.has("shortsLockupViewModel")){
+                videoId = content
+                        .getJSONObject("shortsLockupViewModel")
+                        .getJSONObject("onTap")
+                        .getJSONObject("innertubeCommand")
+                        .getJSONObject("reelWatchEndpoint")
+                        .getString("videoId");
+            }else {
+                videoId = content
+                        .getJSONObject("reelItemRenderer")
+                        .getString("videoId");
+            }
+            return "https://www.youtube.com/watch?v=" + videoId;
         }catch (JSONException e){
             return getReleasesId(ids);
         }

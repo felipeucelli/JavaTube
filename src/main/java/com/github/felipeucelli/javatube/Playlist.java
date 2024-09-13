@@ -116,11 +116,18 @@ public class Playlist {
                         .getJSONArray("contents")
                         .getJSONObject(0);
 
-                importantContent = tabs.getJSONObject("itemSectionRenderer")
+                JSONObject renderer = tabs.getJSONObject("itemSectionRenderer")
                         .getJSONArray("contents")
-                        .getJSONObject(0)
-                        .getJSONObject("playlistVideoListRenderer")
-                        .getJSONArray("contents");
+                        .getJSONObject(0);
+                if (renderer.has("richGridRenderer")){
+                    importantContent = renderer
+                            .getJSONObject("richGridRenderer")
+                            .getJSONArray("contents");
+                }else {
+                    importantContent = renderer
+                            .getJSONObject("playlistVideoListRenderer")
+                            .getJSONArray("contents");
+                }
 
             }catch (JSONException e){
                 importantContent = rawJson.getJSONArray("onResponseReceivedActions")
@@ -155,9 +162,20 @@ public class Playlist {
         try {
             for(int i = 0; i < video.length(); i++){
                 try{
-                    videosId.add("https://www.youtube.com/watch?v=" + video.getJSONObject(i)
-                            .getJSONObject("playlistVideoRenderer")
-                            .getString("videoId"));
+                    if (video.getJSONObject(i).has("richItemRenderer")){
+                        videosId.add("https://www.youtube.com/watch?v=" + video.getJSONObject(i)
+                                .getJSONObject("richItemRenderer")
+                                .getJSONObject("content")
+                                .getJSONObject("shortsLockupViewModel")
+                                .getJSONObject("onTap")
+                                .getJSONObject("innertubeCommand")
+                                .getJSONObject("reelWatchEndpoint")
+                                .getString("videoId"));
+                    }else {
+                        videosId.add("https://www.youtube.com/watch?v=" + video.getJSONObject(i)
+                                .getJSONObject("playlistVideoRenderer")
+                                .getString("videoId"));
+                    }
                 }catch (Exception ignored){
                 }
             }
