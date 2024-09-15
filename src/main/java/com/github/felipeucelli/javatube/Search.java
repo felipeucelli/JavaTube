@@ -56,10 +56,9 @@ public class Search {
             }else {
                 vidId = items.getJSONObject(i)
                         .getJSONObject("shortsLockupViewModel")
-                        .getJSONObject("inlinePlayerData")
-                        .getJSONObject("onVisible")
+                        .getJSONObject("onTap")
                         .getJSONObject("innertubeCommand")
-                        .getJSONObject("watchEndpoint")
+                        .getJSONObject("reelWatchEndpoint")
                         .getString("videoId");
             }
 
