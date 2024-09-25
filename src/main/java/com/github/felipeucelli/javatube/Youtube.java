@@ -25,10 +25,10 @@ public class Youtube {
     private final boolean usePoToken;
 
     /**
-     * Default client: WEB
+     * Default client: ANDROID_VR
      * */
     public Youtube(String url) throws Exception {
-        this(url, "ANDROID_TESTSUITE", false, false);
+        this(url, "ANDROID_VR", false, false);
     }
     /**
      * @Clients:
@@ -57,13 +57,13 @@ public class Youtube {
      * Default client: WEB
      * */
     public Youtube(String url, boolean usePoToken) throws Exception {
-        this(url, "ANDROID_TESTSUITE", usePoToken, false);
+        this(url, "ANDROID_VR", usePoToken, false);
     }
     /**
      * Default client: WEB
      * */
     public Youtube(String url, boolean usePoToken, boolean allowCache) throws Exception {
-        this(url, "ANDROID_TESTSUITE", usePoToken, allowCache);
+        this(url, "ANDROID_VR", usePoToken, allowCache);
     }
     /**
      * @Clients:
