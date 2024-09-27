@@ -263,6 +263,9 @@ public class Youtube {
                     throw new VideoPrivateError(videoId());
                 }
             }
+
+            case "LIVE_STREAM_OFFLINE" -> throw new LiveStreamOffline(videoId(), reason);
+
             case "ERROR" -> {
                 if (reason.equals("Video unavailable")) {
                     throw new VideoUnavailableError(videoId());
