@@ -284,7 +284,7 @@ public class Youtube {
                 }
             }
         }
-        if (playabilityStatus.has("liveStreamability")){
+        if (getVidInfo().getJSONObject("videoDetails").has("isLive")){
             throw new LiveStreamError(videoId());
         }
     }
