@@ -70,7 +70,7 @@ public class Cipher {
 
                 // New pattern used in player "2f238d39" on October 10, 2024
                 // a.D && (b = "nn" [+a.D], zM(a), c = a.j[b] || null) && (c = XDa[0](c), a.set(b, c))
-                ";a\\.D&&\\(b=\"nn\".*?&&\\([abc]=(?<nfunc>[a-zA-Z$]{3})\\[(?<idx>\\d{1})\\].*?a.set\\(b.[abc]\\)\\)}};"
+                ";a\\.D&&\\(b=\"nn\".*?&&\\([abc]=(?<nfunc>[a-zA-Z$]{3})\\[(?<idx>\\d{1})\\].*?a.set\\(b.[abc]\\)\\)\\}\\};"
         };
 
         for(String pattern : functionPatterns){
