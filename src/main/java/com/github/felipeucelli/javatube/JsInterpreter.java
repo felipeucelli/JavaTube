@@ -1453,9 +1453,19 @@ public class JsInterpreter {
         }
         return r;
     }
+
+    private String fixup_n_function_code(String[] argnames, String code){
+        String regex = ";\\s*if\\s*\\(\\s*typeof\\s+[a-zA-Z0-9_$]+\\s*===?\\s*(['\"])undefined\\1\\s*\\)\\s*return\\s+" + Pattern.quote(argnames[0]) + ";";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(code);
+        String updatedCode = matcher.replaceAll(";");
+
+        return updatedCode;
+    }
+
     private FunctionWithRepr extractFuName(String funName) throws Exception {
         Map<String, String> code = extractFunctionCode(funName);
-        Object obj = extractFunctionFromCode(List.of(code.get("args").split(",")), code.get("code"), new HashMap<>());
+        Object obj = extractFunctionFromCode(List.of(code.get("args").split(",")), fixup_n_function_code(code.get("args").split(","), code.get("code")), new HashMap<>());
         return new FunctionWithRepr(obj, "F<" + funName +">");
     }
     public Object callFunction(String funName, Object arg) throws Exception {
