@@ -21,7 +21,7 @@ public class Cipher {
     }
     private static String getInitialFunctionName(String js) throws Exception {
         String[] functionPattern = {
-                "(?<sig>[a-zA-Z0-9$]+)\\s*=\\s*function\\(\\s*(?<arg>[a-zA-Z0-9$]+)\\s*\\)\\s*\\{\\s*(\\k<arg>)\\s*=\\s*(\\k<arg>)\\.split\\(\\s*\\\"\\\"\\s*\\)\\s*;\\s*[^}]+;\\s*return\\s+(\\k<arg>)\\.join\\(\\s*\\\"\\\"\\s*\\)}",
+                "(?<sig>[a-zA-Z0-9_$]+)\\s*=\\s*function\\(\\s*(?<arg>[a-zA-Z0-9_$]+)\\s*\\)\\s*\\{\\s*(\\k<arg>)\\s*=\\s*(\\k<arg>)\\.split\\(\\s*\\\"\\\"\\s*\\)\\s*;\\s*[^}]+;\\s*return\\s+(\\k<arg>)\\.join\\(\\s*\\\"\\\"\\s*\\)}",
                 "\\b[cs]\\s*&&\\s*[adf]\\.set\\([^,]+\\s*,\\s*encodeURIComponent\\s*\\(\\s*([a-zA-Z0-9$]+)\\(",
                 "(?<sig>[a-zA-Z0-9$]+)\\s*=\\s*function\\(\\s*(?<arg>[a-zA-Z0-9$]+)\\s*\\)\\s*\\{\\s*(?=arg)\\s*=\\s*(?=arg)\\.split\\(\\s*\\\"\\\"\\s*\\)\\s*;\\s*[^}]+;\\s*return\\s+(?=arg)\\.join\\(\\s*\\\"\\\"\\s*\\)",
                 "\\b[a-zA-Z0-9]+\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*encodeURIComponent\\s*\\(\\s*([a-zA-Z0-9$]+)\\(",
@@ -73,7 +73,7 @@ public class Cipher {
 
                 // New pattern used in player "2f238d39" on October 10, 2024
                 // a.D && (b = "nn" [+a.D], zM(a), c = a.j[b] || null) && (c = XDa[0](c), a.set(b, c))
-                ";[a-zA-Z]\\.[a-zA-Z]&&\\([a-zA-Z]=\\\"nn\\\".*?&&\\([a-zA-Z]=(?<nfunc>[a-zA-Z$]{3})\\[(?<idx>\\d{1})\\].*?[a-zA-Z].set\\([a-zA-Z].[a-zA-Z]\\)\\)\\}\\};"
+                ";[a-zA-Z]\\.[a-zA-Z]&&\\((?<arg>[a-zA-Z])=(?:\\\"nn\\\"|[a-zA-Z]+\\(\\)).*?&&\\((?<func>[a-zA-Z])=(?<nfunc>[a-zA-Z$]{3})\\[(?<idx>\\d{1})\\].*?[a-zA-Z].set\\(\\k<arg>.\\k<func>\\).*?}};"
         };
 
         for(String pattern : functionPatterns){
