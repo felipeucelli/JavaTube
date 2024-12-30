@@ -23,6 +23,7 @@ public class Youtube {
     private JSONObject signatureTimestamp = null;
     private String playerJs = null;
     private final boolean usePoToken;
+    private final boolean allowCache;
 
     /**
      * Default client: ANDROID_VR
@@ -88,6 +89,7 @@ public class Youtube {
     public Youtube(String url, String clientName, boolean usePoToken, boolean allowCache) throws Exception {
         client = usePoToken ? "WEB" : clientName;
         this.usePoToken = usePoToken;
+        this.allowCache = allowCache;
         innerTube = new InnerTube(client, usePoToken, allowCache);
         urlVideo = url;
         watchUrl = "https://www.youtube.com/watch?v=" + videoId();
@@ -208,23 +210,59 @@ public class Youtube {
     }
 
     private JSONObject getVidInfo() throws Exception {
-        if (vidInfo == null) {
-            if (innerTube == null) {
-                vidInfo = setVidInfo();
-            } else {
-                if (innerTube.getRequireJsPlayer()) {
-                    innerTube.updateInnerTubeContext(innerTube.getInnerTubeContext(), getSignatureTimestamp());
+        List<String> fallbackClients = Arrays.asList("MWEB", "IOS");
+        for(String client : fallbackClients) {
+
+            if (vidInfo == null) {
+                if (innerTube == null) {
+                    vidInfo = setVidInfo();
+                } else {
+                    if (innerTube.getRequireJsPlayer()) {
+                        innerTube.updateInnerTubeContext(innerTube.getInnerTubeContext(), getSignatureTimestamp());
+                    }
+                    vidInfo = innerTube.player(videoId());
                 }
-                vidInfo = innerTube.player(videoId());
+            }
+            JSONObject playabilityStatus = vidInfo.getJSONObject("playabilityStatus");
+
+            if (Objects.equals(playabilityStatus.getString("status"), "UNPLAYABLE")) {
+                if (playabilityStatus.has("reason") && Objects.equals(playabilityStatus.getString("reason"), "This video is not available")) {
+                    innerTube = new InnerTube(client, usePoToken, allowCache);
+                    vidInfo = null;
+                    System.out.println("ERRO, mudando para cliente: " + client);
+                }
             }
         }
+
         return vidInfo;
+    }
+
+
+    private List<String> extractAvailability(JSONObject playabilityStatus){
+        String status = "";
+        String reason = "";
+
+        if (playabilityStatus.has("status")){
+            status = playabilityStatus.getString("status");
+
+            if (playabilityStatus.has("reason")){
+                reason = playabilityStatus.getString("reason");
+
+            } else if (playabilityStatus.has("messages")){
+                reason = playabilityStatus.getJSONArray("messages").getString(0);
+            }
+        }
+
+        return Arrays.asList(status, reason);
     }
 
      void checkAvailability() throws Exception {
         JSONObject playabilityStatus = getVidInfo().getJSONObject("playabilityStatus");
-        String status = "";
-        String reason = "";
+
+        List<String> availability = extractAvailability(playabilityStatus);
+
+        String status = availability.get(0);
+        String reason = availability.get(1);
 
         if (playabilityStatus.has("status")){
             status = playabilityStatus.getString("status");
