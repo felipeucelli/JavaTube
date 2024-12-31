@@ -229,7 +229,6 @@ public class Youtube {
                 if (playabilityStatus.has("reason") && Objects.equals(playabilityStatus.getString("reason"), "This video is not available")) {
                     innerTube = new InnerTube(client, usePoToken, allowCache);
                     vidInfo = null;
-                    System.out.println("ERRO, mudando para cliente: " + client);
                 }
             }
         }
