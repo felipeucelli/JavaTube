@@ -209,29 +209,35 @@ public class Youtube {
         }
     }
 
+    private JSONObject callInnerTube() throws Exception {
+        if (innerTube.getRequireJsPlayer()) {
+            innerTube.updateInnerTubeContext(innerTube.getInnerTubeContext(), getSignatureTimestamp());
+        }
+
+        return innerTube.player(videoId());
+    }
+
     private JSONObject getVidInfo() throws Exception {
         List<String> fallbackClients = Arrays.asList("MWEB", "IOS");
+
+        if (vidInfo != null) {
+            return vidInfo;
+        }
+        JSONObject innerTubeResponse = callInnerTube();
         for(String client : fallbackClients) {
 
-            if (vidInfo == null) {
-                if (innerTube == null) {
-                    vidInfo = setVidInfo();
-                } else {
-                    if (innerTube.getRequireJsPlayer()) {
-                        innerTube.updateInnerTubeContext(innerTube.getInnerTubeContext(), getSignatureTimestamp());
-                    }
-                    vidInfo = innerTube.player(videoId());
-                }
-            }
-            JSONObject playabilityStatus = vidInfo.getJSONObject("playabilityStatus");
+            JSONObject playabilityStatus = innerTubeResponse.getJSONObject("playabilityStatus");
 
             if (Objects.equals(playabilityStatus.getString("status"), "UNPLAYABLE")) {
                 if (playabilityStatus.has("reason") && Objects.equals(playabilityStatus.getString("reason"), "This video is not available")) {
                     innerTube = new InnerTube(client, usePoToken, allowCache);
-                    vidInfo = null;
+                    innerTubeResponse = callInnerTube();
                 }
+            }else{
+                break;
             }
         }
+        vidInfo = innerTubeResponse;
 
         return vidInfo;
     }
