@@ -402,6 +402,15 @@ public class Channel extends Playlist{
                     .getJSONObject("watchPlaylistEndpoint")
                     .getString("playlistId");
         }catch (JSONException e){
+            return getLockupViewModel(ids);
+        }
+    }
+
+    private String getLockupViewModel(JSONObject ids) throws JSONException{
+        try{
+            return "https://www.youtube.com/playlist?list=" + ids.getJSONObject("lockupViewModel")
+                    .getString("contentId");
+        }catch (JSONException e){
             throw new JSONException(e);
         }
     }
