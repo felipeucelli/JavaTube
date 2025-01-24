@@ -18,9 +18,11 @@ public class Youtube {
     private String client = null;
     private JSONObject vidInfo = null;
     private String html = null;
+    private JSONObject initialData = null;
     private String js = null;
     private JSONObject ytCfg = null;
     private JSONObject signatureTimestamp = null;
+    private String visitorData = null;
     private String playerJs = null;
     private final boolean usePoToken;
     private final boolean allowCache;
@@ -168,6 +170,42 @@ public class Youtube {
         return ytCfg;
     }
 
+    private String setVisitorData() throws Exception {
+        JSONObject innerTubeResponse = new InnerTube(client).player(videoId());
+
+        try {
+            return innerTubeResponse.getJSONObject("responseContext").getString("visitorData");
+        }catch (JSONException e){
+            return innerTubeResponse.getJSONObject("responseContext").getJSONArray("serviceTrackingParams").getJSONObject(0).getJSONArray("params").getJSONObject(6).getString("value");
+        }
+    }
+
+    public String getVisitorData() throws Exception {
+        if(visitorData == null){
+            visitorData = setVisitorData();
+        }
+
+        return visitorData;
+    }
+
+    private JSONObject setInitialData() throws Exception {
+        String pattern = "ytInitialPlayerResponse\\s=\\s(\\{\"responseContext\":.*?\\});(?:var|</script>)";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(getHtml());
+        if(matcher.find()){
+            return new JSONObject(matcher.group(1));
+        }else {
+            throw new RegexMatchError("setInitialData: Unable to find InitialData: " + pattern);
+        }
+    }
+
+    public JSONObject getInitialData() throws Exception {
+        if(initialData == null){
+            initialData = setInitialData();
+        }
+        return initialData;
+    }
+
     private String setYtPlayerJs() throws Exception {
         Pattern pattern = Pattern.compile("(/s/player/[\\w\\d]+/[\\w\\d_/.\\-]+/base\\.js)");
         Matcher matcher = pattern.matcher(getHtml());
@@ -198,27 +236,19 @@ public class Youtube {
         return watchUrl;
     }
 
-    private JSONObject setVidInfo() throws Exception {
-        String pattern = "ytInitialPlayerResponse\\s=\\s(\\{\"responseContext\":.*?\\});(?:var|</script>)";
-        Pattern regex = Pattern.compile(pattern);
-        Matcher matcher = regex.matcher(getHtml());
-        if(matcher.find()){
-           return new JSONObject(matcher.group(1));
-        }else {
-            throw new RegexMatchError("setVidInfo: Unable to find video information: " + pattern);
-        }
-    }
-
     private JSONObject callInnerTube() throws Exception {
         if (innerTube.getRequireJsPlayer()) {
             innerTube.updateInnerTubeContext(innerTube.getInnerTubeContext(), getSignatureTimestamp());
+        }
+        if(!usePoToken){
+            innerTube.insertVisitorData(getVisitorData());
         }
 
         return innerTube.player(videoId());
     }
 
     private JSONObject getVidInfo() throws Exception {
-        List<String> fallbackClients = Arrays.asList("MWEB", "IOS");
+        List<String> fallbackClients = Arrays.asList("IOS", "WEB");
 
         if (vidInfo != null) {
             return vidInfo;

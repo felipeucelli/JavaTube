@@ -603,6 +603,19 @@ public class InnerTube{
         }
     }
 
+    public void insertVisitorData(String visitorData){
+        JSONObject context = new JSONObject(
+                "{" +
+                            "\"context\": {" +
+                                "\"client\": {" +
+                                    "\"visitorData\": \"" + visitorData + "\"" +
+                                "}"+
+                            "}," +
+                        "}"
+        );
+        updateInnerTubeContext(innerTubeContext, context);
+    }
+
     public void insetPoToken() throws JSONException {
         JSONObject context = new JSONObject(
                 "{" +
