@@ -1,8 +1,12 @@
 package com.github.felipeucelli.javatube;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.*;
 
@@ -14,6 +18,7 @@ public class Youtube {
 
     private final String urlVideo;
     private final String watchUrl;
+    private String videoId = null;
     private InnerTube innerTube = null;
     private String client = null;
     private JSONObject vidInfo = null;
@@ -23,6 +28,7 @@ public class Youtube {
     private JSONObject ytCfg = null;
     private JSONObject signatureTimestamp = null;
     private String visitorData = null;
+    private String poToken = null;
     private String playerJs = null;
     private final boolean usePoToken;
     private final boolean allowCache;
@@ -94,10 +100,10 @@ public class Youtube {
         this.allowCache = allowCache;
         innerTube = new InnerTube(client, usePoToken, allowCache);
         urlVideo = url;
-        watchUrl = "https://www.youtube.com/watch?v=" + videoId();
+        watchUrl = "https://www.youtube.com/watch?v=" + getVideoId();
     }
 
-    private String videoId() throws Exception {
+    private String setVideoId() throws RegexMatchError {
         Pattern pattern = Pattern.compile("(?:v=|/)([0-9A-Za-z_-]{11}).*");
         Matcher matcher = pattern.matcher(urlVideo);
         if (matcher.find()) {
@@ -107,12 +113,32 @@ public class Youtube {
         }
     }
 
+    private String getVideoId() throws Exception {
+        if (videoId == null){
+            videoId = setVideoId();
+        }
+        return videoId;
+    }
+
     @Override
     public String toString(){
         try {
-            return "<com.github.felipeucelli.javatube.Youtube object: videoId=" + videoId() + ">";
+            return "<com.github.felipeucelli.javatube.Youtube object: videoId=" + getVideoId() + ">";
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void resetCache(){
+        try {
+            String tempDir = System.getProperty("java.io.tmpdir");
+            Path path = Paths.get(tempDir, "tokens.json");
+
+            if (Files.exists(path)) {
+                Files.delete(path);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -171,13 +197,30 @@ public class Youtube {
     }
 
     private String setVisitorData() throws Exception {
-        JSONObject innerTubeResponse = new InnerTube(client).player(videoId());
+        InnerTube inner_tube = new InnerTube(client);
+        if(inner_tube.getRequirePoToken()){
+            String[] functionPatterns = {
+                    "\\{\"key\":\"visitor_data\",\"value\":\"([a-zA-Z0-9%-_]+)\\}",
+                    "\\{\"value\":\"([a-zA-Z0-9%-_]+)\",\"key\":\"visitor_data\"\\}"
 
-        try {
-            return innerTubeResponse.getJSONObject("responseContext").getString("visitorData");
-        }catch (JSONException e){
-            return innerTubeResponse.getJSONObject("responseContext").getJSONArray("serviceTrackingParams").getJSONObject(0).getJSONArray("params").getJSONObject(6).getString("value");
+            };
+            for (String pattern : functionPatterns){
+                Pattern regex = Pattern.compile(pattern);
+                Matcher matcher = regex.matcher(getInitialData().getJSONObject("responseContext").toString());
+                if(matcher.find()){
+                    return matcher.group(1);
+                }
+            }
+
+        }else {
+            JSONObject innerTubeResponse = inner_tube.player(getVideoId());
+            try {
+                return innerTubeResponse.getJSONObject("responseContext").getString("visitorData");
+            }catch (JSONException e){
+                return innerTubeResponse.getJSONObject("responseContext").getJSONArray("serviceTrackingParams").getJSONObject(0).getJSONArray("params").getJSONObject(6).getString("value");
+            }
         }
+        throw new RegexMatchError("setVisitorData: Unable to find setVisitorData");
     }
 
     public String getVisitorData() throws Exception {
@@ -240,11 +283,11 @@ public class Youtube {
         if (innerTube.getRequireJsPlayer()) {
             innerTube.updateInnerTubeContext(innerTube.getInnerTubeContext(), getSignatureTimestamp());
         }
-        if(!usePoToken){
+        if(!usePoToken && !innerTube.getRequirePoToken()){
             innerTube.insertVisitorData(getVisitorData());
         }
 
-        return innerTube.player(videoId());
+        return innerTube.player(getVideoId());
     }
 
     private JSONObject getVidInfo() throws Exception {
@@ -273,7 +316,7 @@ public class Youtube {
     }
 
 
-    private List<String> extractAvailability(JSONObject playabilityStatus){
+    private List<String> extractAvailability(JSONObject playabilityStatus) throws JSONException {
         String status = "";
         String reason = "";
 
@@ -291,7 +334,7 @@ public class Youtube {
         return Arrays.asList(status, reason);
     }
 
-     void checkAvailability() throws Exception {
+    void checkAvailability() throws Exception {
         JSONObject playabilityStatus = getVidInfo().getJSONObject("playabilityStatus");
 
         List<String> availability = extractAvailability(playabilityStatus);
@@ -313,55 +356,55 @@ public class Youtube {
         switch (status) {
             case "UNPLAYABLE" -> {
                 if (reason.equals("Join this channel to get access to members-only content like this video, and other exclusive perks.")) {
-                    throw new MembersOnlyError(videoId());
+                    throw new MembersOnlyError(getVideoId());
 
                 } else if (reason.equals("This live stream recording is not available.")){
-                    throw new RecordingUnavailableError(videoId());
+                    throw new RecordingUnavailableError(getVideoId());
 
                 } else if(reason.equals("The uploader has not made this video available in your country")){
-                    throw new VideoRegionBlockedError(videoId());
+                    throw new VideoRegionBlockedError(getVideoId());
 
                 } else {
-                    throw new VideoUnavailableError(videoId());
+                    throw new VideoUnavailableError(getVideoId());
                 }
             }
             case "LOGIN_REQUIRED" -> {
                 if (reason.equals("Sign in to confirm your age") || reason.equals("This video may be inappropriate for some users.")) {
-                    throw new AgeRestrictedError(videoId());
+                    throw new AgeRestrictedError(getVideoId());
 
                 } else if (reason.equals("Sign in to confirm you’re not a bot")){
-                    throw new BotDetectionError(videoId());
+                    throw new BotDetectionError(getVideoId());
 
                 }else {
-                    throw new VideoPrivateError(videoId());
+                    throw new VideoPrivateError(getVideoId());
                 }
             }
 
-            case "LIVE_STREAM_OFFLINE" -> throw new LiveStreamOffline(videoId(), reason);
+            case "LIVE_STREAM_OFFLINE" -> throw new LiveStreamOffline(getVideoId(), reason);
 
             case "ERROR" -> {
                 if (reason.equals("Video unavailable")) {
-                    throw new VideoUnavailableError(videoId());
+                    throw new VideoUnavailableError(getVideoId());
 
                 }else if(reason.equals("This video is private")){
-                    throw new VideoPrivateError(videoId());
+                    throw new VideoPrivateError(getVideoId());
 
                 }else if (reason.equals("This video is unavailable")){
-                    throw new VideoUnavailableError(videoId());
+                    throw new VideoUnavailableError(getVideoId());
 
                 }else if (reason.equals("This video has been removed by the uploader")){
-                    throw new VideoUnavailableError(videoId());
+                    throw new VideoUnavailableError(getVideoId());
 
                 }else if (reason.equals("This video is no longer available because the YouTube account associated with this video has been terminated.")){
-                    throw new VideoUnavailableError(videoId());
+                    throw new VideoUnavailableError(getVideoId());
 
                 }else {
-                    throw new UnknownVideoError(videoId(), status, reason);
+                    throw new UnknownVideoError(getVideoId(), status, reason);
                 }
             }
         }
         if (getVidInfo().getJSONObject("videoDetails").has("isLive")){
-            throw new LiveStreamError(videoId());
+            throw new LiveStreamError(getVideoId());
         }
     }
 
@@ -475,7 +518,7 @@ public class Youtube {
     }
 
     public String getThumbnailUrl() throws Exception {
-        JSONArray thumbnails = new InnerTube("WEB").player(videoId()).getJSONObject("videoDetails")
+        JSONArray thumbnails = new InnerTube("WEB").player(getVideoId()).getJSONObject("videoDetails")
                 .getJSONObject("thumbnail")
                 .getJSONArray("thumbnails");
         return thumbnails.getJSONObject(thumbnails.length() - 1).getString("url");
@@ -493,7 +536,7 @@ public class Youtube {
 
     public ArrayList<Captions> getCaptionTracks() throws Exception {
         try{
-            JSONArray rawTracks = new InnerTube("WEB").player(videoId()).getJSONObject("captions")
+            JSONArray rawTracks = new InnerTube("WEB").player(getVideoId()).getJSONObject("captions")
                     .getJSONObject("playerCaptionsTracklistRenderer")
                     .getJSONArray("captionTracks");
             ArrayList<Captions> captions = new ArrayList<>();

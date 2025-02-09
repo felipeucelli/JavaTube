@@ -242,7 +242,9 @@ public static void main(String[] args) throws Exception {
 ```
 The terminal will ask you to insert the tokens.
 
-If you want to save the token in cache, just add one more argument `true`, this will create a _cache/tokens.json_ file where the visitorData and poToken will be stored.
+If you want to save the token in cache, just add one more argument `true`, this will create a _tokens.json_ file where the visitorData and poToken will be stored.
+
+The _tokens.json_ will be created in the temporary folder of your operating system, you can delete it using: `Youtube.resetCache();`.
 
 ## Filters Parameters:
 * `"res"` The video resolution (e.g.: "360p", "720p")

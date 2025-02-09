@@ -16,6 +16,7 @@ import java.util.*;
 public class InnerTube{
     private static JSONObject innerTubeContext;
     private static boolean requireJsPlayer;
+    private static boolean requirePoToken;
     private static JSONObject header;
     private static String apiKey;
 
@@ -32,7 +33,7 @@ public class InnerTube{
                           "clientName": "WEB",
                           "osName": "Windows",
                           "osVersion": "10.0",
-                          "clientVersion": "2.20240726.00.00",
+                          "clientVersion": "2.20250122.01.00",
                           "platform": "DESKTOP"
                         }
                       }
@@ -40,10 +41,11 @@ public class InnerTube{
                     "header": {
                       "User-Agent": "Mozilla/5.0",
                       "X-Youtube-Client-Name": "1",
-                      "X-Youtube-Client-Version": "2.20240726.00.00"
+                      "X-Youtube-Client-Version": "2.20250122.01.00"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "true"
+                    "requireJsPlayer": "true",
+                    "requirePoToken": "true"
                   },
                 
                   "WEB_EMBED": {
@@ -63,7 +65,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "56"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "true"
+                    "requireJsPlayer": "true",
+                    "requirePoToken": "true"
                   },
                 
                   "WEB_MUSIC": {
@@ -80,7 +83,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "67"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "true"
+                    "requireJsPlayer": "true",
+                    "requirePoToken": "false"
                   },
                 
                   "WEB_CREATOR": {
@@ -97,7 +101,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "62"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "true"
+                    "requireJsPlayer": "true",
+                    "requirePoToken": "false"
                   },
                 
                   "WEB_SAFARI": {
@@ -114,7 +119,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "1"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "true"
+                    "requireJsPlayer": "true",
+                    "requirePoToken": "true"
                   },
                 
                   "MWEB": {
@@ -131,7 +137,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "2"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "true"
+                    "requireJsPlayer": "true",
+                    "requirePoToken": "true"
                   },
                 
                   "WEB_KIDS": {
@@ -147,10 +154,11 @@ public class InnerTube{
                       }
                     },
                     "header": {
-                      "User-Agent": "Mozilla/5.0",
+                      "User-Agent": "Mozilla/5.0"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "true"
+                    "requireJsPlayer": "true",
+                    "requirePoToken": "false"
                   },
                 
                 
@@ -173,7 +181,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "3"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "true"
                   },
                 
                   "ANDROID_VR": {
@@ -195,7 +204,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "28"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
                   },
                 
                   "ANDROID_MUSIC": {
@@ -215,7 +225,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "21"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
                   },
                 
                   "ANDROID_CREATOR": {
@@ -235,7 +246,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "14"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
                   },
                 
                   "ANDROID_TESTSUITE": {
@@ -257,7 +269,8 @@ public class InnerTube{
                       "X-Youtube-Client-Version": "1.9"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
                   },
                 
                   "ANDROID_PRODUCER": {
@@ -277,7 +290,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "91"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
                   },
                 
                   "ANDROID_KIDS": {
@@ -293,10 +307,11 @@ public class InnerTube{
                       }
                     },
                     "header": {
-                      "User-Agent": "com.google.android.youtube/",
+                      "User-Agent": "com.google.android.youtube/"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
                   },
                 
                   "IOS": {
@@ -318,7 +333,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "5"
                     },
                     "apiKey": "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
                   },
                 
                   "IOS_MUSIC": {
@@ -340,7 +356,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "26"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
                   },
                 
                   "IOS_CREATOR": {
@@ -361,7 +378,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "15"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
                   },
                 
                   "IOS_KIDS": {
@@ -379,10 +397,11 @@ public class InnerTube{
                       }
                     },
                     "header": {
-                      "User-Agent": "com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X;)",
+                      "User-Agent": "com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X;)"
                     },
                     "apiKey": "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
                   },
                 
                    "TV": {
@@ -400,7 +419,8 @@ public class InnerTube{
                           "X-Youtube-Client-Name": "7"
                       },
                       "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                      "requireJsPlayer": "true"
+                      "requireJsPlayer": "true",
+                    "requirePoToken": "false"
                   },
                 
                   "TV_EMBED": {
@@ -419,7 +439,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "85"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "true"
+                    "requireJsPlayer": "true",
+                    "requirePoToken": "false"
                   },
                 
                   "MEDIA_CONNECT": {
@@ -436,7 +457,8 @@ public class InnerTube{
                       "X-Youtube-Client-Name": "95"
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-                    "requireJsPlayer": "false"
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
                   }
                 }
                 """);
@@ -466,6 +488,7 @@ public class InnerTube{
 
         innerTubeContext = defaultClient.getJSONObject(client).getJSONObject("innerTubeContext");
         requireJsPlayer = defaultClient.getJSONObject(client).getBoolean("requireJsPlayer");
+        requirePoToken = defaultClient.getJSONObject(client).getBoolean("requirePoToken");
         header = defaultClient.getJSONObject(client).getJSONObject("header");
 
         // API keys are not required, see: https://github.com/TeamNewPipe/NewPipeExtractor/pull/1168
@@ -474,14 +497,16 @@ public class InnerTube{
         this.usePoToken = usePoToken;
 
         try {
-            Path path = Paths.get(".cache/tokens.json");
-            if(usePoToken && allowCache && Files.exists(path)){
+            String tempDir = System.getProperty("java.io.tmpdir");
+            Path path = Paths.get(tempDir, "tokens.json");
+
+            if (usePoToken && allowCache && Files.exists(path)) {
                 String content = new String(Files.readAllBytes(path));
                 JSONObject jsonObject = new JSONObject(content);
                 accessVisitorData = jsonObject.getString("visitorData");
                 accessPoToken = jsonObject.getString("poToken");
             }
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -558,6 +583,10 @@ public class InnerTube{
         return requireJsPlayer;
     }
 
+    public boolean getRequirePoToken(){
+        return requirePoToken;
+    }
+
     public String getVisitorData(){
         return accessVisitorData;
     }
@@ -593,9 +622,9 @@ public class InnerTube{
                             "}"
             );
 
-            String filePath = ".cache/tokens.json";
             try {
-                Path path = Paths.get(filePath);
+                String tempDir = System.getProperty("java.io.tmpdir");
+                Path path = Paths.get(tempDir, "tokens.json");
                 Files.write(path, data.toString(4).getBytes());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -603,14 +632,14 @@ public class InnerTube{
         }
     }
 
-    public void insertVisitorData(String visitorData){
+    public void insertVisitorData(String visitorData) throws JSONException {
         JSONObject context = new JSONObject(
                 "{" +
                             "\"context\": {" +
                                 "\"client\": {" +
                                     "\"visitorData\": \"" + visitorData + "\"" +
                                 "}"+
-                            "}," +
+                            "}" +
                         "}"
         );
         updateInnerTubeContext(innerTubeContext, context);
@@ -626,6 +655,22 @@ public class InnerTube{
                             "}," +
                             "\"serviceIntegrityDimensions\": {" +
                                 "\"poToken\": \"" + accessPoToken + "\"" +
+                            "}" +
+                        "}"
+        );
+        updateInnerTubeContext(innerTubeContext, context);
+    }
+
+    public void insetPoToken(String poToken, String visitorData) throws JSONException {
+        JSONObject context = new JSONObject(
+                "{" +
+                            "\"context\": {" +
+                                "\"client\": {" +
+                                    "\"visitorData\": \"" + visitorData + "\"" +
+                                "}"+
+                            "}," +
+                            "\"serviceIntegrityDimensions\": {" +
+                                "\"poToken\": \"" + poToken + "\"" +
                             "}" +
                         "}"
         );
