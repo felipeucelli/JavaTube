@@ -11,6 +11,14 @@ public class StreamQuery{
             itagIndex.put(fmt_stream.getItag(), fmt_stream);
         }
     }
+    @Override
+    public String toString(){
+        try {
+            return fmtStreams.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public ArrayList<Stream> getAll(){
         return fmtStreams;
