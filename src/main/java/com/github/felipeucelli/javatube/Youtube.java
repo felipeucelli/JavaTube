@@ -200,7 +200,7 @@ public class Youtube {
         InnerTube inner_tube = new InnerTube(client);
         if(inner_tube.getRequirePoToken()){
             String[] functionPatterns = {
-                    "\\{\"key\":\"visitor_data\",\"value\":\"([a-zA-Z0-9%-_]+)\\}",
+                    "\\{\"key\":\"visitor_data\",\"value\":\"([a-zA-Z0-9%-_]+)\"\\}",
                     "\\{\"value\":\"([a-zA-Z0-9%-_]+)\",\"key\":\"visitor_data\"\\}"
 
             };
