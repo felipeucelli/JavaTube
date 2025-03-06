@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en"><head><title></title><script>
+    class BotGuardClient {
+      constructor(options) {
+          this.vmFunctions = {};
+          this.userInteractionElement = options.userInteractionElement;
+          this.vm = options.globalObj[options.globalName];
+          this.program = options.program;
+      }
+
+      static async create(options) {
+          return await new BotGuardClient(options).load();
+      }
+      async load() {
+          if (!this.vm)
+              throw new Error('[BotGuardClient]: VM not found in the global object');
+          if (!this.vm.a)
+              throw new Error('[BotGuardClient]: Could not load program');
+          const vmFunctionsCallback = (asyncSnapshotFunction, shutdownFunction, passEventFunction, checkCameraFunction) => {
+              Object.assign(this.vmFunctions, { asyncSnapshotFunction, shutdownFunction, passEventFunction, checkCameraFunction });
+          };
+          try {
+              this.syncSnapshotFunction = await this.vm.a(this.program, vmFunctionsCallback, true, this.userInteractionElement, () => { }, [[], []])[0];
+          }
+          catch (error) {
+              throw new Error(`[BotGuardClient]: Failed to load program (${error.message})`);
+          }
+          return this;
+      }
+
+      async snapshot(args) {
+          return new Promise((resolve, reject) => {
+              if (!this.vmFunctions.asyncSnapshotFunction)
+                  return reject(new Error('[BotGuardClient]: Async snapshot function not found'));
+              this.vmFunctions.asyncSnapshotFunction((response) => resolve(response), [
+                  args.contentBinding,
+                  args.signedTimestamp,
+                  args.webPoSignalOutput,
+                  args.skipPrivacyBuffer
+              ]);
+          });
+      }
+
+    }
+
+    // ########################################################################################################################################################################
+
+
+    const GOOG_BASE_URL = 'https://jnn-pa.googleapis.com';
+    const YT_BASE_URL = 'https://www.youtube.com';
+    const GOOG_API_KEY = 'AIzaSyDyT5W0Jh49F30Pqqtyfdf7pDLFKLJoAnw';
+    const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36(KHTML, like Gecko)';
+
+    // ########################################################################################################################################################################
+
+    const base64urlCharRegex = /[-_.]/g;
+    const base64urlToBase64Map = {
+        '-': '+',
+        _: '/',
+        '.': '='
+    };
+    function base64ToU8(base64) {
+        let base64Mod;
+        if (base64urlCharRegex.test(base64)) {
+            base64Mod = base64.replace(base64urlCharRegex, function (match) {
+                return base64urlToBase64Map[match];
+            });
+        }
+        else {
+            base64Mod = base64;
+        }
+        base64Mod = atob(base64Mod);
+        const result = new Uint8Array([...base64Mod].map((char) => char.charCodeAt(0)));
+        return result;
+    }
+    function u8ToBase64(u8, base64url = false) {
+        const result = btoa(String.fromCharCode(...u8));
+        if (base64url) {
+            return result
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_');
+        }
+        return result;
+    }
+    function buildURL(endpointName, useYouTubeAPI) {
+        return `${useYouTubeAPI ? YT_BASE_URL : GOOG_BASE_URL}/${useYouTubeAPI ? 'api/jnn/v1' : '$rpc/google.internal.waa.v1.Waa'}/${endpointName}`;
+    }
+
+    // ########################################################################################################################################################################
+
+    async function Challenge(bgConfig, interpreterHash) {
+        const requestKey = bgConfig.requestKey;
+        if (!bgConfig.fetch)
+            throw new Error('[Challenge]: Fetch function not provided');
+        const payload = [requestKey];
+        if (interpreterHash)
+            payload.push(interpreterHash);
+        const response = await bgConfig.fetch(buildURL('Create', bgConfig.useYouTubeAPI), {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json+protobuf',
+                'x-goog-api-key': GOOG_API_KEY,
+                'x-user-agent': 'grpc-web-javascript/0.1'
+            },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok)
+            throw new Error(`[Challenge]: Failed to fetch challenge: ${response.status}`);
+        const rawData = await response.json();
+        return parseChallengeData(rawData);
+    }
+
+    function parseChallengeData(rawData) {
+        let challengeData = [];
+        if (rawData.length > 1 && typeof rawData[1] === 'string') {
+            const descrambled = descramble(rawData[1]);
+            challengeData = JSON.parse(descrambled || '[]');
+        }
+        else if (rawData.length && typeof rawData[0] === 'object') {
+            challengeData = rawData[0];
+        }
+        const [messageId, wrappedScript, wrappedUrl, interpreterHash, program, globalName, , clientExperimentsStateBlob] = challengeData;
+        const privateDoNotAccessOrElseSafeScriptWrappedValue = Array.isArray(wrappedScript) ? wrappedScript.find((value) => value && typeof value === 'string') : null;
+        const privateDoNotAccessOrElseTrustedResourceUrlWrappedValue = Array.isArray(wrappedUrl) ? wrappedUrl.find((value) => value && typeof value === 'string') : null;
+        return {
+            messageId,
+            interpreterJavascript: {
+                privateDoNotAccessOrElseSafeScriptWrappedValue,
+                privateDoNotAccessOrElseTrustedResourceUrlWrappedValue
+            },
+            interpreterHash,
+            program,
+            globalName,
+            clientExperimentsStateBlob
+        };
+    }
+
+    function descramble(scrambledChallenge) {
+        const buffer = base64ToU8(scrambledChallenge);
+        if (buffer.length)
+            return new TextDecoder().decode(buffer.map((b) => b + 97));
+    }
+
+    // ########################################################################################################################################################################
+
+    class WebPoMinter {
+        constructor(mintCallback) {
+            this.mintCallback = mintCallback;
+        }
+        static async create(integrityTokenResponse, webPoSignalOutput) {
+            const getMinter = webPoSignalOutput[0];
+            if (!getMinter)
+                throw new Error('PMD:Undefined');
+            const mintCallback = await getMinter(base64ToU8(integrityTokenResponse.integrityToken ?? ''));
+            if (!(mintCallback instanceof Function))
+                throw new Error('APF:Failed');
+            return new WebPoMinter(mintCallback);
+        }
+        async mintAsWebsafeString(identifier) {
+            const result = await this.mint(identifier);
+            return u8ToBase64(result, true);
+        }
+        async mint(identifier) {
+            const result = await this.mintCallback(new TextEncoder().encode(identifier));
+            if (!result)
+                throw new Error('YNJ:Undefined');
+            if (!(result instanceof Uint8Array))
+                throw new Error('ODM:Invalid');
+            return result;
+        }
+    }
+
+    // #########################################################################################################################################################################
+
+    async function generate(args) {
+        const { program, bgConfig, globalName } = args;
+        const { identifier } = bgConfig;
+        const botguard = await BotGuardClient.create({ program, globalName, globalObj: bgConfig.globalObj });
+        const webPoSignalOutput = [];
+        const botguardResponse = await botguard.snapshot({ webPoSignalOutput });
+        const payload = [bgConfig.requestKey, botguardResponse];
+        const integrityTokenResponse = await bgConfig.fetch(buildURL('GenerateIT', bgConfig.useYouTubeAPI), {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json+protobuf',
+                'x-goog-api-key': GOOG_API_KEY,
+                'x-user-agent': 'grpc-web-javascript/0.1'
+            },
+            body: JSON.stringify(payload)
+        });
+        const integrityTokenJson = await integrityTokenResponse.json();
+        const [integrityToken, estimatedTtlSecs, mintRefreshThreshold, websafeFallbackToken] = integrityTokenJson;
+        const integrityTokenData = {
+            integrityToken,
+            estimatedTtlSecs,
+            mintRefreshThreshold,
+            websafeFallbackToken
+        };
+        const webPoMinter = await WebPoMinter.create(integrityTokenData, webPoSignalOutput);
+        const poToken = await webPoMinter.mintAsWebsafeString(identifier);
+        return { poToken, integrityTokenData };
+    }
+
+    // #########################################################################################################################################################################
+
+    async function generatePoToken(params) {
+        const requestKey = 'O43z0dpjhgX20SCx4KAo';
+        const visitorData = params;
+
+        if (!visitorData)
+            throw new Error('Could not get visitor data');
+
+        const bgConfig = {
+            fetch: (input, init) => fetch(input, init),
+            globalObj: window,
+            identifier: visitorData,
+            requestKey
+        };
+
+        const bgChallenge = await Challenge(bgConfig);
+
+        if (!bgChallenge)
+            throw new Error('Could not get challenge');
+
+        const interpreterJavascript = bgChallenge.interpreterJavascript.privateDoNotAccessOrElseSafeScriptWrappedValue;
+
+        if (interpreterJavascript) {
+            new Function(interpreterJavascript)();
+        } else throw new Error('Could not load VM');
+
+        const poTokenResult = await generate({
+            program: bgChallenge.program,
+            globalName: bgChallenge.globalName,
+            bgConfig
+        });
+
+        return poTokenResult.poToken;
+    }
+</script></head><body></body></html>

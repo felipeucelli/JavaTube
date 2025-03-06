@@ -1,8 +1,9 @@
 plugins {
     id 'java'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
-group 'com.github.felipeucelli.javatube'
+group='com.github.felipeucelli.javatube'
 
 repositories {
     mavenCentral()
@@ -13,9 +14,18 @@ dependencies {
     testImplementation 'junit:junit:4.13.1'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+
     implementation 'org.json:json:20231013'
+    implementation 'org.openjfx:javafx-controls:21'
+    implementation 'org.openjfx:javafx-web:21'
+    implementation 'org.openjfx:javafx-swing:21'
+
 }
 
 test {
     useJUnitPlatform()
+}
+javafx {
+    version = "21"
+    modules = ['javafx.controls', 'javafx.web', 'javafx.swing']
 }

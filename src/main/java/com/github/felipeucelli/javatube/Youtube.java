@@ -231,6 +231,24 @@ public class Youtube {
         return visitorData;
     }
 
+
+    private String setPoToken(String visitorData) {
+        String poToken = BotGuard.generatePoToken(visitorData);
+        if (poToken.length() < 160 || poToken.contains(" ")){
+            return "";
+        }else {
+            return poToken;
+        }
+    }
+
+    public String getPoToken() throws Exception {
+        if (poToken == null){
+            poToken = setPoToken(getVisitorData());
+        }
+
+        return poToken;
+    }
+
     private JSONObject setInitialData() throws Exception {
         String pattern = "ytInitialPlayerResponse\\s=\\s(\\{\"responseContext\":.*?\\});(?:var|</script>)";
         Pattern regex = Pattern.compile(pattern);
@@ -280,6 +298,9 @@ public class Youtube {
     }
 
     private JSONObject callInnerTube() throws Exception {
+        if (innerTube.getRequirePoToken() && !usePoToken && getPoToken() != null && !getPoToken().isEmpty()){
+            innerTube.insetPoToken(getPoToken(), getVisitorData());
+        }
         if (innerTube.getRequireJsPlayer()) {
             innerTube.updateInnerTubeContext(innerTube.getInnerTubeContext(), getSignatureTimestamp());
         }
@@ -484,9 +505,10 @@ public class Youtube {
                 String newUrl = oldUrl.replaceFirst("&n=(.*?)&", "&n=" + discoveredNSig.get(nSig) + "&");
                 streamManifest.getJSONObject(i).put("url", newUrl);
             }
-            if(usePoToken){
+            if(usePoToken || (getPoToken() != null && !getPoToken().isEmpty())){
                 oldUrl = streamManifest.getJSONObject(i).getString("url");
-                String newUrl = oldUrl + "&pot=" + innerTube.getPoToken();
+                String pot = (innerTube.getRequirePoToken() && !usePoToken) ? getPoToken() : innerTube.getPoToken();
+                String newUrl = oldUrl + "&pot=" + pot;
                 streamManifest.getJSONObject(i).put("url", newUrl);
             }
         }
