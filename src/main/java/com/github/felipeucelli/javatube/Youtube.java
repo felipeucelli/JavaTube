@@ -233,11 +233,16 @@ public class Youtube {
 
 
     private String setPoToken(String visitorData) {
-        String poToken = BotGuard.generatePoToken(visitorData);
-        if (poToken.length() < 160 || poToken.contains(" ")){
+        String pot;
+        try {
+            pot = BotGuard.generatePoToken(visitorData);
+        }catch (Exception e){
+            pot = "";
+        }
+        if (pot.length() < 160 || pot.contains(" ")){
             return "";
         }else {
-            return poToken;
+            return pot;
         }
     }
 
@@ -245,7 +250,6 @@ public class Youtube {
         if (poToken == null){
             poToken = setPoToken(getVisitorData());
         }
-
         return poToken;
     }
 
