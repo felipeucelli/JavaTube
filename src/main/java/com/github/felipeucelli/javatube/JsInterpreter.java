@@ -1300,7 +1300,7 @@ public class JsInterpreter {
     }
 
     private ArrayList<Object> extractGlobalObj(String obj, LocalNameSpace localVars) throws Exception {
-        Matcher matcher = Pattern.compile("var\\s?" + Pattern.quote(obj) + "=\"(?<var>.*)\".split\\(\"(?<split>.*)\"\\)").matcher(code);
+        Matcher matcher = Pattern.compile("var\\s?" + Pattern.quote(obj) + "=[\"'](?<var>.*?)[\"']\\.split\\(\"(?<split>.*?)\"\\)").matcher(code);
         String var;
         String split;
         if (matcher.find()){
