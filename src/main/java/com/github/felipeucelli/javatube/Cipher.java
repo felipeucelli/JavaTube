@@ -71,7 +71,7 @@ public class Cipher {
 
                 // New pattern used in player "2f238d39" on October 10, 2024
                 // a.D && (b = "nn" [+a.D], zM(a), c = a.j[b] || null) && (c = XDa[0](c), a.set(b, c))
-                ";[a-zA-Z]\\.[a-zA-Z]&&\\((?<arg>[a-zA-Z])=(?:\\\"nn\\\"|[a-zA-Z0-9]+\\(\\)).*?&&\\((?<func>[a-zA-Z])=(?<nfunc>[a-zA-Z0-9-_$]{3})\\[(?<idx>\\d{1})\\].*?[a-zA-Z].set\\(\\k<arg>.\\k<func>\\).*?\\}\\};"
+                ";[a-zA-Z]\\.[a-zA-Z]&&\\((?<arg>[a-zA-Z])=(?:\\\"nn\\\"|[a-zA-Z0-9$]+\\(\\)).*?&&\\((?<func>[a-zA-Z])=(?<nfunc>[a-zA-Z0-9-_$]{3})\\[(?<idx>\\d{1})\\].*?[a-zA-Z].set\\(\\k<arg>.\\k<func>\\).*?\\}\\};"
         };
 
         for(String pattern : functionPatterns){
