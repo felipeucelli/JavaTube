@@ -36,7 +36,9 @@ public class CipherTest {
                 "b7240855-player_ias.vflset-en_US.txt",
                 "3bb1f723-player_ias.vflset-en_US.txt",
                 "2f1832d2-player_ias.vflset-en_US.txt",
-                "f3d47b5a-player_ias.vflset-en_US.txt"
+                "f3d47b5a-player_ias.vflset-en_US.txt",
+                "e7567ecf-player_ias_tce.vflset-en_US.txt",
+                "91201489-player_ias_tce.vflset-en_US.txt"
         );
     }
     private String readFileContent(String fileName) throws IOException {
@@ -87,6 +89,8 @@ public class CipherTest {
             case "3bb1f723-player_ias.vflset-en_US.txt" -> "fyn";
             case "2f1832d2-player_ias.vflset-en_US.txt" -> "dCH";
             case "f3d47b5a-player_ias.vflset-en_US.txt" -> "xyN";
+            case "e7567ecf-player_ias_tce.vflset-en_US.txt" -> "X_S";
+            case "91201489-player_ias_tce.vflset-en_US.txt" -> "K48";
             default -> "";
         };
     }
@@ -111,6 +115,8 @@ public class CipherTest {
             case "3bb1f723-player_ias.vflset-en_US.txt" -> "pen";
             case "2f1832d2-player_ias.vflset-en_US.txt" -> "B_H";
             case "f3d47b5a-player_ias.vflset-en_US.txt" -> "ouU";
+            case "e7567ecf-player_ias_tce.vflset-en_US.txt" -> "$oW";
+            case "91201489-player_ias_tce.vflset-en_US.txt" -> "N4a";
             default -> "";
         };
     }
