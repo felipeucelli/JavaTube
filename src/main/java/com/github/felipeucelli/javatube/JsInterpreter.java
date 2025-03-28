@@ -1532,15 +1532,15 @@ public class JsInterpreter {
     private String extractPlayerJsGlobalVar(String jsCode){
         Pattern pattern1 = Pattern.compile("""
                 (?x)
-                            (?<q1>[\\"\\'])use\\s+strict(\\k<q1>);\\s*
-                            (?<code>
-                                var\\s+(?<name>[a-zA-Z0-9_$]+)\\s*=\\s*
-                                (?<value>
-                                    (?<q2>[\\"\\'])(?:(?!(\\k<q2>)).|\\.)+(\\k<q2>)
-                                    \\.split\\((?<q3>[\\"\\'])(?:(?!(\\k<q3>)).)+(\\k<q3>)\\)
-                                    |\\[\\s*(?:(?<q4>[\\"\\'])(?:(?!(\\k<q4>)).|\\.)*(\\k<q4>)\\s*,?\\s*)+\\]
-                                )
-                            )[;,]
+                    (?<q1>[\\"\\'])use\\s+strict(\\k<q1>);\\s*
+                    (?<code>
+                        var\\s+(?<name>[a-zA-Z0-9_$]+)\\s*=\\s*
+                        (?<value>
+                            (?<q2>[\\"\\']).*?(\\k<q2>)
+                            \\.split\\((?<q3>[\\"\\']).*?(\\k<q3>)\\)
+                            |\\[\\s*(?:(?<q4>[\\"\\']).*?(\\k<q4>)\\s*,?\\s*)+\\]
+                        )
+                    )[;,]
                 """);
         Matcher matcher = pattern1.matcher(jsCode);
         if (matcher.find()){
