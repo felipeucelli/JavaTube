@@ -552,7 +552,7 @@ public class JsInterpreter {
         return separated;
     }
 
-    private Object interpretExpression(String expr, LocalNameSpace localVars, int allowRecursion) throws Exception {
+     Object interpretExpression(String expr, LocalNameSpace localVars, int allowRecursion) throws Exception {
         Object[] result = interpretStatement(expr, localVars, allowRecursion);
         if((boolean) result[1]){
             throw new Exception("Cannot return from an expression. Expr: " + expr);
@@ -1529,7 +1529,7 @@ public class JsInterpreter {
         return r;
     }
 
-    private String extractPlayerJsGlobalVar(String jsCode){
+    String[] extractPlayerJsGlobalVar(String jsCode){
         Pattern pattern1 = Pattern.compile("""
                 (?x)
                     (?<q1>[\\"\\'])use\\s+strict(\\k<q1>);\\s*
@@ -1544,26 +1544,26 @@ public class JsInterpreter {
                 """);
         Matcher matcher = pattern1.matcher(jsCode);
         if (matcher.find()){
-            String value = matcher.group("value");
+            String name = matcher.group("name");
             String code = matcher.group("code");
-            return code;
+            String value = matcher.group("value");
+            return new String[]{name, code, value};
         }
         else {
-            return null;
+            return new String[]{null, null, null};
         }
     }
 
     private String fixup_n_function_code(String[] argnames, String code, String fullCode){
-        String globalVar = extractPlayerJsGlobalVar(fullCode);
+        String globalVar = extractPlayerJsGlobalVar(fullCode)[1];
         if (globalVar != null){
             code = globalVar + "; " + code;
         }
         String regex = ";\\s*if\\s*\\(\\s*typeof\\s+[a-zA-Z0-9_$]+\\s*===?\\s*(['\"])undefined\\1\\s*\\)\\s*return\\s+" + Pattern.quote(argnames[0]) + ";";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(code);
-        String updatedCode = matcher.replaceAll(";");
 
-        return updatedCode;
+        return matcher.replaceAll(";");
     }
 
     private FunctionWithRepr extractFuName(String funName) throws Exception {

@@ -1,6 +1,9 @@
 package com.github.felipeucelli.javatube;
 
 import com.github.felipeucelli.javatube.exceptions.RegexMatchError;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,77 +22,85 @@ public class Cipher {
     }
     private static String getInitialFunctionName(String js) throws Exception {
         String[] functionPattern = {
-                "(?<sig>[a-zA-Z0-9_$]+)\\s*=\\s*function\\(\\s*(?<arg>[a-zA-Z0-9_$]+)\\s*\\)\\s*\\{\\s*(\\k<arg>)\\s*=\\s*(\\k<arg>)\\.split\\(\\s*[a-zA-Z0-9_\\$\"\\[\\]]+\\s*\\)\\s*;\\s*[^}]+;\\s*return\\s+(\\k<arg>)\\.join\\(\\s*[a-zA-Z0-9_\\$\"\\[\\]]+\\s*\\)\\}",
-                "\\b[cs]\\s*&&\\s*[adf]\\.set\\([^,]+\\s*,\\s*encodeURIComponent\\s*\\(\\s*([a-zA-Z0-9$]+)\\(",
-                "(?<sig>[a-zA-Z0-9$]+)\\s*=\\s*function\\(\\s*(?<arg>[a-zA-Z0-9$]+)\\s*\\)\\s*\\{\\s*(?=arg)\\s*=\\s*(?=arg)\\.split\\(\\s*\\\"\\\"\\s*\\)\\s*;\\s*[^}]+;\\s*return\\s+(?=arg)\\.join\\(\\s*\\\"\\\"\\s*\\)",
-                "\\b[a-zA-Z0-9]+\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*encodeURIComponent\\s*\\(\\s*([a-zA-Z0-9$]+)\\(",
-                "(?:\\b|[^a-zA-Z0-9$])([a-zA-Z0-9$]{2,3})\\s*=\\s*function\\(\\s*a\\s*\\)\\s*\\{\\s*a\\s*=\\s*a\\.split\\(\\s*\"\"\\s*\\)",
-                "([a-zA-Z0-9$]+)\\s*=\\s*function\\(\\s*a\\s*\\)\\s*\\{\\s*a\\s*=\\s*a\\.split\\(\\s*\"\"\\s*\\)",
-                "([\"\\'])signature\\1\\s*,\\s*([a-zA-Z0-9$]+)\\(",
-                "\\.sig\\|\\|([a-zA-Z0-9$]+)\\(",
-                "yt\\.akamaized\\.net/\\)\\s*\\|\\|\\s*.*?\\s*[cs]\\s*&&\\s*[adf]\\.set\\([^,]+\\s*,\\s*(?:encodeURIComponent\\s*\\()?\\s*([a-zA-Z0-9$]+)\\(",
-                "\\b[cs]\\s*&&\\s*[adf]\\.set\\([^,]+\\s*,\\s*([a-zA-Z0-9$]+)\\(",
-                "\\b[a-zA-Z0-9]+\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*([a-zA-Z0-9$]+)\\(",
-                "\\bc\\s*&&\\s*a\\.set\\([^,]+\\s*,\\s*\\([^)]*\\)\\s*\\(\\s*([a-zA-Z0-9$]+)\\(",
-                "\\bc\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*\\([^)]*\\)\\s*\\(\\s*([a-zA-Z0-9$]+)\\(",
-                "\\bc\\s*&&\\s*[a-zA-Z0-9]+\\.set\\([^,]+\\s*,\\s*\\([^)]*\\)\\s*\\(\\s*([a-zA-Z0-9$]+)\\("};
+                "(?<sig>[a-zA-Z0-9_$]+)\\s*=\\s*function\\(\\s*(?<arg>[a-zA-Z0-9_$]+)\\s*\\)\\s*\\{\\s*(\\k<arg>)\\s*=\\s*(\\k<arg>)\\.split\\(\\s*[a-zA-Z0-9_\\$\\\"\\[\\]]+\\s*\\)\\s*;\\s*[^}]+;\\s*return\\s+(\\k<arg>)\\.join\\(\\s*[a-zA-Z0-9_\\$\\\"\\[\\]]+\\s*\\)",
+                "\\b(?<var>[a-zA-Z0-9_$]+)&&\\((\\k<var>)=(?<sig>[a-zA-Z0-9_$]{2,})\\(decodeURIComponent\\((\\k<var>)\\)\\)",
+                "(?:\\b|[^a-zA-Z0-9_$])(?<sig>[a-zA-Z0-9_$]{2,})\\s*=\\s*function\\(\\s*a\\s*\\)\\s*\\{\\s*a\\s*=\\s*a\\.split\\(\\s*\\\"\\\"\\s*\\)(?:;[a-zA-Z0-9_$]{2}\\.[a-zA-Z0-9_$]{2}\\(a,\\d+\\))?"
+        };
         for(String pattern : functionPattern){
             Pattern regex = Pattern.compile(pattern);
             Matcher matcher = regex.matcher(js);
             if (matcher.find()) {
-                return matcher.group(1);
+                return matcher.group("sig");
             }
         }
         throw new RegexMatchError("getInitialFunctionName: Could not find function name in playerJs:" + playerJs);
     }
     private String getThrottlingFunctionName(String js) throws Exception {
-        // a.D && (b = a.get("n")) && (b = Usa[0](b), a.set("n", b), Usa.length || mma(""))
-        // a\\.[a-zA-Z]\\s*&&\\s*\\([a-z]\\s*=\\s*a\\.get\\(\\\"n\\\"\\)\\)\\s*&&\\s*\\([a-z]=([$a-zA-Z]*\\[\\d\\]).*?\\)"
 
-        // New pattern added on July 9, 2024
-        // In this example we can find the name of the function at index "0" of "IRa"
-        // a.D && (b = String.fromCharCode(110), c = a.get(b)) && (c = IRa[0](c), a.set(b,c), IRa.length || Ima(""))
-
-
-        // New pattern added on July 23, 2024
-        // a.D&&(b="nn"[+a.D],c=a.get(b))&&(c=rDa[0](c),a.set(b,c),rDa.length||rma(""))
-        // (?:\\.get\\(\"n\"\\)\\)&&\\(b=|b=String\\.fromCharCode\\(\\d+\\),c=a\\.get\\(b\\)\\)&&\\(c=)([a-zA-Z0-9$]+)(?:\\[(\\d+)])?\\([a-zA-Z0-9]\\)
-
-        // New pattern used in player "20dfca59" on July 29, 2024
-        // a.D && (b = a.get("n")) && (b = Msa[0](b), a.set("n",b), Msa.length || ema(""))
-
-
-        String[] functionPatterns = {"""
-                            (?x)
-                                            [abc]=(?<nfunc>[a-zA-Z0-9$]+)
-                                            \\[(?<idx>\\d+)]\\([abc]\\),
-                                            a\\.set\\([a-zA-Z0-9$",]+\\),
-                                            [a-zA-Z0-9$]+\\.length
-                                            \\|\\|
-                                            (?<func>[a-zA-Z0-9$]+)
-                                            \\(""\\)""",
-
-                // New pattern used in player "2f238d39" on October 10, 2024
-                // a.D && (b = "nn" [+a.D], zM(a), c = a.j[b] || null) && (c = XDa[0](c), a.set(b, c))
-                ";[a-zA-Z]\\.[a-zA-Z]&&\\((?<arg>[a-zA-Z])=(?:\\\"nn\\\"|[a-zA-Z0-9$]+\\(\\)).*?&&\\((?<func>[a-zA-Z])=(?<nfunc>[a-zA-Z0-9-_$]{3})\\[(?<idx>\\d{1})\\].*?[a-zA-Z].set\\(\\k<arg>.\\k<func>\\).*?\\}\\};"
-        };
-
-        for(String pattern : functionPatterns){
-            Pattern regex = Pattern.compile(pattern);
-            Matcher matcher = regex.matcher(js);
-            if (matcher.find()){
-                String funName = Pattern.quote(matcher.group("nfunc"));
-                String idx = matcher.group("idx");
-                if(!idx.isEmpty()){
-                    String pattern2 = "var " + funName + "\\s*=\\s*\\[(.+?)]";
-                    Pattern regex2 = Pattern.compile(pattern2);
-                    Matcher nFuncFound = regex2.matcher(js);
-                    if (nFuncFound.find()){
-                        String throttlingFunction = nFuncFound.group(1);
-                        return throttlingFunction;
-                    }else {
-                        throw new RegexMatchError("getThrottlingFunctionName: Could not find function name " + pattern2 + " in playerJs: " + playerJs);
+        try {
+            String[] globalVar = jsInterpreter.extractPlayerJsGlobalVar(js);
+            String name = globalVar[0];
+            String code = globalVar[1];
+            if(code != null) {
+                Object array = jsInterpreter.interpretExpression(code, new LocalNameSpace(new HashMap<>()), 100);
+                if(array instanceof ArrayList<?>){
+                    @SuppressWarnings("unchecked")
+                    ArrayList<String> globalArray = (ArrayList<String>) array;
+                    for(int i = 0; i < globalArray.size(); i ++){
+                        if (globalArray.get(i).endsWith("_w8_")){
+                            String pattern =
+                                    "(?xs)"
+                                            + "[;\\n](?:"
+                                            + "(?<f>function\\s+)|"
+                                            + "(?:var\\s+)?"
+                                            + ")(?<funcname>[a-zA-Z0-9_$]+)\\s*((f)|=\\s*function\\s*)"
+                                            + "\\((?<argname>[a-zA-Z0-9_$]+)\\)\\s*\\{"
+                                            + "(?:(?!\\}[;\\n]).)+"
+                                            + "\\}\\s*catch\\(\\s*[a-zA-Z0-9_$]+\\s*\\)\\s*"
+                                            + "\\{\\s*return\\s+" + name + "\\[" + i + "\\]\\s*\\+\\s*(\\k<argname>)\\s*\\}\\s*return\\s+[^}]+\\}[;\\n]"
+                                    ;
+                            Pattern regex = Pattern.compile(pattern);
+                            Matcher matcher = regex.matcher(js);
+                            if(matcher.find()){
+                                return matcher.group("funcname");
+                            }
+                        }
                     }
+                }
+            }
+        }catch (Exception e){}
+
+        String functionPattern = """
+                            (?x)
+                                (?:
+                                    \\.get\\(\\"n\\"\\)\\)&&\\(b=|
+                                    (?:
+                                        b=String\\.fromCharCode\\(110\\)|
+                                        (?<stridx>[a-zA-Z0-9_$.]+)&&\\(b=\\"nn\\"\\[\\+(\\k<stridx>)\\]
+                                    )
+                                    (?:
+                                        ,[a-zA-Z0-9_$]+\\(a\\))?,c=a\\.
+                                        (?:
+                                            get\\(b\\)|
+                                            [a-zA-Z0-9_$]+\\[b\\]\\|\\|null
+                                        )\\)&&\\(c=|
+                                    \\b(?<var>[a-zA-Z0-9_$]+)=
+                                )(?<nfunc>[a-zA-Z0-9_$]+)(?:\\[(?<idx>\\d+)\\])?\\([a-zA-Z]\\)
+                                ((var)|,[a-zA-Z0-9_$]+\\.set\\((?:\\"n+\\"|[a-zA-Z0-9_$]+)\\,(\\k<var>)\\))""";
+
+        Pattern regex = Pattern.compile(functionPattern);
+        Matcher matcher = regex.matcher(js);
+        if (matcher.find()){
+            String funName = Pattern.quote(matcher.group("nfunc"));
+            String idx = matcher.group("idx");
+            if(!idx.isEmpty()){
+                String pattern2 = "var " + funName + "\\s*=\\s*\\[(.+?)]";
+                Pattern regex2 = Pattern.compile(pattern2);
+                Matcher nFuncFound = regex2.matcher(js);
+                if (nFuncFound.find()){
+                    return nFuncFound.group(1);
+                }else {
+                    throw new RegexMatchError("getThrottlingFunctionName: Could not find function name " + pattern2 + " in playerJs: " + playerJs);
                 }
             }
         }
