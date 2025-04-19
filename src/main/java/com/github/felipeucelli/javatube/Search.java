@@ -12,6 +12,7 @@ import java.util.*;
 public class Search {
 
     private final String query;
+    private  Map<FilterBuilder.Filter, Object> filter = null;
     private JSONObject jsonResult = null;
     private final InnerTube innerTubeClient = new InnerTube("WEB");
     private Map<String, ArrayList<String>> results = new HashMap<>();
@@ -19,6 +20,11 @@ public class Search {
 
     public Search(String query) throws JSONException {
         this.query = query;
+    }
+
+    public Search(String query, Map<FilterBuilder.Filter, Object> filter) throws JSONException {
+        this.query = query;
+        this.filter = filter;
     }
 
     private String safeQuery() throws UnsupportedEncodingException {
@@ -33,7 +39,14 @@ public class Search {
     }
 
     private JSONObject setJson() throws Exception {
-        return innerTubeClient.search(safeQuery(), continuationToken);
+        JSONObject data = new JSONObject();
+        if (filter != null && Objects.equals(continuationToken, "")){
+            data.put("params", Protobuf.encodeProtobuf(FilterBuilder.buildFilter(filter)));
+        }
+        if (!Objects.equals(continuationToken, "")){
+            data.put("continuation", continuationToken);
+        }
+        return innerTubeClient.search(safeQuery(), data);
     }
 
     private ArrayList<String> extractShelfRenderer(JSONArray items) throws JSONException {

@@ -743,13 +743,14 @@ public class InnerTube{
         return callApi(endpoint, query);
     }
 
-    public JSONObject search(String searchQuery, String continuationToken) throws Exception {
+    public JSONObject search(String searchQuery, JSONObject data) throws Exception {
         String endpoint = getBaseUrl() + "/search";
         JSONObject query = new JSONObject(getBaseParam());
         JSONObject contextQuery = new JSONObject("{query: " + searchQuery + "}");
         updateInnerTubeContext(getInnerTubeContext(), contextQuery);
-        if(!Objects.equals(continuationToken, "")){
-            updateInnerTubeContext(getInnerTubeContext(), new JSONObject("{continuation:" + continuationToken + "}"));
+
+        if (data.length() > 0){
+            updateInnerTubeContext(getInnerTubeContext(), data);
         }
         return callApi(endpoint, query);
     }

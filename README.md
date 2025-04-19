@@ -14,6 +14,7 @@ _JavaTube_ is a library written in java and aims to be highly reliable.
 * Interaction with channels (Videos, YouTube Shorts, lives and Playlists)
 * onProgress callback register
 * Keyword search support
+* Search using filters
 * Ability to get video details (Title, Description, Publish Date, Length, Thumbnail Url, Views, Author and Keywords)
 * Subtitle generator for .srt format
 * Support downloading yt_otf streams
@@ -164,6 +165,34 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
+### Search using filters
+
+YouTube allows you to filter a search just by passing a parameter encoded in protobuf. 
+This parameter consists of dictionaries where each key and value represents a category and filter respectively.
+With these parameters we can combine several filters to create a personalized search.
+
+It wouldn't be very practical for the user or developer to have to manually retrieve the custom filter from YouTube whenever they want to do a search, 
+so the `FilterBuilder` class will do all the work of providing all the available filters, combining them, coding them in protobuf and send to the `Search` class, 
+all we need to do is import it and create a dictionary with the necessary filters:
+
+```java
+public static void main(String[] args) throws Exception {
+    Map<FilterBuilder.Filter, Object> filter = new HashMap<>();
+    
+    filter.put(FilterBuilder.Filter.TYPE, FilterBuilder.Type.VIDEO);
+    filter.put(FilterBuilder.Filter.UPLOAD_DATE, FilterBuilder.UploadDate.TODAY);
+    filter.put(FilterBuilder.Filter.DURATION, FilterBuilder.Duration.UNDER_4_MIN);
+    filter.put(FilterBuilder.Filter.FEATURES, List.of(FilterBuilder.Feature.CREATIVE_COMMONS, FilterBuilder.Feature._4K));
+    filter.put(FilterBuilder.Filter.SORT_BY, FilterBuilder.SortBy.UPLOAD_DATE);
+
+    Search s = new Search("music", filter);
+    System.out.println(s.getResults());
+}
+```
+This will return all videos published *today* in *4K* and *Creative Commons* *under 4 minutes* organized by *upload date*.
+
+Note that the FEATURES category is the only one that supports combining several filters, you can send a list with all the necessary filters or just a single filter like the other categories.
+
 ### Interacting with channels
 
 * `getVideos()`: method returns an ArrayList containing the channel's videos.
@@ -246,7 +275,7 @@ If you want to save the token in cache, just add one more argument `true`, this 
 
 The _tokens.json_ will be created in the temporary folder of your operating system, you can delete it using: `Youtube.resetCache();`.
 
-## Filters Parameters:
+## Stream filters Parameters:
 * `"res"` The video resolution (e.g.: "360p", "720p")
             
 
