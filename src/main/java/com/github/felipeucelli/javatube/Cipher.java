@@ -41,8 +41,9 @@ public class Cipher {
             String[] globalVar = jsInterpreter.extractPlayerJsGlobalVar(js);
             String name = globalVar[0];
             String code = globalVar[1];
+            String value = globalVar[2];
             if(code != null) {
-                Object array = jsInterpreter.interpretExpression(code, new LocalNameSpace(new HashMap<>()), 100);
+                Object array = jsInterpreter.interpretExpression(value, new LocalNameSpace(new HashMap<>()), 100);
                 if(array instanceof ArrayList<?>){
                     @SuppressWarnings("unchecked")
                     ArrayList<String> globalArray = (ArrayList<String>) array;

@@ -26,9 +26,24 @@ class LocalNameSpace extends java.util.AbstractMap<String, Object> {
     public Object getValue(String key){
         return maps.get(key);
     }
+
+    public Map<String, Object> getAll(){
+        return maps;
+    }
+
     public LocalNameSpace newChild(Map<String, Object> obj){
         maps.putAll(obj);
         return new LocalNameSpace(maps);
+    }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("LocalNameSpace {\n");
+        for (Map.Entry<String, Object> entry : maps.entrySet()) {
+            sb.append("  ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+        }
+        sb.append("}");
+        return sb.toString();
     }
     @Override
     public Object put(String key, Object value) {
@@ -948,15 +963,18 @@ public class JsInterpreter {
         String reg = """
                 (?x)
                             (?<assign>
-                                (?<out>[a-zA-Z_$][\\w$]*)(?:\\[(?<index>[^]]+?)])?\\s*
+                                (?<out>[a-zA-Z_$][\\w$]*)(?:\\[(?<index>[^\\[\\]]+(?:\\[[^\\[\\]]+(?:\\[[^\\]]+\\])?\\])?)])?\\s*
                                 (?<op>\\||\\*\\*|-|\\+|\\^|&&|\\?|/|%|\\|\\||&|>>|<<|\\*|\\?\\?)?
                                 =(?!=)(?<expr>.*)$
                             )|(?<return>
                                 (?!if|return|true|false|null|undefined|NaN)(?<name>^[a-zA-Z_$][\\w$]*)$
+                            )|(?<attribute>
+                                (?<var>[a-zA-Z_$][\\w$]*)(?:
+                                    (?<nullish>\\?)?\\.(?<member>[^(]+)|
+                                    \\[(?<member2>[^\\[\\]]+(?:\\[[^\\[\\]]+(?:\\[[^\\]]+\\])?\\])?)]
+                                )\\s*
                             )|(?<indexing>
                                 (?<in>[a-zA-Z_$][\\w$]*)\\[(?<idx>.+)]$
-                            )|(?<attribute>
-                                (?<var>[a-zA-Z_$][\\w$]*)(?:(?<nullish>\\?)?\\.(?<member>[^(]+)|\\[(?<member2>[^]]+)])\\s*
                             )|(?<function>
                                 (?<fname>[a-zA-Z_$][\\w$]*)\\((?<args>.*)\\)$
                             )""";
@@ -1078,7 +1096,7 @@ public class JsInterpreter {
                     if(obj == null && !variable.equals("String") && !variable.equals("Math") && !variable.equals("Array")){
                         if(!_objects.containsValue(variable)){
                             try {
-                                _objects.put(variable, extractObject(variable));
+                                _objects.put(variable, extractObject(variable, localVars));
                             }catch (Exception e){
                                 if (nullish == null){
                                     throw new Exception(e);
@@ -1296,7 +1314,7 @@ public class JsInterpreter {
         }
     }
 
-    private Object extractObject(String objName) throws Exception {
+    private Object extractObject(String objName, LocalNameSpace globalStack) throws Exception {
         Map<Object, FunctionWithRepr> obj = new HashMap<>();
         Pattern pattern = Pattern.compile("(?x)" +
                 "(?<!\\.)" + Matcher.quoteReplacement(objName) + "\\s*=\\s*\\{\\s*"+
@@ -1318,7 +1336,7 @@ public class JsInterpreter {
             List<String> argNames = List.of(fieldsM.group("args").split(","));
             String name = removeQuotes(fieldsM.group("key"));
             String code = fieldsM.group("code");
-            obj.put(name, new FunctionWithRepr(buildFunction(argNames, code, new HashMap<>()), "f<" + name + ">"));
+            obj.put(name, new FunctionWithRepr(buildFunction(argNames, code, globalStack.getAll()), "f<" + name + ">"));
         }
         return obj;
     }
@@ -1408,7 +1426,11 @@ public class JsInterpreter {
                     finalIdx = (int) Math.round((double) idx);
                 }else {
                     if(idx instanceof String){
-                        finalIdx = Integer.parseInt((String) idx);
+                        try {
+                            finalIdx = Integer.parseInt((String) idx);
+                        }catch (NumberFormatException e){
+                            finalIdx = (int) Double.parseDouble((String) idx);
+                        }
                     }else{
                         finalIdx = (int) idx;
                     }
