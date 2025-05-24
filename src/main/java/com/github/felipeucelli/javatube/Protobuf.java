@@ -142,7 +142,7 @@ public class Protobuf {
 
         return finalResult;
     }
-
+    @SuppressWarnings("unchecked")
     private static void encodeRecord(Object value, int wireId, OutputStream out) throws IOException {
         if (value instanceof Integer) {
             int v = (Integer) value;
@@ -185,6 +185,7 @@ public class Protobuf {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     private static String mapToString(Map<Integer, Object> map) {
         StringBuilder sb = new StringBuilder();
         sb.append("{");

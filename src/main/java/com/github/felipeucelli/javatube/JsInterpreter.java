@@ -950,6 +950,9 @@ public class JsInterpreter {
             int end = m3.end();
             String sign = m3.group("presign") != null ? m3.group("presign") : m3.group("postsign");
             ret = localVars.getValue(var);
+            if (ret == null){
+                break;
+            }
             localVars.put(var, sign.charAt(0) == '+' ? (int) ret + 1 : (int) ret - 1);
             if(m3.group("presign") != null){
                 ret = localVars.getValue(var);
