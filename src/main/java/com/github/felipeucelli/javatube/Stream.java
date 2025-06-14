@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static java.lang.Math.min;
@@ -171,29 +171,61 @@ public class Stream{
         }
     }
 
-    public static void onProgress(long value){
-        System.out.println(value + "%");
+    private static void displayProgressBar(long bytesReceived, long fileSize, char ch, double scale) {
+        int columns = getTerminalWidth();
+        int maxWidth = (int) (columns * scale);
+
+        int filled = (int) Math.round(maxWidth * ((double) bytesReceived / fileSize));
+        int remaining = maxWidth - filled;
+
+        String bar = String.valueOf(ch).repeat(Math.max(0, filled)) +
+                " ".repeat(Math.max(0, remaining));
+
+        double percent = 100.0 * bytesReceived / fileSize;
+
+        PrintStream out = System.out;
+        out.printf("-|%s| %.1f%%\r", bar, percent);
+        out.flush();
     }
+
+    private static void displayProgressBar(long bytesReceived, long fileSize) {
+        displayProgressBar(bytesReceived, fileSize, '#', 0.55);
+    }
+
+    private static int getTerminalWidth() {
+        return 80;
+    }
+
+    public void download() throws Exception {
+        download("./", title, Stream::displayProgressBar);
+    }
+
     public void download(String path) throws Exception {
-        startDownload(path, title, Stream::onProgress);
+        download(path, title, Stream::displayProgressBar);
     }
-    public void download(String path, Consumer<Long> progress) throws Exception {
-        startDownload(path, title, progress);
+
+    public void download(BiConsumer<Long, Long> progress) throws Exception {
+        download("./", title, progress);
     }
+
+    public void download(String path, BiConsumer<Long, Long> progress) throws Exception {
+        download(path, title, progress);
+    }
+
     public void download(String path, String fileName) throws Exception {
-        startDownload(path, fileName, Stream::onProgress);
+        download(path, fileName, Stream::displayProgressBar);
     }
-    public void download(String path, String fileName, Consumer<Long> progress) throws Exception {
+
+    public void download(String path, String fileName, BiConsumer<Long, Long> progress) throws Exception {
         startDownload(path, fileName, progress);
     }
-    private void startDownload(String path, String fileName, Consumer<Long> progress) throws Exception {
+
+    private void startDownload(String path, String fileName, BiConsumer<Long, Long> progress) throws Exception {
         String savePath = path + safeFileName(fileName) + "." + subType;
         if(!isOtf){
             long startSize = 0;
             long stopPos;
             int defaultRange = 1048576;
-            long progressPercentage;
-            long lastPrintedProgress = 0;
             byte[] chunkReceived;
 
             checkFile(savePath);
@@ -205,12 +237,8 @@ public class Stream{
                 String chunk = url + "&range=" + startSize + "-" + stopPos;
                 chunkReceived = Request.get(chunk).toByteArray();
 
-                progressPercentage = (stopPos * 100L) / (fileSize);
+                progress.accept(stopPos, fileSize);
 
-                if (progressPercentage != lastPrintedProgress) {
-                    lastPrintedProgress = progressPercentage;
-                    progress.accept(progressPercentage);
-                }
                 startSize = startSize + chunkReceived.length;
                 try (FileOutputStream fos = new FileOutputStream(savePath, true)) {
                     fos.write(chunkReceived);
@@ -221,7 +249,7 @@ public class Stream{
         }
     }
 
-    private void downloadOtf(String savePath, Consumer<Long> progress) throws Exception {
+    private void downloadOtf(String savePath, BiConsumer<Long, Long> progress) throws Exception {
         int countChunk = 0;
         byte[] chunkReceived;
         int lastChunk = 0;
@@ -241,7 +269,7 @@ public class Stream{
                     throw new RegexMatchError("downloadOtf: " + pattern);
                 }
             }
-            progress.accept((countChunk * 100L) / (lastChunk));
+            progress.accept(Long.parseLong(String.valueOf(countChunk)), Long.parseLong(String.valueOf(lastChunk)));
             countChunk = countChunk + 1;
             try (FileOutputStream fos = new FileOutputStream(savePath, true)) {
                 fos.write(chunkReceived);

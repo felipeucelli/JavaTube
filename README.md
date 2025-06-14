@@ -48,12 +48,10 @@ You must only get one stream to be able to download it. You can use the methods:
 
 You can also manually select the stream using `.get("index")`.
 
-The download() method must receive the path that the stream will be downloaded.
-
 ```java
 public static void main(String[] args) throws Exception {
     Youtube yt = new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo");
-    yt.streams().getHighestResolution().download("./");
+    yt.streams().getHighestResolution().download();
 }
 ```
 
@@ -61,10 +59,11 @@ or
 
 ```java
 public static void main(String[] args) throws Exception {
-        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo").streams().get(1).download("./");
+        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo").streams().get(1).download();
     }
 }
 ```
+You can define the path where the file will be saved with the `.download("YOUR/PATH")` method
 
 ### Downloading videos with multiple audio tracks
 Videos with multiple progressive audio tracks come with the original audio, which is why we must choose the adaptive types.
@@ -102,22 +101,27 @@ public static void main(String[] args) throws Exception {
     filters.put("progressive", "true");
     filters.put("subType", "mp4");
 
-    yt.streams().filter(filters).getFirst().download("./");
+    yt.streams().filter(filters).getFirst().download();
     
 }
 ```
 
 ### Download with callback function
 
-If no parameter is passed, a download percentage string will be printed to the terminal
+If no parameters are passed, a progress bar will be printed to the terminal.
+
+```
+-|############################################| 100,0%
+```
+
 ```java
-public static void progress(Long value){
-    System.out.println(value);
+public static void progress(long bytesReceived, long fileSize){
+    System.out.println((bytesReceived * 100) / fileSize);
 }
 
 public static void main(String[] args) throws Exception {
     Youtube yt = new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo");
-    yt.streams().getHighestResolution().download("./", Download::progress);
+    yt.streams().getHighestResolution().download(Download::progress);
 }
 ```
 
@@ -128,7 +132,7 @@ The `getVideos()` method will return an ArrayList with the links extracted from 
 ```java
  public static void main(String[] args) throws Exception {
     for(String pl : new Playlist("https://www.youtube.com/playlist?list=PLS1QulWo1RIbfTjQvTdj8Y6yyq4R7g-Al").getVideos()){
-        new Youtube(pl).streams().getHighestResolution().download("./");
+        new Youtube(pl).streams().getHighestResolution().download();
     }
 }
 ```
@@ -239,7 +243,7 @@ Download it in .srt format (if the .srt format is not informed, the xml will be 
 
 ```java
 public static void main(String[] args) throws Exception {
-        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo&t=1s").getCaptions().getByCode("en").download("caption.srt", "./")
+        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo&t=1s").getCaptions().getByCode("en").download("caption.srt", "./");
     }
 ```
 
@@ -266,7 +270,7 @@ This process involves manually obtaining a PO token generated from YouTube in a 
 ```java
 public static void main(String[] args) throws Exception {
     Youtube yt = new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo", true);
-    yt.streams().getHighestResolution().download("./");
+    yt.streams().getHighestResolution().download();
 }
 ```
 The terminal will ask you to insert the tokens.
