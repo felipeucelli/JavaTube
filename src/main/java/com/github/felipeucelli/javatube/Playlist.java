@@ -72,11 +72,23 @@ public class Playlist {
     }
 
     protected void setContinuationToken(JSONArray importantContent) throws JSONException {
-        continuationToken = importantContent.getJSONObject(importantContent.length() - 1)
+        JSONObject continuationEndpoint = importantContent.getJSONObject(importantContent.length() - 1)
                 .getJSONObject("continuationItemRenderer")
-                .getJSONObject("continuationEndpoint")
-                .getJSONObject("continuationCommand")
-                .getString("token");
+                .getJSONObject("continuationEndpoint");
+
+        if (continuationEndpoint.has("continuationCommand")){
+            continuationToken = continuationEndpoint
+                    .getJSONObject("continuationCommand")
+                    .getString("token");
+            
+        }else if (continuationEndpoint.has("commandExecutorCommand")){
+            continuationToken = continuationEndpoint
+                    .getJSONObject("commandExecutorCommand")
+                    .getJSONArray("commands")
+                    .getJSONObject(1)
+                    .getJSONObject("continuationCommand")
+                    .getString("token");
+        }
     }
 
     protected JSONArray extractContinuationItems(JSONArray importantContent) throws Exception {
