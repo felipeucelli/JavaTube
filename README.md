@@ -32,7 +32,6 @@ Downloading videos from YouTube without proper authorization may violate the [te
 
 Downloading copyrighted videos may infringe on the creators' intellectual property.
 
-I reaffirm not to use this software to violate any laws.
 
 ## Using JavaTube
 
@@ -43,8 +42,15 @@ The streams() method returns a StreamQuery object that lists the properly handle
 You must only get one stream to be able to download it. You can use the methods: 
 
 * `getHighestResolution()`
-* `getLowestResolution() `
-* `getOnlyAudio() `
+
+
+* `getLowestResolution()`
+
+
+* `getDefaultResolution()`
+
+
+* `getOnlyAudio()`
 
 You can also manually select the stream using `.get("index")`.
 
@@ -59,11 +65,68 @@ or
 
 ```java
 public static void main(String[] args) throws Exception {
-        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo").streams().get(1).download();
-    }
+    new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo").streams().get(1).download();
 }
 ```
 You can define the path where the file will be saved with the `.download("YOUR/PATH")` method
+
+**Note**: YouTube only has 360p resolution in progressive format (audio and video in the same file), 
+you can get this stream with getDefaultResolution(). 
+The getHighestResolution() and getLowestResolution() methods will return only the video file.
+
+### Download using filters
+
+The `filter()` method receives a `StreamQuery.Filter.builder()` e.g.
+
+```java
+public static void main(String[] args) throws Exception {
+    Youtube yt = new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo");
+    
+    yt.streams().filter(StreamQuery.Filter.builder()
+            .progressive(false)
+            .type("video")
+            .subtype("mp4")
+            .build()
+    ).getFirst().download();
+    
+}
+```
+
+You can also create custom filters
+
+```java
+public static void main(String[] args) throws Exception {
+    Youtube yt = new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo");
+    
+    yt.streams().filter(StreamQuery.Filter.builder()
+            .addCustomFilter(
+                    stream -> !stream.isProgressive() && "720p".equals(stream.getResolution())
+            )
+            .build()
+    ).getFirst().download();
+    
+}
+```
+
+You can also create a list of filters and add them all at once.
+
+```java
+public static void main(String[] args) throws Exception {
+    Youtube yt = new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo");
+
+    List<Predicate<Stream>> predicates = List.of(
+            stream -> Objects.equals(stream.getType(), "video"),
+            stream -> Objects.equals(stream.getSubType(), "mp4"),
+            stream -> stream.getFps() >= 24
+    );
+    
+    yt.streams().filter(StreamQuery.Filter.builder()
+            .addCustomFilter(predicates)
+            .build()
+    ).getFirst().download();
+    
+}
+```
 
 ### Downloading videos with multiple audio tracks
 Videos with multiple progressive audio tracks come with the original audio, which is why we must choose the adaptive types.
@@ -86,23 +149,6 @@ public static void main(String[] args) throws Exception {
     for(Stream s : new Youtube("https://www.youtube.com/watch?v=g_VxOIlg7q8").streams().getExtraAudioTracks().getAll()){
         System.out.println(s.getItag() + " " + s.getAudioTrackName() + " " + s.getAbr() + " " + s.getUrl());
     }
-}
-```
-
-### Download using filters 
-
-You must pass a HashMap String with the filter you want to use and its respective value
-
-```java
-public static void main(String[] args) throws Exception {
-    Youtube yt = new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo");
-
-    HashMap<String, String> filters = new HashMap<>();
-    filters.put("progressive", "true");
-    filters.put("subType", "mp4");
-
-    yt.streams().filter(filters).getFirst().download();
-    
 }
 ```
 
@@ -272,38 +318,3 @@ If you want to save the token in cache, just add one more argument `true`, this 
 
 The _tokens.json_ will be created in the temporary folder of your operating system, you can delete it using: `Youtube.resetCache();`.
 
-## Stream filters Parameters:
-* `"res"` The video resolution (e.g.: "360p", "720p")
-            
-
-* `"fps"` The frames per second (e.g.: "24fps", "60fps")
-
-
-* `"mineType"` Two-part identifier for file formats and format contents composed of a “type”, a “subtype” (e.g.: "video/mp4", "audio/mp4")
-
-
-* `"type"` Type part of the mineType (e.g.: audio, video)
-
-
-* `"subType"` Sub-type part of the mineType (e.g.: mp4, webm)
-
-
-* `"abr"` Average bitrate  (e.g.: "128kbps", "192kbps")
-
-
-* `"videoCodec"` Video compression format
-
-
-* `"audioCodec"` Audio compression format
-
-
-* `"onlyAudio"` Excludes streams with video tracks (e.g.: "true" or "false")
-
-
-* `"onlyVideo"` Excludes streams with audio tracks (e.g.: "true" or "false")
-
-
-* `"progressive"` Excludes adaptive streams (one file contains both audio and video tracks) (e.g.: "true" or "false")
-
-
-* `"adaptive"` Excludes progressive streams (audio and video are on separate tracks) (e.g.: "true" or "false")

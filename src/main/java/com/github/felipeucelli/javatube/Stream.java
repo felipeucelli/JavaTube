@@ -25,6 +25,7 @@ public class Stream{
     private final String audioCodec;
     private final Integer bitrate;
     private final Boolean isOtf;
+    private final Boolean isSabr;
     private final long fileSize;
     private final Map<String, String> itagProfile;
     private final String abr;
@@ -48,6 +49,7 @@ public class Stream{
         audioCodec = parseCodecs().get(1);
         bitrate = stream.getInt("bitrate");
         isOtf = setIsOtf(stream);
+        isSabr = stream.has("is_sabr");
         fileSize = setFileSize(stream.has("contentLength") ? stream.getString("contentLength") : null);
         itagProfile = getFormatProfile();
         abr = itagProfile.get("abr");
@@ -80,7 +82,7 @@ public class Stream{
         else {
             parts.addAll(Arrays.asList("abr=\"" + abr + "\"", "acodec=\"" + audioCodec + "\""));
         }
-        parts.addAll(Arrays.asList("progressive=\"" + isProgressive() + "\"", "type=\"" + type + "\""));
+        parts.addAll(Arrays.asList("progressive=\"" + isProgressive() + "\"", "sabr=\"" + isSabr + "\"", "type=\"" + type + "\""));
         return "<Stream: " + String.join(" ", parts) + ">";
     }
 
@@ -445,6 +447,9 @@ public class Stream{
     }
     public Boolean getIsOtf(){
         return isOtf;
+    }
+    public Boolean getIsSabr(){
+        return isSabr;
     }
     public long getFileSize(){
         return fileSize;

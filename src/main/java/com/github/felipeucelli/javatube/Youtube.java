@@ -27,6 +27,7 @@ public class Youtube {
     private String js = null;
     private JSONObject ytCfg = null;
     private JSONObject signatureTimestamp = null;
+    private String serverAbrStreamingUrl = null;
     private String visitorData = null;
     private String poToken = null;
     private String playerJs = null;
@@ -177,6 +178,20 @@ public class Youtube {
             );
         }
         return signatureTimestamp;
+    }
+
+    public String getServerAbrStreamingUrl() throws Exception {
+        if (serverAbrStreamingUrl == null){
+            serverAbrStreamingUrl = streamData().getString("serverAbrStreamingUrl");
+        }
+        return serverAbrStreamingUrl;
+    }
+
+    public String getVideoPlaybackUstreamerConfig() throws Exception {
+        return getVidInfo().getJSONObject("playerConfig")
+                .getJSONObject("mediaCommonConfig")
+                .getJSONObject("mediaUstreamerRequestConfig")
+                .getString("videoPlaybackUstreamerConfig");
     }
 
     private JSONObject setYtCfg() throws Exception {
@@ -417,7 +432,7 @@ public class Youtube {
         return URLDecoder.decode(s, StandardCharsets.UTF_8.name());
     }
 
-    private static JSONArray applyDescrambler(JSONObject streamData) throws JSONException{
+    private  JSONArray applyDescrambler(JSONObject streamData) throws Exception {
         JSONArray formats = new JSONArray();
         if(streamData.has("formats")){
             for(int i = 0; i < streamData.getJSONArray("formats").length(); i ++){
@@ -439,6 +454,9 @@ public class Youtube {
                         formats.getJSONObject(i).put("s", Arrays.asList(rawSig.split("&")).get(j).replace("s=", ""));
                     }
                 }
+            }else if (!formats.getJSONObject(i).has("url") && !formats.getJSONObject(i).has("signatureCipher")){
+                formats.getJSONObject(i).put("url", getServerAbrStreamingUrl());
+                formats.getJSONObject(i).put("is_sabr", true);
             }
         }
         return formats;
