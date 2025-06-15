@@ -3,12 +3,12 @@ package com.github.felipeucelli.javatube;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -19,8 +19,9 @@ public class Captions {
     private final String url;
     private final String code;
     private final String name;
+    private final String filename;
 
-    public Captions(JSONObject captionTrack) throws JSONException {
+    public Captions(JSONObject captionTrack, String filename) throws JSONException {
         url = captionTrack.getString("baseUrl");
         String vssId = captionTrack.getString("vssId");
         code = vssId.startsWith(".") ? vssId.replace(".", "") : vssId;
@@ -29,6 +30,7 @@ public class Captions {
                 .getJSONArray("runs")
                 .getJSONObject(0)
                 .getString("text");
+        this.filename = "Caption_" + safeFileName(filename);
     }
 
     @Override
@@ -44,6 +46,13 @@ public class Captions {
     }
     public String getName(){
         return name;
+    }
+    private String getFilename(){
+        return filename;
+    }
+
+    private String safeFileName(String s){
+        return s.replaceAll("[\"'#$%*,.:;<>?\\\\^|~/]", " ");
     }
 
     private String getXmlCaptions() throws Exception {
@@ -102,42 +111,43 @@ public class Captions {
         return segments.toString();
     }
 
-    public void download(String filename, String savePath) {
-        String fullPath;
+    public void downloadXml(String filename, String savePath) throws Exception {
+        download(filename, savePath, true);
+    }
+    public void downloadXml(String filename) throws Exception {
+        download(filename, "./", true);
+    }
+    public void downloadXml() throws Exception {
+        download(this.filename + ".xml", "./", true);
+    }
 
-        if(savePath.endsWith("/")){
-            fullPath = savePath + filename;
-        }else{
-            fullPath = savePath + "/" + filename;
+    public void downloadSrt(String filename, String savePath) throws Exception {
+        download(filename, savePath, true);
+    }
+    public void downloadSrt(String filename) throws Exception {
+        download(filename, "./", false);
+    }
+    public void downloadSrt() throws Exception {
+        download(this.filename + ".srt", "./", false);
+    }
+
+    private void download(String filename, String savePath, boolean xml) throws Exception {
+        String fullPath = Paths.get(savePath, filename).toString();
+        String content;
+
+        if (xml) {
+            content = getXmlCaptions();
+        } else {
+            content = xmlCaptionToSrt();
         }
 
-
-        if(filename.endsWith(".srt")){
-            try {
-                File file = new File(fullPath);
-                FileWriter write = new FileWriter(file);
-                write.write(xmlCaptionToSrt());
-                write.close();
-            }
-            catch (IOException ex) {
-                System.out.print("Invalid Path");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }else{
-            try {
-                File file = new File(fullPath);
-                FileWriter write = new FileWriter(file);
-                write.write(getXmlCaptions());
-                write.close();
-            }
-            catch (IOException ex) {
-                System.out.print("Invalid Path");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        try (FileWriter writer = new FileWriter(fullPath)) {
+            writer.write(content);
+        } catch (IOException ex) {
+            throw new IOException("Error saving file to:" + fullPath);
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected error writing file ", e);
         }
-
     }
 
 }

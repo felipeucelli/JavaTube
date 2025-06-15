@@ -541,7 +541,7 @@ public class Youtube {
                     .getJSONArray("captionTracks");
             ArrayList<Captions> captions = new ArrayList<>();
             for(int i = 0; i < rawTracks.length(); i++){
-                captions.add(new Captions(rawTracks.getJSONObject(i)));
+                captions.add(new Captions(rawTracks.getJSONObject(i), getTitle()));
             }
             return captions;
         } catch (JSONException e) {

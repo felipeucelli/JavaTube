@@ -108,12 +108,6 @@ public static void main(String[] args) throws Exception {
 
 ### Download with callback function
 
-If no parameters are passed, a progress bar will be printed to the terminal.
-
-```
--|############################################| 100,0%
-```
-
 ```java
 public static void progress(long bytesReceived, long fileSize){
     System.out.println((bytesReceived * 100) / fileSize);
@@ -123,6 +117,12 @@ public static void main(String[] args) throws Exception {
     Youtube yt = new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo");
     yt.streams().getHighestResolution().download(Download::progress);
 }
+```
+
+If no parameters are passed, a progress bar will be printed to the terminal.
+
+```
+-|############################################| 100,0%
 ```
 
 ### Downloading a playlist
@@ -219,33 +219,26 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
-### Using the subtitles feature
+### Downloading the subtitle file
 
 See available languages.
 
 ```java
 public static void main(String[] args) throws Exception {
-    for(Captions caption: new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo&t=1s").getCaptionTracks()){
+    for(Captions caption: new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo").getCaptionTracks()){
         System.out.println(caption.getCode());
-        }
     }
+}
 ```
 
-Write to console in .srt format.
+You can use `downloadXml()` or `downloadSrt()` method to download in corresponding format.
 
 ```java
 public static void main(String[] args) throws Exception {
-        System.out.println(new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo&t=1s").getCaptions().getByCode("en").xmlCaptionToSrt());
-    }
+    new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo").getCaptions().getByCode("en").downloadSrt();
+}
 ```
-
-Download it in .srt format (if the .srt format is not informed, the xml will be downloaded).
-
-```java
-public static void main(String[] args) throws Exception {
-        new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo&t=1s").getCaptions().getByCode("en").download("caption.srt", "./");
-    }
-```
+This will download a **.srt** file named _Caption_VIDEO_NAME..._
 
 ## PoToken
 The proof of origin (PO) token is a parameter that YouTube requires to be sent with video playback requests from some clients. Without it, format URL requests from affected customers may return HTTP error 403, error with bot detection, or result in your account or IP address being blocked.
