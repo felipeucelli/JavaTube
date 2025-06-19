@@ -22,6 +22,8 @@ public class Youtube {
     private InnerTube innerTube = null;
     private String client = null;
     private JSONObject vidInfo = null;
+    private JSONObject vidDetails = null;
+    private String title = "Unknown";
     private String html = null;
     private JSONObject initialData = null;
     private String js = null;
@@ -310,7 +312,7 @@ public class Youtube {
         return innerTube.player(getVideoId());
     }
 
-     public void setVidInfo(JSONObject value){
+    public void setVidInfo(JSONObject value){
         vidInfo = value;
     }
 
@@ -337,6 +339,14 @@ public class Youtube {
         setVidInfo(innerTubeResponse);
 
         return vidInfo;
+    }
+
+    public JSONObject getVidDetails() throws Exception {
+        if (vidDetails != null){
+            return vidDetails;
+        }
+        vidDetails = innerTube.next(getVideoId());
+        return vidDetails;
     }
 
 
@@ -520,8 +530,48 @@ public class Youtube {
     }
 
     public String getTitle() throws Exception {
-        return getVidInfo().getJSONObject("videoDetails")
-                .getString("title");
+        if (getVidInfo().getJSONObject("videoDetails").has("title")){
+            title = getVidInfo().getJSONObject("videoDetails")
+                    .getString("title");
+        }
+        else {
+            if (getVidDetails().getJSONObject("contents").has("singleColumnWatchNextResults")){
+                JSONObject contents = getVidDetails().getJSONObject("contents")
+                        .getJSONObject("singleColumnWatchNextResults")
+                        .getJSONObject("results")
+                        .getJSONObject("results")
+                        .getJSONArray("contents")
+                        .getJSONObject(0)
+                        .getJSONObject("itemSectionRenderer")
+                        .getJSONArray("contents")
+                        .getJSONObject(0);
+                if (contents.has("videoMetadataRenderer")){
+                    title = contents.getJSONObject("videoMetadataRenderer")
+                            .getJSONObject("title")
+                            .getJSONArray("runs")
+                            .getJSONObject(0)
+                            .getString("text");
+                }else {
+                    // JSON tree for titles in videos available on YouTube music
+                    title = contents.getJSONObject("musicWatchMetadataRenderer")
+                            .getJSONObject("title")
+                            .getString("simpleText");
+                }
+            }else if (getVidDetails().getJSONObject("contents").has("twoColumnWatchNextResults")){
+                title = getVidDetails().getJSONObject("contents")
+                        .getJSONObject("twoColumnWatchNextResults")
+                        .getJSONObject("results")
+                        .getJSONObject("results")
+                        .getJSONArray("contents")
+                        .getJSONObject(0)
+                        .getJSONObject("videoPrimaryInfoRenderer")
+                        .getJSONObject("title")
+                        .getJSONArray("runs")
+                        .getJSONObject(0)
+                        .getString("text");
+            }
+        }
+        return title;
     }
 
     public String getDescription() throws Exception {

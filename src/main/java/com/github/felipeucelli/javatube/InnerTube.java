@@ -409,18 +409,18 @@ public class InnerTube{
                           "context": {
                               "client": {
                                   "clientName": "TVHTML5",
-                                  "clientVersion": "7.20240813.07.00",
+                                  "clientVersion": "7.20250312.16.00",
                                   "platform": "TV"
                               }
                           }
                       },
                       "header": {
-                          "User-Agent": "Mozilla/5.0",
+                          "User-Agent": "Mozilla/5.0 (ChromiumStylePlatform) Cobalt/Version",
                           "X-Youtube-Client-Name": "7"
                       },
                       "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
                       "requireJsPlayer": "true",
-                    "requirePoToken": "false"
+                    "requirePoToken": "true"
                   },
                 
                   "TV_EMBED": {
@@ -733,6 +733,26 @@ public class InnerTube{
         JSONObject query = new JSONObject(getBaseParam());
         JSONObject context = new JSONObject("{videoId: " + videoId + ", " + "contentCheckOk: \"true\"" + "}");
         updateInnerTubeContext(getInnerTubeContext(), context);
+        return callApi(endpoint, query);
+    }
+
+    public JSONObject next(String videoId) throws Exception {
+        return next(videoId, null);
+    }
+    public JSONObject next(String videoId, String continuation) throws Exception {
+        String endpoint = getBaseUrl() + "/next";
+        JSONObject query = new JSONObject(getBaseParam());
+
+        if (continuation != null){
+            JSONObject context = new JSONObject("{continuation: " + continuation + "}");
+            updateInnerTubeContext(getInnerTubeContext(), context);
+        }
+
+        if (videoId != null){
+            JSONObject context = new JSONObject("{videoId: " + videoId + ", " + "contentCheckOk: \"true\"" + "}");
+            updateInnerTubeContext(getInnerTubeContext(), context);
+        }
+
         return callApi(endpoint, query);
     }
 
