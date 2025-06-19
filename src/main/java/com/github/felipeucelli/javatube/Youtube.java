@@ -27,7 +27,6 @@ public class Youtube {
     private String js = null;
     private JSONObject ytCfg = null;
     private JSONObject signatureTimestamp = null;
-    private String serverAbrStreamingUrl = null;
     private String visitorData = null;
     private String poToken = null;
     private String playerJs = null;
@@ -181,10 +180,13 @@ public class Youtube {
     }
 
     public String getServerAbrStreamingUrl() throws Exception {
-        if (serverAbrStreamingUrl == null){
-            serverAbrStreamingUrl = streamData().getString("serverAbrStreamingUrl");
-        }
-        return serverAbrStreamingUrl;
+        String url = getVidInfo().getJSONObject("streamingData").getString("serverAbrStreamingUrl");
+        JSONArray streamManifest = new JSONArray();
+        JSONObject stream = new JSONObject();
+        stream.put("url", url);
+        streamManifest.put(stream);
+        applySignature(streamManifest);
+        return streamManifest.getJSONObject(0).getString("url");
     }
 
     public String getVideoPlaybackUstreamerConfig() throws Exception {
@@ -302,10 +304,17 @@ public class Youtube {
             innerTube.insertVisitorData(getVisitorData());
         }
 
+        if (usePoToken || innerTube.getRequirePoToken()){
+            poToken = innerTube.getPoToken();
+        }
         return innerTube.player(getVideoId());
     }
 
-    private JSONObject getVidInfo() throws Exception {
+     public void setVidInfo(JSONObject value){
+        vidInfo = value;
+    }
+
+    public JSONObject getVidInfo() throws Exception {
         List<String> fallbackClients = Arrays.asList("IOS", "WEB");
 
         if (vidInfo != null) {
@@ -325,7 +334,7 @@ public class Youtube {
                 break;
             }
         }
-        vidInfo = innerTubeResponse;
+        setVidInfo(innerTubeResponse);
 
         return vidInfo;
     }
@@ -455,7 +464,7 @@ public class Youtube {
                     }
                 }
             }else if (!formats.getJSONObject(i).has("url") && !formats.getJSONObject(i).has("signatureCipher")){
-                formats.getJSONObject(i).put("url", getServerAbrStreamingUrl());
+                formats.getJSONObject(i).put("url", streamData().getString("serverAbrStreamingUrl"));
                 formats.getJSONObject(i).put("is_sabr", true);
             }
         }
@@ -474,7 +483,7 @@ public class Youtube {
             applySignature(streamManifest);
         }
         for (int i = 0; streamManifest.length() > i; i++) {
-            video = new Stream(streamManifest.getJSONObject(i), title);
+            video = new Stream(streamManifest.getJSONObject(i), title, poToken, getVideoPlaybackUstreamerConfig(), this);
             fmtStream.add(video);
         }
         return fmtStream;

@@ -1,6 +1,7 @@
 package com.github.felipeucelli.javatube;
 
 import com.github.felipeucelli.javatube.exceptions.RegexMatchError;
+import com.github.felipeucelli.javatube.sabr.core.ServerAbrStream;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,7 +27,15 @@ public class Stream{
     private final Integer bitrate;
     private final Boolean isOtf;
     private final Boolean isSabr;
-    private final long fileSize;
+    private final Boolean isDrc;
+    private final String poToken;
+    private final String videoPlaybackUstreamerConfig;
+    private final int durationMs;
+    private final long lastModified;
+    private final String xtags;
+    private String savePath = "./";
+    private Youtube youtube;
+    private long fileSize;
     private final Map<String, String> itagProfile;
     private final String abr;
     private Integer fps = null;
@@ -36,8 +45,10 @@ public class Stream{
     private String audioTrackName = null;
     private String audioTrackId = null;
 
+    private BiConsumer<Long, Long> onProgress = Stream::displayProgressBar;
 
-    public Stream(JSONObject stream, String videoTitle) throws Exception {
+
+    public Stream(JSONObject stream, String videoTitle, String poToken, String videoPlaybackUstreamerConfig, Youtube youtube) throws Exception {
         title = videoTitle;
         url = stream.getString("url");
         itag = stream.getInt("itag");
@@ -50,6 +61,13 @@ public class Stream{
         bitrate = stream.getInt("bitrate");
         isOtf = setIsOtf(stream);
         isSabr = stream.has("is_sabr");
+        isDrc = stream.has("isDrc");
+        this.poToken = poToken;
+        this.videoPlaybackUstreamerConfig = videoPlaybackUstreamerConfig;
+        durationMs = stream.getInt("approxDurationMs");
+        lastModified = Long.parseLong(stream.getString("lastModified"));
+        xtags = stream.has("xtags") ? stream.getString("xtags") : null;
+        this.youtube = youtube;
         fileSize = setFileSize(stream.has("contentLength") ? stream.getString("contentLength") : null);
         itagProfile = getFormatProfile();
         abr = itagProfile.get("abr");
@@ -223,8 +241,12 @@ public class Stream{
     }
 
     private void startDownload(String path, String fileName, BiConsumer<Long, Long> progress) throws Exception {
-        String savePath = path + safeFileName(fileName) + "." + subType;
-        if(!isOtf){
+        savePath = path + safeFileName(fileName) + "." + subType;
+        onProgress = progress;
+        if(isSabr){
+            new ServerAbrStream(this, this::writeChunk, youtube).start();
+        }
+        else if(!isOtf){
             long startSize = 0;
             long stopPos;
             int defaultRange = 1048576;
@@ -239,19 +261,17 @@ public class Stream{
                 String chunk = url + "&range=" + startSize + "-" + stopPos;
                 chunkReceived = Request.get(chunk).toByteArray();
 
-                progress.accept(stopPos, fileSize);
-
                 startSize = startSize + chunkReceived.length;
-                try (FileOutputStream fos = new FileOutputStream(savePath, true)) {
-                    fos.write(chunkReceived);
-                }
+
+                writeChunk(chunkReceived, stopPos);
+
             } while (stopPos != fileSize);
         }else {
-            downloadOtf(savePath, progress);
+            downloadOtf(savePath);
         }
     }
 
-    private void downloadOtf(String savePath, BiConsumer<Long, Long> progress) throws Exception {
+    private void downloadOtf(String savePath) throws Exception {
         int countChunk = 0;
         byte[] chunkReceived;
         int lastChunk = 0;
@@ -271,12 +291,20 @@ public class Stream{
                     throw new RegexMatchError("downloadOtf: " + pattern);
                 }
             }
-            progress.accept(Long.parseLong(String.valueOf(countChunk)), Long.parseLong(String.valueOf(lastChunk)));
+            fileSize = Long.parseLong(String.valueOf(lastChunk));
             countChunk = countChunk + 1;
-            try (FileOutputStream fos = new FileOutputStream(savePath, true)) {
-                fos.write(chunkReceived);
-            }
+
+            writeChunk(chunkReceived, Long.parseLong(String.valueOf(countChunk)));
+
         }while (countChunk <= lastChunk);
+    }
+
+    private void writeChunk(byte[] chunk, Long bytesReceived) {
+        onProgress.accept(bytesReceived, fileSize);
+        try (FileOutputStream fos = new FileOutputStream(savePath, true)) {
+            fos.write(chunk);
+        }
+        catch(Exception ignored){}
     }
 
     private Map<String, String> getFormatProfile(){
@@ -450,6 +478,24 @@ public class Stream{
     }
     public Boolean getIsSabr(){
         return isSabr;
+    }
+    public Boolean getIsDrc(){
+        return isDrc;
+    }
+    public String getPoToken(){
+        return poToken;
+    }
+    public String getVideoPlaybackUstreamerConfig(){
+        return videoPlaybackUstreamerConfig;
+    }
+    public int getDurationMs(){
+        return durationMs;
+    }
+    public long getLastModified(){
+        return lastModified;
+    }
+    public String getXtags(){
+        return xtags;
     }
     public long getFileSize(){
         return fileSize;

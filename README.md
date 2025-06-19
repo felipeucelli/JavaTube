@@ -17,6 +17,7 @@ _JavaTube_ is a library written in java and aims to be highly reliable.
 * Search using filters
 * Ability to get video details (Title, Description, Publish Date, Length, Thumbnail Url, Views, Author and Keywords)
 * Subtitle generator for .srt format
+* Support for downloading SABR streams
 * Support downloading yt_otf streams
 * Possibility to choose the client (WEB, ANDROID, IOS)
 * Native js interpreter
