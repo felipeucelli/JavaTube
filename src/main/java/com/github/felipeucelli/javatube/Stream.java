@@ -77,7 +77,7 @@ public class Stream{
         resolution = itagProfile.get("resolution");
         multipleAudioTracks = stream.has("audioTrack") ? stream.getJSONObject("audioTrack") : null;
         if(includesMultipleAudioTracks()){
-            defaultAudioTrack = multipleAudioTracks.getBoolean("audioIsDefault");
+            defaultAudioTrack = multipleAudioTracks.getString("displayName").contains("original");
             audioTrackName = Arrays.asList(multipleAudioTracks.getString("displayName").split(" ")).get(0);
             audioTrackId = multipleAudioTracks.getString("id");
         }else {
