@@ -133,7 +133,7 @@ public class StreamQuery{
     public StreamQuery filter(Filter f) {
         List<Predicate<Stream>> filters = new ArrayList<>();
 
-        if (f.res != null) filters.add(s -> s.getResolution().equals(f.res));
+        if (f.res != null) filters.add(s -> Objects.equals(s.getResolution(), f.res));
         if (f.fps != null) filters.add(s -> Objects.equals(s.getFps(), f.fps));
         if (f.mimeType != null) filters.add(s -> f.mimeType.equals(s.getMimeType()));
         if (f.type != null) filters.add(s -> f.type.equals(s.getType()));
