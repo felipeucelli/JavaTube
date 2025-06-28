@@ -1,23 +1,28 @@
 package com.github.felipeucelli.javatube.sabr.streaming;
 
+import com.github.felipeucelli.javatube.sabr.common.FormatId;
 import com.github.felipeucelli.javatube.sabr.proto.Proto.BinaryReader;
 import com.github.felipeucelli.javatube.sabr.proto.Proto.BinaryWriter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class StreamerContext {
-    public List<Object> field5;
-    public List<Object> field6;
+    public StreamerContextClientInfo clientInfo;
     public byte[] poToken;
     public PlaybackCookie playbackCookie;
-    public StreamerContextClientInfo clientInfo;
+    public byte[] gp;
+    public List<StreamerContextUpdate> sabrContexts;
+    public List<Object> field6;
 
     public StreamerContext() {
-        this.field5 = null;
-        this.field6 = null;
+        this.clientInfo = null;
         this.poToken = null;
         this.playbackCookie = null;
-        this.clientInfo = null;
+        this.gp = null;
+        this.sabrContexts = new ArrayList<>();
+        this.field6 = null;
     }
 
     public static BinaryWriter encode(StreamerContext message, BinaryWriter writer) {
@@ -30,6 +35,12 @@ public class StreamerContext {
         }
         if (message.playbackCookie != null){
             writer.uint32(26).bytes(PlaybackCookie.encode(message.playbackCookie).finish());
+        }
+        if (message.gp != null){
+            writer.uint32(34).bytes(message.gp);
+        }
+        for(StreamerContextUpdate v : message.sabrContexts){
+            StreamerContextUpdate.encode(v, writer.uint32(42).fork()).join();
         }
 
         return writer;
@@ -58,6 +69,14 @@ public class StreamerContext {
                     if (tag == 26){
                         message.playbackCookie = PlaybackCookie.decode(reader, (int) reader.uint32());
                     }
+                case 4:
+                    if (tag == 34){
+                        message.gp = reader.bytes();
+                    }
+                case 5:
+                    if (tag == 42){
+                        message.sabrContexts.add(StreamerContextUpdate.decode(reader, (int) reader.uint32()));
+                    }
 
             }
             if ((tag & 7) == 4 || tag == 0) {
@@ -67,6 +86,208 @@ public class StreamerContext {
             }
         }
         return message;
+    }
+
+    public static class StreamerContextUpdate {
+        public Integer type;
+        public Integer scope;
+        public StreamerContextUpdateValue value;
+        public Boolean sendByDefault;
+        public Integer writePolicy;
+
+        public StreamerContextUpdate() {
+            this.type = null;
+            this.scope = null;
+            this.value = null;
+            this.sendByDefault = null;
+            this.writePolicy = null;
+        }
+
+        public static BinaryWriter encode(StreamerContextUpdate message, BinaryWriter writer) {
+            writer = writer != null ? writer : new BinaryWriter();
+
+            if (message.type != null) {
+                writer.uint32(8).int64(message.type);
+            }
+            if (message.value != null){
+                StreamerContextUpdateValue.encode(message.value, writer.uint32(18).fork()).join();
+            }
+
+            return writer;
+        }
+        public static StreamerContextUpdate decode(Object inputData) {
+            return StreamerContextUpdate.decode(inputData, null);
+        }
+        public static StreamerContextUpdate decode(Object inputData, Integer length) {
+            BinaryReader reader = inputData instanceof BinaryReader ? (BinaryReader) inputData : new BinaryReader((byte[]) inputData);
+            int end = length == null ? reader.len() : reader.getPos() + length;
+            StreamerContext.StreamerContextUpdate message = new StreamerContext.StreamerContextUpdate();
+
+            while (reader.getPos() < end) {
+                int tag = Math.toIntExact(reader.uint32());
+
+                switch (tag >>> 3) {
+                    case 1:
+                        if (tag == 8) {
+                            message.type = reader.int32();
+                            continue;
+                        }
+                        break;
+                    case 2:
+                        if (tag == 16) {
+                            message.scope = reader.int32();
+                            continue;
+                        }
+                        break;
+                    case 3:
+                        if (tag == 26) {
+                            message.value = StreamerContextUpdateValue.decode(reader, (int) reader.uint32());
+                            continue;
+                        }
+                        break;
+                    case 4:
+                        if (tag == 32) {
+                            message.sendByDefault = reader.bool();
+                            continue;
+                        }
+                        break;
+                    case 5:
+                        if (tag == 40) {
+                            message.writePolicy = reader.int32();
+                            continue;
+                        }
+                        break;
+                }
+                if ((tag & 7) == 4 || tag == 0) {
+                    break;
+                } else {
+                    reader.skip(tag & 7);
+                }
+            }
+            return message;
+        }
+    }
+
+    public static class StreamerContextUpdateValue {
+        public StreamerContextUpdateField1 field1;
+        public byte[] field2;
+        public Integer field3;
+
+        public StreamerContextUpdateValue() {
+            this.field1 = null;
+            this.field2 = null;
+            this.field3 = null;
+        }
+
+        public static BinaryWriter encode(StreamerContextUpdateValue message, BinaryWriter writer) {
+            writer = writer != null ? writer : new BinaryWriter();
+            if (message.field1 != null) {
+                StreamerContextUpdateField1.encode(message.field1, writer.uint32(10).fork()).join();
+            }
+            if (message.field2 != null) {
+                writer.uint32(18).bytes(message.field2);
+            }
+            if (message.field3 != null) {
+                writer.uint32(40).int32(message.field3);
+            }
+            return writer;
+        }
+
+        public static StreamerContextUpdateValue decode(Object inputData, Integer length) {
+            BinaryReader reader = inputData instanceof BinaryReader ? (BinaryReader) inputData : new BinaryReader((byte[]) inputData);
+            int end = length == null ? reader.len() : reader.getPos() + length;
+            StreamerContext.StreamerContextUpdateValue message = new StreamerContext.StreamerContextUpdateValue();
+            while (reader.getPos() < end) {
+                int tag = Math.toIntExact(reader.uint32());
+                switch (tag >>> 3) {
+                    case 1:
+                        if (tag == 10) {
+                            message.field1 = StreamerContextUpdateField1.decode(reader, (int) reader.uint32());
+                            continue;
+                        }
+                        break;
+                    case 2:
+                        if (tag == 18) {
+                            message.field2 = reader.bytes();
+                            continue;
+                        }
+                        break;
+                    case 5:
+                        if (tag == 40) {
+                            message.field3 = reader.int32();
+                            continue;
+                        }
+                        break;
+                }
+                if ((tag & 7) == 4 || tag == 0) {
+                    break;
+                } else {
+                    reader.skip(tag & 7);
+                }
+            }
+            return message;
+        }
+    }
+
+    public static class StreamerContextUpdateField1 {
+        public Long timestamp;
+        public Integer skip;
+        public byte[] field3;
+
+        public StreamerContextUpdateField1() {
+            this.timestamp = null;
+            this.skip = null;
+            this.field3 = null;
+        }
+
+        public static BinaryWriter encode(StreamerContextUpdateField1 message, BinaryWriter writer) {
+            writer = writer != null ? writer : new BinaryWriter();
+            if (message.timestamp != null) {
+                writer.uint32(8).int64(message.timestamp);
+            }
+            if (message.skip != null) {
+                writer.uint32(16).int32(message.skip);
+            }
+            if (message.field3 != null) {
+                writer.uint32(26).bytes(message.field3);
+            }
+            return writer;
+        }
+
+        public static StreamerContextUpdateField1 decode(Object inputData, Integer length) {
+            BinaryReader reader = inputData instanceof BinaryReader ? (BinaryReader) inputData : new BinaryReader((byte[]) inputData);
+            int end = length == null ? reader.len() : reader.getPos() + length;
+            StreamerContext.StreamerContextUpdateField1 message = new StreamerContext.StreamerContextUpdateField1();
+            while (reader.getPos() < end) {
+                int tag = Math.toIntExact(reader.uint32());
+                switch (tag >>> 3) {
+                    case 1:
+                        if (tag == 8) {
+                            message.timestamp = reader.int64();
+                            continue;
+                        }
+                        break;
+                    case 2:
+                        if (tag == 16) {
+                            message.skip = reader.int32();
+                            continue;
+                        }
+                        break;
+                    case 3:
+                        if (tag == 26) {
+                            message.field3 = reader.bytes();
+                            continue;
+                        }
+                        break;
+                }
+                if ((tag & 7) == 4 || tag == 0) {
+                    break;
+                } else {
+                    reader.skip(tag & 7);
+                }
+            }
+            return message;
+        }
     }
 
     public static class StreamerContextClientInfo {
@@ -362,6 +583,8 @@ public class StreamerContext {
             return message;
         }
     }
+
+
     public static class StreamerContextGLDeviceInfo {
         public String glRenderer;
         public int glEsVersionMajor;

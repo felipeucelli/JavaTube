@@ -82,6 +82,8 @@ public class ServerAbrStream {
     private final Map<String, List<Integer>> previousSequences;
     private boolean RELOAD;
     private int maximumReloadAttempt;
+    private List<Integer> sabrContextsToSend;
+    private HashMap<Integer, StreamerContext.StreamerContextUpdate> sabrContextUpdates;
 
 
     public ServerAbrStream(Stream stream, BiConsumer<byte[], Long> writeChunk, Youtube youtube) {
@@ -100,6 +102,8 @@ public class ServerAbrStream {
         this.previousSequences = new HashMap<>();
         this.RELOAD = false;
         this.maximumReloadAttempt = 3;
+        this.sabrContextsToSend = new ArrayList<>();
+        this.sabrContextUpdates = new HashMap<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -155,6 +159,15 @@ public class ServerAbrStream {
 
         while (((Long) clientAbrState.get("playerTimeMs")) < totalDurationMs && maximumReloadAttempt > 0) {
             Map<String, Object> data = fetchMedia(clientAbrState, audioFormat, videoFormat);
+
+            if ((boolean) data.get("sabr_context_update")){
+                if (maximumReloadAttempt > 0){
+                    continue;
+                }else {
+                    throw new SABRError("SABR failed to update context after exhausting reload attempts");
+                }
+            }
+
             SabrError sabrError = (SabrError) data.get("sabr_error");
             if (sabrError != null) {
                 reload();
@@ -196,7 +209,7 @@ public class ServerAbrStream {
                 RELOAD = false;
                 continue;
             } else if (maximumReloadAttempt <= 0) {
-                throw new SABRError("Maximum reload attempts reached");
+                throw new SABRError("SABR Maximum reload attempts reached");
             }
 
             if (mainFormat == null || ((Number) mainFormat.get("sequenceCount")).intValue() == ((Number) ((List<Map<String, Object>>) mainFormat.get("sequenceList")).get(((List) mainFormat.get("sequenceList")).size() - 1).get("sequenceNumber")).intValue()) {
@@ -219,6 +232,9 @@ public class ServerAbrStream {
         this.maximumReloadAttempt--;
 
         youtube.setVidInfo(null);
+
+        this.sabrContextsToSend = new ArrayList<>();
+        this.sabrContextUpdates = new HashMap<>();
 
         String refreshUrl = youtube.getServerAbrStreamingUrl();
         if (refreshUrl.isEmpty()){
@@ -274,7 +290,14 @@ public class ServerAbrStream {
         requestBody.videoPlaybackUstreamerConfig = base64ToU8(videoPlaybackUstreamerConfig);
 
         StreamerContext streamerContext = new StreamerContext();
-            streamerContext.field5 = new ArrayList<>();
+            for(StreamerContext.StreamerContextUpdate ctx : sabrContextUpdates.values()){
+                if (sabrContextsToSend.contains(ctx.type)){
+                    StreamerContext.StreamerContextUpdate context = new StreamerContext.StreamerContextUpdate();
+                    context.type = ctx.type;
+                    context.value = ctx.value;
+                    streamerContext.sabrContexts.add(context);
+                }
+            }
             streamerContext.field6 = new ArrayList<>();
             streamerContext.poToken = poToken != null ? base64ToU8(poToken) : null;
             streamerContext.playbackCookie = playbackCookie;
@@ -332,7 +355,7 @@ public class ServerAbrStream {
 
         final SabrError[] sabrError = {null};
         final SabrRedirect[] sabrRedirect = {null};
-        final StreamProtectionStatus[] streamProtectionStatus = {null};
+        final boolean[] sabrContextUpdate = {false};
 
         UMP ump = new UMP(new ChunkedDataBuffer(Collections.singletonList(response)));
 
@@ -367,11 +390,16 @@ public class ServerAbrStream {
                 sabrRedirect[0] = processSabrRedirect(data.get(0));
 
             } else if (partType == PART.STREAM_PROTECTION_STATUS.getValue()) {
-                streamProtectionStatus[0] = StreamProtectionStatus.decode(data.get(0));
+                StreamProtectionStatus.decode(data.get(0));
 
             } else if (partType == PART.RELOAD_PLAYER_RESPONSE.getValue()) {
                 RELOAD = true;
 
+            } else if (partType == PART.SABR_CONTEXT_UPDATE.getValue()){
+                sabrContextUpdate[0] = true;
+                processSabrContextUpdate(data.get(0));
+            } else if (partType == PART.SNACKBAR_MESSAGE.getValue()){
+                processSnackbarMessage();
             }
         });
 
@@ -379,7 +407,7 @@ public class ServerAbrStream {
         result.put("initialized_formats", initializedFormats);
         result.put("sabr_error", sabrError[0]);
         result.put("sabr_redirect", sabrRedirect[0]);
-        result.put("stream_protection_status", streamProtectionStatus[0]);
+        result.put("sabr_context_update", sabrContextUpdate[0]);
         return result;
     }
 
@@ -490,6 +518,29 @@ public class ServerAbrStream {
         }
         serverAbrStreamingUrl = sabrRedirect.url;
         return sabrRedirect;
+    }
+
+    private void processSnackbarMessage() {
+        int skip = sabrContextUpdates.get(sabrContextsToSend.get(sabrContextsToSend.size() - 1)).value.field1.skip;
+        if (skip >= 60000){
+            throw new SABRError("SABR The maximum time to skip the ad (1 minute) has been exceeded.");
+        }
+        try {
+            Thread.sleep(skip);
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+        maximumReloadAttempt --;
+    }
+
+    private void processSabrContextUpdate(byte[] data){
+        StreamerContext.StreamerContextUpdate sabrCtxUpdate = StreamerContext.StreamerContextUpdate.decode(data);
+
+        sabrContextUpdates.put(sabrCtxUpdate.type, sabrCtxUpdate);
+
+        if(sabrCtxUpdate.sendByDefault){
+            sabrContextsToSend.add(sabrCtxUpdate.type);
+        }
     }
 
     private String getFormatKey(FormatId format_id){
