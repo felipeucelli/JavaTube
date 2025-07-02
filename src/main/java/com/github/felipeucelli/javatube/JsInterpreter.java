@@ -1320,7 +1320,7 @@ public class JsInterpreter {
     private Object extractObject(String objName, LocalNameSpace globalStack) throws Exception {
         Map<Object, FunctionWithRepr> obj = new HashMap<>();
         Pattern pattern = Pattern.compile("(?x)" +
-                "(?<!\\.)" + Matcher.quoteReplacement(objName) + "\\s*=\\s*\\{\\s*"+
+                "(?<![a-zA-Z$0-9.])" + Matcher.quoteReplacement(objName) + "\\s*=\\s*\\{\\s*"+
                 "(?<fields>((?:[a-zA-Z$0-9]+|\"[a-zA-Z$0-9]+\"|'[a-zA-Z$0-9]+')" +
                 "\\s*:\\s*function\\s*\\(.*?\\)\\s*\\{.*?\\}(?:,\\s*)?)*)"+
                 "\\}\\s*;");
