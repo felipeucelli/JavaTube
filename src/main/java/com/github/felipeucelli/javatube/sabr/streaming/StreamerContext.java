@@ -1,12 +1,11 @@
 package com.github.felipeucelli.javatube.sabr.streaming;
 
-import com.github.felipeucelli.javatube.sabr.common.FormatId;
 import com.github.felipeucelli.javatube.sabr.proto.Proto.BinaryReader;
 import com.github.felipeucelli.javatube.sabr.proto.Proto.BinaryWriter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
 
 public class StreamerContext {
     public StreamerContextClientInfo clientInfo;

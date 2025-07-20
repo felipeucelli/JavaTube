@@ -53,6 +53,22 @@ public class StreamProtectionStatus {
         }
         return message;
     }
+
+    public enum Status {
+        OK(1),
+        ATTESTATION_PENDING(2),
+        ATTESTATION_REQUIRED(3);
+
+        private final int value;
+
+        Status(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }
 
 

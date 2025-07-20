@@ -66,6 +66,27 @@ enum PART {
     }
 }
 
+// Reference https://github.com/coletdjnz/yt-dlp-dev/blob/5c0c2963396009a92101bc6e038b61844368409d/yt_dlp/extractor/youtube/_streaming/sabr/part.py
+enum PoTokenStatus{
+    UNKNOWN(-1),
+    OK(1),                  // PO Token is provided and valid
+    MISSING(3),             // PO Token is not provided, and is required. A PO Token should be provided ASAP
+    INVALID(3),             // PO Token is provided, but is invalid. A new one should be generated ASAP
+    PENDING(2),             // PO Token is provided, but probably only a cold start token. A full PO Token should be provided ASAP
+    NOT_REQUIRED(1),        // PO Token is not provided, and is not required
+    PENDING_MISSING(2);     // PO Token is not provided, but is pending. A full PO Token should be (probably) provided ASAP
+
+    private final int value;
+
+    PoTokenStatus(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+}
+
 public class ServerAbrStream {
     private final Stream stream;
     private final BiConsumer<byte[], Long> writeChunk;
@@ -82,6 +103,7 @@ public class ServerAbrStream {
     private final Map<String, List<Integer>> previousSequences;
     private boolean RELOAD;
     private int maximumReloadAttempt;
+    private String streamProtectionStatus = PoTokenStatus.UNKNOWN.name();
     private List<Integer> sabrContextsToSend;
     private HashMap<Integer, StreamerContext.StreamerContextUpdate> sabrContextUpdates;
 
@@ -209,7 +231,7 @@ public class ServerAbrStream {
                 RELOAD = false;
                 continue;
             } else if (maximumReloadAttempt <= 0) {
-                throw new SABRError("SABR Maximum reload attempts reached");
+                throw new SABRError("SABR Maximum reload attempts reached. Stream protection status: PoToken " + streamProtectionStatus);
             }
 
             if (mainFormat == null || ((Number) mainFormat.get("sequenceCount")).intValue() == ((Number) ((List<Map<String, Object>>) mainFormat.get("sequenceList")).get(((List) mainFormat.get("sequenceList")).size() - 1).get("sequenceNumber")).intValue()) {
@@ -390,7 +412,7 @@ public class ServerAbrStream {
                 sabrRedirect[0] = processSabrRedirect(data.get(0));
 
             } else if (partType == PART.STREAM_PROTECTION_STATUS.getValue()) {
-                StreamProtectionStatus.decode(data.get(0));
+                processStreamProtectionStatus(data.get(0));
 
             } else if (partType == PART.RELOAD_PLAYER_RESPONSE.getValue()) {
                 RELOAD = true;
@@ -518,6 +540,27 @@ public class ServerAbrStream {
         }
         serverAbrStreamingUrl = sabrRedirect.url;
         return sabrRedirect;
+    }
+
+    private void processStreamProtectionStatus(byte[] data){
+        int protectionStatus = StreamProtectionStatus.decode(data).status;
+
+        String resultStatus;
+
+        if (protectionStatus == StreamProtectionStatus.Status.OK.getValue()){
+            resultStatus = poToken != null ? PoTokenStatus.OK.name() : PoTokenStatus.NOT_REQUIRED.name();
+
+        }else if (protectionStatus == StreamProtectionStatus.Status.ATTESTATION_PENDING.getValue()){
+            resultStatus = poToken != null ? PoTokenStatus.PENDING.name() : PoTokenStatus.PENDING_MISSING.name();
+
+        }else if (protectionStatus == StreamProtectionStatus.Status.ATTESTATION_REQUIRED.getValue()){
+            resultStatus = poToken != null ? PoTokenStatus.INVALID.name() : PoTokenStatus.MISSING.name();
+        }else {
+            resultStatus = PoTokenStatus.UNKNOWN.name();
+        }
+
+        streamProtectionStatus = resultStatus;
+
     }
 
     private void processSnackbarMessage() {
