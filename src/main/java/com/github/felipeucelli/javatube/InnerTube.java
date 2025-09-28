@@ -84,7 +84,7 @@ public class InnerTube{
                     },
                     "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
                     "requireJsPlayer": "true",
-                    "requirePoToken": "false"
+                    "requirePoToken": "true"
                   },
                 
                   "WEB_CREATOR": {
