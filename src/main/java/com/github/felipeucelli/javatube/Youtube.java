@@ -10,8 +10,9 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.*;
 
-import com.github.felipeucelli.javatube.exceptions.*;
 import org.json.*;
+import com.github.felipeucelli.javatube.exceptions.*;
+import com.github.felipeucelli.javatube.nodejsrunner.BotGuard;
 
 
 public class Youtube {
@@ -250,6 +251,13 @@ public class Youtube {
         return visitorData;
     }
 
+    public String getPoToken() throws Exception {
+        if (poToken == null){
+            poToken = BotGuard.generatePoToken(getVisitorData());
+        }
+        return poToken;
+    }
+
     private JSONObject setInitialData() throws Exception {
         String pattern = "ytInitialPlayerResponse\\s=\\s(\\{\"responseContext\":.*?\\});(?:var|</script>)";
         Pattern regex = Pattern.compile(pattern);
@@ -285,7 +293,7 @@ public class Youtube {
     }
 
     private String setJs() throws Exception {
-        return Request.get(getYtPlayerJs()).toString().replace("\n", "");
+        return Request.get(getYtPlayerJs()).toString();
     }
     public String getJs() throws Exception {
         if(js == null){
@@ -302,11 +310,15 @@ public class Youtube {
         if (innerTube.getRequireJsPlayer()) {
             innerTube.updateInnerTubeContext(innerTube.getInnerTubeContext(), getSignatureTimestamp());
         }
-        if(!usePoToken && !innerTube.getRequirePoToken()){
+
+        if (innerTube.getRequirePoToken() && !usePoToken){
+            innerTube.insetPoToken(getPoToken(), getVisitorData());
+
+        }else if(!usePoToken && !innerTube.getRequirePoToken()){
             innerTube.insertVisitorData(getVisitorData());
         }
 
-        if (usePoToken || innerTube.getRequirePoToken()){
+        if (usePoToken || innerTube.getRequirePoToken() && poToken == null){
             poToken = innerTube.getPoToken();
         }
         return innerTube.player(getVideoId());
@@ -521,9 +533,9 @@ public class Youtube {
                 String newUrl = oldUrl.replaceFirst("&n=(.*?)&", "&n=" + discoveredNSig.get(nSig) + "&");
                 streamManifest.getJSONObject(i).put("url", newUrl);
             }
-            if(usePoToken){
+            if(usePoToken || innerTube.getRequirePoToken()){
                 oldUrl = streamManifest.getJSONObject(i).getString("url");
-                String newUrl = oldUrl + "&pot=" + innerTube.getPoToken();
+                String newUrl = oldUrl + "&pot=" + poToken;
                 streamManifest.getJSONObject(i).put("url", newUrl);
             }
         }
