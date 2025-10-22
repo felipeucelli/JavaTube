@@ -303,31 +303,3 @@ public static void main(String[] args) throws Exception {
 ```
 
 Nodejs is automatically installed using the [nodejs_wrapper](https://github.com/felipeucelli/nodejs_wrapper) dependency.
-
-### Manually acquiring a PO Token from a browser for use when logged out
-This process involves manually obtaining a PO token generated from YouTube in a web browser and then manually passing it to JavaTube via the usePoToken=True argument. Steps:
-
-1. Open a browser and go to any video on YouTube Music or YouTube Embedded (e.g. https://www.youtube.com/embed/2lAe1cqCOXo). Make sure you are not logged in to any account!
-
-2. Open the developer console (F12), then go to the "Network" tab and filter by v1/player
-
-3. Click the video to play and a player request will appear in the network tab
-
-4. In the request payload JSON, find the PO Token at serviceIntegrityDimensions.poToken and save that value
-
-5. In the request payload JSON, find the visitorData at context.client.visitorData and save that value
-
-6. In your code, pass the parameter usePoToken=True, to send the visitorData and PoToken:
-
-```java
-public static void main(String[] args) throws Exception {
-    Youtube yt = new Youtube("https://www.youtube.com/watch?v=2lAe1cqCOXo", true);
-    yt.streams().getHighestResolution().download();
-}
-```
-The terminal will ask you to insert the tokens.
-
-If you want to save the token in cache, just add one more argument `true`, this will create a _tokens.json_ file where the visitorData and poToken will be stored.
-
-The _tokens.json_ will be created in the temporary folder of your operating system, you can delete it using: `Youtube.resetCache();`.
-
