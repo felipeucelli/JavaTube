@@ -68,12 +68,14 @@ public class Youtube {
     /**
      * Default client: WEB
      * */
+    @Deprecated
     public Youtube(String url, boolean usePoToken) throws Exception {
         this(url, "ANDROID_VR", usePoToken, false);
     }
     /**
      * Default client: WEB
      * */
+    @Deprecated
     public Youtube(String url, boolean usePoToken, boolean allowCache) throws Exception {
         this(url, "ANDROID_VR", usePoToken, allowCache);
     }
@@ -132,6 +134,7 @@ public class Youtube {
         }
     }
 
+    @Deprecated
     public static void resetCache(){
         try {
             String tempDir = System.getProperty("java.io.tmpdir");
@@ -217,8 +220,7 @@ public class Youtube {
     }
 
     private String setVisitorData() throws Exception {
-        InnerTube inner_tube = new InnerTube(client);
-        if(inner_tube.getRequirePoToken()){
+        if(innerTube.getRequirePoToken()){
             String[] functionPatterns = {
                     "\\{\"key\":\"visitor_data\",\"value\":\"([a-zA-Z0-9%-_]+)\"\\}",
                     "\\{\"value\":\"([a-zA-Z0-9%-_]+)\",\"key\":\"visitor_data\"\\}"
@@ -233,7 +235,7 @@ public class Youtube {
             }
 
         }else {
-            JSONObject innerTubeResponse = inner_tube.player(getVideoId());
+            JSONObject innerTubeResponse = innerTube.player(getVideoId());
             try {
                 return innerTubeResponse.getJSONObject("responseContext").getString("visitorData");
             }catch (JSONException e){
@@ -253,7 +255,7 @@ public class Youtube {
 
     public String getPoToken() throws Exception {
         if (poToken == null){
-            poToken = BotGuard.generatePoToken(getVisitorData());
+            poToken = BotGuard.generatePoToken(getVideoId());
         }
         return poToken;
     }
@@ -311,16 +313,8 @@ public class Youtube {
             innerTube.updateInnerTubeContext(innerTube.getInnerTubeContext(), getSignatureTimestamp());
         }
 
-        if (innerTube.getRequirePoToken() && !usePoToken){
-            innerTube.insetPoToken(getPoToken(), getVisitorData());
+        innerTube.insertVisitorData(getVisitorData());
 
-        }else if(!usePoToken && !innerTube.getRequirePoToken()){
-            innerTube.insertVisitorData(getVisitorData());
-        }
-
-        if (usePoToken || innerTube.getRequirePoToken() && poToken == null){
-            poToken = innerTube.getPoToken();
-        }
         return innerTube.player(getVideoId());
     }
 
@@ -329,7 +323,7 @@ public class Youtube {
     }
 
     public JSONObject getVidInfo() throws Exception {
-        List<String> fallbackClients = Arrays.asList("IOS", "WEB");
+        List<String> fallbackClients = Arrays.asList("MWEB", "WEB");
 
         if (vidInfo != null) {
             return vidInfo;
@@ -505,7 +499,7 @@ public class Youtube {
             applySignature(streamManifest);
         }
         for (int i = 0; streamManifest.length() > i; i++) {
-            video = new Stream(streamManifest.getJSONObject(i), title, poToken, getVideoPlaybackUstreamerConfig(), this);
+            video = new Stream(streamManifest.getJSONObject(i), title, getPoToken(), getVideoPlaybackUstreamerConfig(), this);
             fmtStream.add(video);
         }
         return fmtStream;
@@ -535,7 +529,7 @@ public class Youtube {
             }
             if(usePoToken || innerTube.getRequirePoToken()){
                 oldUrl = streamManifest.getJSONObject(i).getString("url");
-                String newUrl = oldUrl + "&pot=" + poToken;
+                String newUrl = oldUrl + "&pot=" + getPoToken();
                 streamManifest.getJSONObject(i).put("url", newUrl);
             }
         }

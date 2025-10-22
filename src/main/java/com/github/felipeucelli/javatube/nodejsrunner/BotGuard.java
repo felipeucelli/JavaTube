@@ -12,14 +12,14 @@ import com.github.felipeucelli.nodejswrapper.NodeWrapper;
 
 public class BotGuard {
 
-    public static String generatePoToken(String visitorData) throws IOException {
+    public static String generatePoToken(String videoId) throws IOException {
 
 
         String nodePath = NodeWrapper.ensureNode().toString();
 
         String vmPath = extractResource().toString();
 
-        ProcessBuilder pb = new ProcessBuilder(nodePath, vmPath, visitorData);
+        ProcessBuilder pb = new ProcessBuilder(nodePath, vmPath, videoId);
         pb.redirectErrorStream(false);
 
         try {
