@@ -499,7 +499,12 @@ public class Youtube {
             applySignature(streamManifest);
         }
         for (int i = 0; streamManifest.length() > i; i++) {
-            video = new Stream(streamManifest.getJSONObject(i), title, getPoToken(), getVideoPlaybackUstreamerConfig(), this);
+            if (innerTube.getRequirePoToken()){
+                video = new Stream(streamManifest.getJSONObject(i), title, getPoToken(), getVideoPlaybackUstreamerConfig(), this);
+            }else {
+                video = new Stream(streamManifest.getJSONObject(i), title, null, getVideoPlaybackUstreamerConfig(), this);
+            }
+
             fmtStream.add(video);
         }
         return fmtStream;
