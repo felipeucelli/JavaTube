@@ -627,7 +627,9 @@ public class Youtube {
 
     public ArrayList<Captions> getCaptionTracks() throws Exception {
         try{
-            JSONArray rawTracks = new InnerTube("WEB").player(getVideoId()).getJSONObject("captions")
+            InnerTube innertube = new InnerTube("WEB");
+            innertube.updateInnerTubeContext(innertube.getInnerTubeContext(), getSignatureTimestamp());
+            JSONArray rawTracks = innertube.player(getVideoId()).getJSONObject("captions")
                     .getJSONObject("playerCaptionsTracklistRenderer")
                     .getJSONArray("captionTracks");
             ArrayList<Captions> captions = new ArrayList<>();
