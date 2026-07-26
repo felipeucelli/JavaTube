@@ -15,6 +15,7 @@ public class Playlist {
     protected JSONObject json = null;
     protected String continuationToken = null;
     InnerTube innerTube;
+    private String visitorData = null;
 
     public Playlist(String InputUrl) throws JSONException {
         url = InputUrl;
@@ -54,6 +55,23 @@ public class Playlist {
         return html;
     }
 
+    private String setVisitorData() throws Exception {
+        String pattern = "visitorData\":\"(.*?)\"";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(getHtml());
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        throw new RegexMatchError("setVisitorData: Unable to find VisitorData on: " + pattern);
+    }
+
+    public String getVisitorData() throws Exception {
+        if(visitorData == null){
+            visitorData = setVisitorData();
+        }
+        return visitorData;
+    }
+
     protected JSONObject setJson() throws Exception {
         Pattern pattern = Pattern.compile("ytInitialData\\s=\\s(\\{\\\"responseContext\\\":.*\\});</script>");
         Matcher matcher = pattern.matcher(getHtml());
@@ -73,11 +91,12 @@ public class Playlist {
 
     protected void setContinuationToken(JSONArray importantContent) throws JSONException {
         JSONObject continuationEndpoint = importantContent.getJSONObject(importantContent.length() - 1)
-                .getJSONObject("continuationItemRenderer")
-                .getJSONObject("continuationEndpoint");
+                .getJSONObject("continuationItemViewModel");
 
         if (continuationEndpoint.has("continuationCommand")){
             continuationToken = continuationEndpoint
+                    .getJSONObject("continuationCommand")
+                    .getJSONObject("innertubeCommand")
                     .getJSONObject("continuationCommand")
                     .getString("token");
             
@@ -110,6 +129,7 @@ public class Playlist {
         String data = "{" +
                         "\"continuation\": \"" + continuation + "\"" +
                     "}";
+        innerTube.insertVisitorData(getVisitorData());
         return extractVideos(innerTube.browse(new JSONObject(data)));
     }
 
@@ -118,27 +138,33 @@ public class Playlist {
         try {
             JSONArray importantContent;
             try {
-                JSONObject tabs = rawJson.getJSONObject("contents")
+                JSONArray tabs = rawJson.getJSONObject("contents")
                         .getJSONObject("twoColumnBrowseResultsRenderer")
                         .getJSONArray("tabs")
                         .getJSONObject(0)
                         .getJSONObject("tabRenderer")
                         .getJSONObject("content")
                         .getJSONObject("sectionListRenderer")
-                        .getJSONArray("contents")
-                        .getJSONObject(0);
+                        .getJSONArray("contents");
 
-                JSONObject renderer = tabs.getJSONObject("itemSectionRenderer")
-                        .getJSONArray("contents")
-                        .getJSONObject(0);
-                if (renderer.has("richGridRenderer")){
-                    importantContent = renderer
-                            .getJSONObject("richGridRenderer")
-                            .getJSONArray("contents");
-                }else {
-                    importantContent = renderer
-                            .getJSONObject("playlistVideoListRenderer")
-                            .getJSONArray("contents");
+                importantContent = tabs.getJSONObject(0)
+                        .getJSONObject("itemSectionRenderer")
+                        .getJSONArray("contents");
+
+                // For some reason, YouTube requires this token to be sent before the continuation token.
+                // It is only needed for the initial pagination and is linked to the VisitorData.
+                if (tabs.length() > 1){
+                    String controlToken = tabs.getJSONObject(1)
+                            .getJSONObject("continuationItemViewModel")
+                            .getJSONObject("continuationCommand")
+                            .getJSONObject("innertubeCommand")
+                            .getJSONObject("continuationCommand")
+                            .getString("token");
+                    String data = "{" +
+                            "\"continuation\": \"" + controlToken + "\"" +
+                            "}";
+                    innerTube.insertVisitorData(getVisitorData());
+                    innerTube.browse(new JSONObject(data));
                 }
 
             }catch (JSONException e){
@@ -147,7 +173,7 @@ public class Playlist {
                         .getJSONObject("appendContinuationItemsAction")
                         .getJSONArray("continuationItems");
             }
-            if(importantContent.getJSONObject(importantContent.length() - 1).has("continuationItemRenderer")){
+            if(importantContent.getJSONObject(importantContent.length() - 1).has("continuationItemViewModel")){
                 setContinuationToken(importantContent);
                 swap = extractContinuationItems(importantContent);
             } else {
@@ -174,15 +200,11 @@ public class Playlist {
         try {
             for(int i = 0; i < video.length(); i++){
                 try{
-                    if (video.getJSONObject(i).has("richItemRenderer")){
+                    if (video.getJSONObject(i).has("lockupViewModel")){
                         videosId.add("https://www.youtube.com/watch?v=" + video.getJSONObject(i)
-                                .getJSONObject("richItemRenderer")
-                                .getJSONObject("content")
-                                .getJSONObject("shortsLockupViewModel")
-                                .getJSONObject("onTap")
-                                .getJSONObject("innertubeCommand")
-                                .getJSONObject("reelWatchEndpoint")
-                                .getString("videoId"));
+                                .getJSONObject("lockupViewModel")
+                                .getString("contentId")
+                        );
                     }else {
                         videosId.add("https://www.youtube.com/watch?v=" + video.getJSONObject(i)
                                 .getJSONObject("playlistVideoRenderer")
