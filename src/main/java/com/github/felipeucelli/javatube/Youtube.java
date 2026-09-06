@@ -37,10 +37,10 @@ public class Youtube {
     private final boolean allowCache;
 
     /**
-     * Default client: ANDROID_VR
+     * Default client: VISION_OS
      * */
     public Youtube(String url) throws Exception {
-        this(url, "ANDROID_VR", false, false);
+        this(url, "VISION_OS", false, false);
     }
     /**
      * @Clients:
@@ -57,6 +57,7 @@ public class Youtube {
      *          ANDROID_TESTSUITE,
      *          ANDROID_PRODUCER,
      *          IOS,
+     *          VISION_OS,
      *          IOS_MUSIC,
      *          IOS_CREATOR,
      *          TV_EMBED,
@@ -70,14 +71,14 @@ public class Youtube {
      * */
     @Deprecated
     public Youtube(String url, boolean usePoToken) throws Exception {
-        this(url, "ANDROID_VR", usePoToken, false);
+        this(url, "VISION_OS", usePoToken, false);
     }
     /**
      * Default client: WEB
      * */
     @Deprecated
     public Youtube(String url, boolean usePoToken, boolean allowCache) throws Exception {
-        this(url, "ANDROID_VR", usePoToken, allowCache);
+        this(url, "VISION_OS", usePoToken, allowCache);
     }
     /**
      * @Clients:
@@ -94,6 +95,7 @@ public class Youtube {
      *          ANDROID_TESTSUITE,
      *          ANDROID_PRODUCER,
      *          IOS,
+     *          VISION_OS,
      *          IOS_MUSIC,
      *          IOS_CREATOR,
      *          TV_EMBED,

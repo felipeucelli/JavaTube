@@ -336,6 +336,29 @@ public class InnerTube{
                     "requireJsPlayer": "false",
                     "requirePoToken": "false"
                   },
+
+                  "VISION_OS": {
+                    "innerTubeContext": {
+                      "context": {
+                        "client": {
+                          "clientName": "VISIONOS",
+                          "clientVersion": "1.02",
+                          "deviceMake": "Apple",
+                          "platform": "MOBILE",
+                          "osName": "visionOS",
+                          "osVersion": "26.5.23O471",
+                          "deviceModel": "RealityDevice17,1"
+                        }
+                      }
+                    },
+                    "header": {
+                      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_7_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15",
+                      "X-Youtube-Client-Name": "101"
+                    },
+                    "apiKey": "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
+                    "requireJsPlayer": "false",
+                    "requirePoToken": "false"
+                  },
                 
                   "IOS_MUSIC": {
                     "innerTubeContext": {
@@ -479,6 +502,7 @@ public class InnerTube{
      *          ANDROID_TESTSUITE,
      *          ANDROID_PRODUCER,
      *          IOS,
+     *          VISION_OS,
      *          IOS_MUSIC,
      *          IOS_CREATOR,
      *          TV_EMBED,
@@ -526,6 +550,7 @@ public class InnerTube{
      *          ANDROID_TESTSUITE,
      *          ANDROID_PRODUCER,
      *          IOS,
+     *          VISION_OS,
      *          IOS_MUSIC,
      *          IOS_CREATOR,
      *          TV_EMBED,
@@ -550,6 +575,7 @@ public class InnerTube{
      *          ANDROID_TESTSUITE,
      *          ANDROID_PRODUCER,
      *          IOS,
+     *          VISION_OS,
      *          IOS_MUSIC,
      *          IOS_CREATOR,
      *          TV_EMBED,

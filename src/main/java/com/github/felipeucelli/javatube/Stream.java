@@ -33,7 +33,6 @@ public class Stream{
     private final int durationMs;
     private final long lastModified;
     private final String xtags;
-    private String savePath = "./";
     private Youtube youtube;
     private long fileSize;
     private final Map<String, String> itagProfile;
@@ -237,46 +236,60 @@ public class Stream{
     }
 
     public void download(String path, String fileName, BiConsumer<Long, Long> progress) throws Exception {
-        startDownload(path, fileName, progress);
+        String savePath = path + safeFileName(fileName) + "." + subType;
+        checkFile(savePath);
+
+        try (FileOutputStream fileOutputStream = new FileOutputStream(savePath)) {
+            startDownload(fileOutputStream, progress);
+            fileOutputStream.flush();
+        }
     }
 
-    private void startDownload(String path, String fileName, BiConsumer<Long, Long> progress) throws Exception {
-        savePath = path + safeFileName(fileName) + "." + subType;
+    public void download(OutputStream outputStream) throws Exception {
+        startDownload(outputStream, Stream::displayProgressBar);
+    }
+
+    public void download(OutputStream outputStream, BiConsumer<Long, Long> progress) throws Exception {
+        startDownload(outputStream, progress);
+    }
+
+    private void startDownload(OutputStream outputStream, BiConsumer<Long, Long> progress) throws Exception {
         onProgress = progress;
-        if(isSabr){
-            new ServerAbrStream(this, this::writeChunk, youtube).start();
+        if(isSabr) {
+            new ServerAbrStream(this, (chunk, bytesReceived) -> writeChunk(outputStream, chunk, bytesReceived), youtube).start();
+            return;
         }
-        else if(!isOtf){
-            long startSize = 0;
-            long stopPos;
-            int defaultRange = 1048576;
-            byte[] chunkReceived;
 
-            checkFile(savePath);
-            do {
-                stopPos = min(startSize + defaultRange, fileSize);
-                if (stopPos >= fileSize) {
-                    stopPos = fileSize;
-                }
-                String chunk = url + "&range=" + startSize + "-" + stopPos;
-                chunkReceived = Request.get(chunk).toByteArray();
-
-                startSize = startSize + chunkReceived.length;
-
-                writeChunk(chunkReceived, stopPos);
-
-            } while (stopPos != fileSize);
-        }else {
-            downloadOtf(savePath);
+        if(isOtf) {
+            downloadOtf(outputStream);
+            return;
         }
+
+        long startSize = 0;
+        long stopPos;
+        int defaultRange = 1048576;
+        byte[] chunkReceived;
+
+        do {
+            stopPos = min(startSize + defaultRange, fileSize);
+            if (stopPos >= fileSize) {
+                stopPos = fileSize;
+            }
+            String chunk = url + "&range=" + startSize + "-" + stopPos;
+            chunkReceived = Request.get(chunk).toByteArray();
+
+            startSize = startSize + chunkReceived.length;
+
+            writeChunk(outputStream, chunkReceived, stopPos);
+
+        } while (stopPos != fileSize);
     }
 
-    private void downloadOtf(String savePath) throws Exception {
+    private void downloadOtf(OutputStream stream) throws Exception {
         int countChunk = 0;
         byte[] chunkReceived;
         int lastChunk = 0;
 
-        checkFile(savePath);
         do {
             String chunk = url + "&sq=" + countChunk;
 
@@ -287,24 +300,25 @@ public class Stream{
                 Matcher matcher = pattern.matcher(new String(chunkReceived));
                 if (matcher.find()){
                     lastChunk = Integer.parseInt(matcher.group(1));
-                }else{
+                } else {
                     throw new RegexMatchError("downloadOtf: " + pattern);
                 }
             }
             fileSize = Long.parseLong(String.valueOf(lastChunk));
             countChunk = countChunk + 1;
 
-            writeChunk(chunkReceived, Long.parseLong(String.valueOf(countChunk)));
+            writeChunk(stream, chunkReceived, Long.parseLong(String.valueOf(countChunk)));
 
-        }while (countChunk <= lastChunk);
+        } while (countChunk <= lastChunk);
     }
 
-    private void writeChunk(byte[] chunk, Long bytesReceived) {
+    private void writeChunk(OutputStream outputStream, byte[] chunk, Long bytesReceived) {
         onProgress.accept(bytesReceived, fileSize);
-        try (FileOutputStream fos = new FileOutputStream(savePath, true)) {
-            fos.write(chunk);
+
+        try {
+            outputStream.write(chunk, 0, bytesReceived.intValue());
         }
-        catch(Exception ignored){}
+        catch (Exception ignored){}
     }
 
     private Map<String, String> getFormatProfile(){
