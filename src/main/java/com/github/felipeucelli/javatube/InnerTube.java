@@ -688,6 +688,8 @@ public class InnerTube{
     }
 
     public void insetPoToken(String poToken, String visitorData) throws JSONException {
+        this.accessPoToken = poToken;
+        this.accessVisitorData = visitorData;
         JSONObject context = new JSONObject(
                 "{" +
                             "\"context\": {" +

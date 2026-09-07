@@ -103,11 +103,25 @@ public class Youtube {
      * */
     public Youtube(String url, String clientName, boolean usePoToken, boolean allowCache) throws Exception {
         client = usePoToken ? "WEB" : clientName;
-        this.usePoToken = usePoToken;
-        this.allowCache = allowCache;
-        innerTube = new InnerTube(client, usePoToken, allowCache);
+        this.innerTube = new InnerTube(client, usePoToken, allowCache);
         urlVideo = url;
         watchUrl = "https://www.youtube.com/watch?v=" + getVideoId();
+        this.usePoToken = usePoToken;
+        this.allowCache = allowCache;
+        if (this.usePoToken) {
+            String poToken = BotGuard.generatePoToken(getVideoId());
+            String visitorData = getVisitorData();
+            if (isValidToken(poToken) && isValidVisitorData(visitorData)) {
+                innerTube.insetPoToken(poToken, visitorData);
+            }
+        }
+    }
+
+    private boolean isValidToken(String poToken) {
+        return poToken != null && !poToken.isBlank();
+    }
+    private boolean isValidVisitorData(String visitorData) {
+        return visitorData != null && !visitorData.isBlank();
     }
 
     private String setVideoId() throws RegexMatchError {
